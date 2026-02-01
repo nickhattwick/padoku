@@ -1,0 +1,23 @@
+{
+  "name": "paddock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "High-performance personal productivity system with Kanban boards and time tracking",
+  "scripts": {
+    "dev": "pnpm --parallel --recursive dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:server": "pnpm --filter server dev",
+    "build": "pnpm --recursive build",
+    "test": "pnpm --recursive test"
+  },
+  "keywords": [
+    "productivity",
+    "kanban",
+    "time-tracking"
+  ],
+  "author": "Nicholas Hattwick",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
