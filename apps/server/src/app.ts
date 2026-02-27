@@ -4,6 +4,7 @@ import workItemsRouter from './routes/workItems.js';
 import timeLogsRouter from './routes/timeLogs.js';
 import blockRecordsRouter from './routes/blockRecords.js';
 import analyticsRouter from './routes/analytics.js';
+import authRouter from './routes/auth.js';
 
 export const createApp = () => {
   const app = express();
@@ -24,6 +25,7 @@ export const createApp = () => {
   });
 
   // API Routes
+  app.use('/api/auth', authRouter);
   app.use('/api/work-items', workItemsRouter);
   app.use('/api/time-logs', timeLogsRouter);
   app.use('/api/block-records', blockRecordsRouter);

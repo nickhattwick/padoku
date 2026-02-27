@@ -1,22 +1,22 @@
 /* Dark theme override for react-big-calendar */
 
 .rbc-calendar {
-  background-color: #111827;
+  background-color: #0f172a;
   color: #e5e7eb;
   font-family: inherit;
 }
 
 .rbc-toolbar {
   padding: 16px;
-  background: linear-gradient(to right, #1f2937, #111827);
-  border-bottom: 1px solid #374151;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
   margin-bottom: 0;
 }
 
 .rbc-toolbar button {
-  color: #9ca3af;
-  background: #1f2937;
-  border: 1px solid #374151;
+  color: #94a3b8;
+  background: #334155;
+  border: 1px solid #475569;
   border-radius: 8px;
   padding: 8px 16px;
   font-weight: 500;
@@ -25,8 +25,8 @@
 
 .rbc-toolbar button:hover {
   color: white;
-  background: #374151;
-  border-color: #4b5563;
+  background: #475569;
+  border-color: #64748b;
 }
 
 .rbc-toolbar button.rbc-active {
@@ -42,11 +42,12 @@
   font-size: 1.25rem;
 }
 
+/* Header row with day names */
 .rbc-header {
-  background: #1f2937;
-  border-bottom: 1px solid #374151 !important;
+  background: #1e293b;
+  border-bottom: 1px solid #475569 !important;
   padding: 12px 8px;
-  color: #9ca3af;
+  color: #cbd5e1;
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.75rem;
@@ -54,50 +55,53 @@
 }
 
 .rbc-header + .rbc-header {
-  border-left: 1px solid #374151 !important;
+  border-left: 1px solid #475569 !important;
 }
 
+/* Month and time views */
 .rbc-month-view,
 .rbc-time-view {
-  border: none;
-  background: #111827;
+  border: 1px solid #334155;
+  background: #0f172a;
 }
 
 .rbc-month-row {
-  border-top: 1px solid #1f2937;
+  border-top: 1px solid #334155;
 }
 
 .rbc-day-bg {
-  background: #111827;
+  background: #0f172a;
 }
 
 .rbc-day-bg + .rbc-day-bg {
-  border-left: 1px solid #1f2937;
+  border-left: 1px solid #334155;
 }
 
 .rbc-off-range-bg {
-  background: #0a0f1a;
+  background: #020617;
 }
 
 .rbc-today {
   background: rgba(59, 130, 246, 0.15) !important;
 }
 
+/* Date cells in month view */
 .rbc-date-cell {
   padding: 8px;
-  color: #9ca3af;
+  color: #94a3b8;
   font-weight: 500;
 }
 
 .rbc-date-cell.rbc-now {
-  color: #3b82f6;
+  color: #60a5fa;
   font-weight: 700;
 }
 
 .rbc-date-cell.rbc-off-range {
-  color: #4b5563;
+  color: #475569;
 }
 
+/* Events */
 .rbc-event {
   background: #3b82f6;
   border: none !important;
@@ -126,42 +130,76 @@
   color: #93c5fd;
 }
 
-/* Time view specific */
+/* ========================================
+   TIME VIEW SPECIFIC STYLES (Week/Day)
+   ======================================== */
+
+.rbc-time-view {
+  border: 1px solid #334155;
+}
+
 .rbc-time-header {
-  background: #1f2937;
-  border-bottom: 1px solid #374151;
+  background: #1e293b;
+  border-bottom: 2px solid #475569;
 }
 
 .rbc-time-header-content {
-  border-left: 1px solid #374151;
+  border-left: 1px solid #475569;
+}
+
+.rbc-time-header-gutter {
+  background: #1e293b;
+}
+
+.rbc-allday-cell {
+  background: #1e293b;
 }
 
 .rbc-time-content {
-  border-top: 1px solid #374151;
-}
-
-.rbc-time-content > * + * > * {
-  border-left: 1px solid #1f2937;
-}
-
-.rbc-timeslot-group {
-  border-bottom: 1px solid #1f2937;
-}
-
-.rbc-time-gutter {
-  background: #1f2937;
-}
-
-.rbc-time-slot {
   border-top: none;
+  background: #0f172a;
 }
 
+/* Vertical lines between days */
+.rbc-time-content > * + * > * {
+  border-left: 1px solid #334155;
+}
+
+/* Time slot rows - IMPORTANT: this controls the horizontal lines */
+.rbc-timeslot-group {
+  border-bottom: 1px solid #1e293b;
+  min-height: 60px;
+}
+
+/* Individual time slots within a group */
+.rbc-time-slot {
+  border-top: 1px solid #1e293b;
+}
+
+/* Every other timeslot group for better visual separation */
+.rbc-timeslot-group:nth-child(odd) {
+  background: rgba(30, 41, 59, 0.3);
+}
+
+/* Time gutter (left column with times) */
+.rbc-time-gutter {
+  background: #1e293b;
+}
+
+.rbc-time-gutter .rbc-timeslot-group {
+  border-bottom: 1px solid #334155;
+  background: #1e293b;
+}
+
+/* Time labels */
 .rbc-label {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 0.75rem;
   font-weight: 500;
+  padding: 0 8px;
 }
 
+/* Current time indicator (the red line) */
 .rbc-current-time-indicator {
   background-color: #ef4444;
   height: 2px;
@@ -176,50 +214,74 @@
   height: 10px;
   border-radius: 50%;
   background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
 }
 
-/* Agenda view */
+/* Day columns */
+.rbc-day-slot {
+  background: transparent;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid #1e293b;
+}
+
+/* Today column highlight */
+.rbc-day-slot.rbc-today {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* ========================================
+   AGENDA VIEW
+   ======================================== */
+
 .rbc-agenda-view {
-  background: #111827;
+  background: #0f172a;
 }
 
 .rbc-agenda-table {
-  border: 1px solid #374151;
+  border: 1px solid #334155;
 }
 
 .rbc-agenda-table thead {
-  background: #1f2937;
+  background: #1e293b;
 }
 
 .rbc-agenda-table th,
 .rbc-agenda-table td {
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid #334155;
   color: #e5e7eb;
   padding: 12px;
 }
 
 .rbc-agenda-date-cell,
 .rbc-agenda-time-cell {
-  color: #9ca3af;
+  color: #94a3b8;
 }
 
-/* Overlay/popup */
+/* ========================================
+   OVERLAY/POPUP
+   ======================================== */
+
 .rbc-overlay {
-  background: #1f2937;
-  border: 1px solid #374151;
+  background: #1e293b;
+  border: 1px solid #475569;
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .rbc-overlay-header {
-  background: #111827;
-  border-bottom: 1px solid #374151;
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
   color: white;
   padding: 8px 12px;
   font-weight: 600;
 }
 
-/* Button group styling */
+/* ========================================
+   BUTTON GROUP
+   ======================================== */
+
 .rbc-btn-group {
   display: flex;
   gap: 4px;
@@ -227,4 +289,13 @@
 
 .rbc-btn-group button + button {
   margin-left: 0;
+}
+
+/* Row backgrounds for allday section */
+.rbc-row-bg {
+  background: #0f172a;
+}
+
+.rbc-row-content {
+  z-index: 4;
 }

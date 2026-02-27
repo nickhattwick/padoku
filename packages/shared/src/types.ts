@@ -20,6 +20,7 @@ export type GridPoints = 1 | 2 | 3 | 5 | 8 | 13 | 21;
 // Work Item interface
 export interface WorkItem {
   id: string;
+  user_id: string | null; // Owner of this work item
   title: string;
   description: string | null;
   status: WorkItemStatus;

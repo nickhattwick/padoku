@@ -5,24 +5,31 @@ import { randomUUID } from 'crypto';
 
 export class WorkItemService {
   /**
-   * Find all work items, optionally filtered by parent_id
+   * Find all work items, optionally filtered by parent_id and user_id
    * @param parentId - Parent ID to filter by (null for root items, undefined for all items)
+   * @param userId - User ID to filter by (null/undefined for all users - backwards compatible)
    */
-  findAll(parentId?: string | null): WorkItem[] {
+  findAll(parentId?: string | null, userId?: string | null): WorkItem[] {
     const db = getDb();
     let query: string;
     let params: any[] = [];
 
+    // Build user filter condition
+    const userCondition = userId ? 'user_id = ?' : '1=1';
+    const userParams = userId ? [userId] : [];
+
     if (parentId === null) {
       // Root items only (no parent)
-      query = 'SELECT * FROM work_items WHERE parent_id IS NULL ORDER BY position';
+      query = `SELECT * FROM work_items WHERE parent_id IS NULL AND ${userCondition} ORDER BY position`;
+      params = [...userParams];
     } else if (parentId !== undefined) {
       // Children of specific parent
-      query = 'SELECT * FROM work_items WHERE parent_id = ? ORDER BY position';
-      params = [parentId];
+      query = `SELECT * FROM work_items WHERE parent_id = ? AND ${userCondition} ORDER BY position`;
+      params = [parentId, ...userParams];
     } else {
-      // All items
-      query = 'SELECT * FROM work_items ORDER BY position';
+      // All items for user
+      query = `SELECT * FROM work_items WHERE ${userCondition} ORDER BY position`;
+      params = [...userParams];
     }
 
     const result = db.exec(query, params);
@@ -36,10 +43,20 @@ export class WorkItemService {
 
   /**
    * Find a single work item by ID
+   * @param id - Work item ID
+   * @param userId - Optional user ID to verify ownership
    */
-  findById(id: string): WorkItem | null {
+  findById(id: string, userId?: string | null): WorkItem | null {
     const db = getDb();
-    const result = db.exec('SELECT * FROM work_items WHERE id = ?', [id]);
+    let query = 'SELECT * FROM work_items WHERE id = ?';
+    let params: any[] = [id];
+
+    if (userId) {
+      query += ' AND user_id = ?';
+      params.push(userId);
+    }
+
+    const result = db.exec(query, params);
 
     if (result.length === 0 || result[0].values.length === 0) {
       return null;
@@ -52,12 +69,19 @@ export class WorkItemService {
   /**
    * Get all children of a work item
    */
-  findChildren(parentId: string): WorkItem[] {
+  findChildren(parentId: string, userId?: string | null): WorkItem[] {
     const db = getDb();
-    const result = db.exec(
-      'SELECT * FROM work_items WHERE parent_id = ? ORDER BY position',
-      [parentId]
-    );
+    let query = 'SELECT * FROM work_items WHERE parent_id = ?';
+    let params: any[] = [parentId];
+
+    if (userId) {
+      query += ' AND user_id = ?';
+      params.push(userId);
+    }
+
+    query += ' ORDER BY position';
+
+    const result = db.exec(query, params);
 
     if (result.length === 0) {
       return [];
@@ -105,21 +129,22 @@ export class WorkItemService {
   /**
    * Create a new work item
    */
-  create(input: CreateWorkItemInput): WorkItem {
+  create(input: CreateWorkItemInput, userId?: string | null): WorkItem {
     const db = getDb();
     const id = randomUUID();
     const now = Date.now();
 
     const query = `
       INSERT INTO work_items (
-        id, title, description, status, parent_id, due_at, grid_points,
+        id, user_id, title, description, status, parent_id, due_at, grid_points,
         is_goal, goal_end_condition, goal_target, is_recurring_template, recurrence_rule,
         position, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.run(query, [
       id,
+      userId || null,
       input.title,
       input.description || null,
       input.status,
@@ -150,9 +175,9 @@ export class WorkItemService {
   /**
    * Update a work item
    */
-  update(id: string, input: UpdateWorkItemInput): WorkItem {
+  update(id: string, input: UpdateWorkItemInput, userId?: string | null): WorkItem {
     const db = getDb();
-    const existing = this.findById(id);
+    const existing = this.findById(id, userId);
     if (!existing) {
       throw new Error(`Work item not found: ${id}`);
     }
@@ -213,8 +238,15 @@ export class WorkItemService {
       return existing; // Nothing to update
     }
 
-    const query = `UPDATE work_items SET ${fields.join(', ')} WHERE id = ?`;
-    db.run(query, [...values, id]);
+    let query = `UPDATE work_items SET ${fields.join(', ')} WHERE id = ?`;
+    const queryParams = [...values, id];
+
+    if (userId) {
+      query += ' AND user_id = ?';
+      queryParams.push(userId);
+    }
+
+    db.run(query, queryParams);
 
     // Save to disk after write
     saveDatabase();
@@ -231,9 +263,9 @@ export class WorkItemService {
    * Move a work item (change status, position, or parent)
    * Used primarily for drag-drop operations
    */
-  move(id: string, input: MoveWorkItemInput): WorkItem {
+  move(id: string, input: MoveWorkItemInput, userId?: string | null): WorkItem {
     const db = getDb();
-    const existing = this.findById(id);
+    const existing = this.findById(id, userId);
     if (!existing) {
       throw new Error(`Work item not found: ${id}`);
     }
@@ -260,8 +292,15 @@ export class WorkItemService {
       return existing; // Nothing to move
     }
 
-    const query = `UPDATE work_items SET ${fields.join(', ')} WHERE id = ?`;
-    db.run(query, [...values, id]);
+    let query = `UPDATE work_items SET ${fields.join(', ')} WHERE id = ?`;
+    const queryParams = [...values, id];
+
+    if (userId) {
+      query += ' AND user_id = ?';
+      queryParams.push(userId);
+    }
+
+    db.run(query, queryParams);
 
     // Save to disk after write
     saveDatabase();
@@ -278,15 +317,23 @@ export class WorkItemService {
    * Delete a work item
    * Cascades to children due to foreign key constraint
    */
-  delete(id: string): void {
+  delete(id: string, userId?: string | null): void {
     const db = getDb();
-    const existing = this.findById(id);
+    const existing = this.findById(id, userId);
 
     if (!existing) {
       throw new Error(`Work item not found: ${id}`);
     }
 
-    db.run('DELETE FROM work_items WHERE id = ?', [id]);
+    let query = 'DELETE FROM work_items WHERE id = ?';
+    const params: any[] = [id];
+
+    if (userId) {
+      query += ' AND user_id = ?';
+      params.push(userId);
+    }
+
+    db.run(query, params);
 
     // Save to disk after write
     saveDatabase();
@@ -306,6 +353,7 @@ export class WorkItemService {
 
       return {
         id: item.id,
+        user_id: item.user_id,
         title: item.title,
         description: item.description,
         status: item.status,

@@ -5,8 +5,12 @@ import {
   updateWorkItemSchema,
   moveWorkItemSchema,
 } from '../validators/schemas.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
+
+// Apply optional auth middleware to all routes
+router.use(optionalAuth);
 
 // Lazy-initialize service to avoid database init issues
 const getService = () => new WorkItemService();
@@ -30,7 +34,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
     }
     // If parent_id is undefined, fetch all items
 
-    const items = getService().findAll(parentId);
+    const items = getService().findAll(parentId, req.userId);
     res.json(items);
   } catch (error) {
     next(error);
@@ -43,7 +47,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
  */
 router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
   try {
-    const item = getService().findById(req.params.id);
+    const item = getService().findById(req.params.id, req.userId);
 
     if (!item) {
       res.status(404).json({ error: 'Work item not found' });
@@ -62,7 +66,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
  */
 router.get('/:id/children', (req: Request, res: Response, next: NextFunction) => {
   try {
-    const children = getService().findChildren(req.params.id);
+    const children = getService().findChildren(req.params.id, req.userId);
     res.json(children);
   } catch (error) {
     next(error);
@@ -98,7 +102,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    const item = getService().create(result.data);
+    const item = getService().create(result.data, req.userId);
     res.status(201).json(item);
   } catch (error) {
     next(error);
@@ -121,7 +125,7 @@ router.patch('/:id', (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    const item = getService().update(req.params.id, result.data);
+    const item = getService().update(req.params.id, result.data, req.userId);
     res.json(item);
   } catch (error) {
     if (error instanceof Error && error.message.includes('not found')) {
@@ -149,7 +153,7 @@ router.patch('/:id/move', (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    const item = getService().move(req.params.id, result.data);
+    const item = getService().move(req.params.id, result.data, req.userId);
     res.json(item);
   } catch (error) {
     if (error instanceof Error && error.message.includes('not found')) {
@@ -166,7 +170,7 @@ router.patch('/:id/move', (req: Request, res: Response, next: NextFunction) => {
  */
 router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
   try {
-    getService().delete(req.params.id);
+    getService().delete(req.params.id, req.userId);
     res.status(204).send();
   } catch (error) {
     if (error instanceof Error && error.message.includes('not found')) {

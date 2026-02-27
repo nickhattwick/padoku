@@ -11,6 +11,7 @@ import { PodiumView } from './components/podium/PodiumView';
 import { RacingView } from './components/racing/RacingView';
 import { LandingPage } from './components/LandingPage';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
+import { getStoredUser, getStoredToken, clearAuth, authApi, User } from './api/auth';
 import './styles/racing.css';
 
 const queryClient = new QueryClient({
@@ -22,36 +23,73 @@ const queryClient = new QueryClient({
   },
 });
 
-// Check if user has "logged in" (for now just stores in localStorage)
-const getIsLoggedIn = () => {
-  return localStorage.getItem('paddock_logged_in') === 'true';
-};
-
-const setIsLoggedIn = (value: boolean) => {
-  localStorage.setItem('paddock_logged_in', value ? 'true' : 'false');
-};
-
 function AppContent() {
   const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
   const [view, setView] = useState<'board' | 'calendar' | 'podium' | 'racing'>('board');
-  const [isLoggedIn, setLoggedIn] = useState(getIsLoggedIn);
+  const [user, setUser] = useState<User | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts(() => setIsNewItemModalOpen(true));
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    setLoggedIn(true);
+  // Check auth on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Check for legacy login state
+      const legacyLoggedIn = localStorage.getItem('paddock_logged_in') === 'true';
+      
+      // Check for real auth token
+      const token = getStoredToken();
+      const storedUser = getStoredUser();
+      
+      if (token && storedUser) {
+        // Verify token is still valid
+        const currentUser = await authApi.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        } else {
+          clearAuth();
+        }
+      } else if (legacyLoggedIn) {
+        // Legacy dev mode - create a fake user
+        setUser({
+          id: 'dev-user',
+          email: 'dev@paddock.local',
+          name: 'Dev User',
+          picture: null,
+        });
+      }
+      
+      setIsCheckingAuth(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLogin = (loggedInUser: User) => {
+    setUser(loggedInUser);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setLoggedIn(false);
+  const handleLogout = async () => {
+    await authApi.logout();
+    localStorage.removeItem('paddock_logged_in');
+    setUser(null);
+    // Clear query cache
+    queryClient.clear();
   };
+
+  // Show loading while checking auth
+  if (isCheckingAuth) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-950">
+        <div className="text-white text-lg animate-pulse">🏎️ Loading...</div>
+      </div>
+    );
+  }
 
   // Show landing page if not logged in
-  if (!isLoggedIn) {
-    return <LandingPage onEnter={handleLogin} />;
+  if (!user) {
+    return <LandingPage onLogin={handleLogin} />;
   }
 
   return (
@@ -121,14 +159,23 @@ function AppContent() {
             ?
           </button>
 
-          {/* Logout button */}
-          <button
-            onClick={handleLogout}
-            className="px-3 py-2 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-transparent hover:border-gray-700"
-            title="Logout"
-          >
-            🚪
-          </button>
+          {/* User menu */}
+          <div className="flex items-center gap-2">
+            {user.picture ? (
+              <img src={user.picture} alt={user.name || ''} className="w-8 h-8 rounded-full" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm">
+                {user.name?.[0] || user.email[0].toUpperCase()}
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              className="px-3 py-2 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-transparent hover:border-gray-700"
+              title="Logout"
+            >
+              🚪
+            </button>
+          </div>
 
           <button
             onClick={() => setIsNewItemModalOpen(true)}

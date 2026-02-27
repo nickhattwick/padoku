@@ -14,7 +14,7 @@ let SQL: any;
 /**
  * Initialize the SQLite database using sql.js
  * Creates the database file if it doesn't exist
- * Runs the schema to create tables and indexes
+ * Runs migrations for schema updates
  */
 export const initDatabase = async (): Promise<SqlJsDatabase> => {
   // Initialize sql.js
@@ -36,12 +36,27 @@ export const initDatabase = async (): Promise<SqlJsDatabase> => {
     console.log('✅ New database created at:', DB_PATH);
   }
 
-  // Run schema to create tables
-  const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
-  db.exec(schema);
-
-  // Run migrations
+  // Run migrations FIRST (before schema, to add any missing columns)
   runMigrations();
+
+  // Run schema to create any new tables/indexes
+  const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
+  
+  // Execute schema line by line, ignoring errors for already-existing objects
+  const statements = schema.split(';').filter(s => s.trim());
+  for (const stmt of statements) {
+    try {
+      if (stmt.trim()) {
+        db.exec(stmt);
+      }
+    } catch (e) {
+      // Ignore "already exists" errors
+      const msg = (e as Error).message;
+      if (!msg.includes('already exists') && !msg.includes('duplicate column')) {
+        console.log(`Schema warning: ${msg}`);
+      }
+    }
+  }
 
   // Save database to disk
   saveDatabase();
@@ -57,12 +72,96 @@ export const initDatabase = async (): Promise<SqlJsDatabase> => {
 const runMigrations = (): void => {
   // Migration 1: Add grid_points column
   try {
-    const result = db.exec("SELECT grid_points FROM work_items LIMIT 1");
+    db.exec("SELECT grid_points FROM work_items LIMIT 1");
   } catch {
     console.log('📦 Running migration: Adding grid_points column...');
     db.exec("ALTER TABLE work_items ADD COLUMN grid_points INTEGER");
     console.log('✅ Migration complete: grid_points column added');
   }
+
+  // Migration 2: Add user_id column to work_items
+  try {
+    db.exec("SELECT user_id FROM work_items LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Adding user_id to work_items...');
+    try {
+      db.exec("ALTER TABLE work_items ADD COLUMN user_id TEXT");
+      console.log('✅ Migration complete: user_id column added to work_items');
+    } catch (e) {
+      console.log('Note: user_id migration -', (e as Error).message);
+    }
+  }
+
+  // Migration 3: Create users table (if not exists)
+  try {
+    db.exec("SELECT 1 FROM users LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Creating users table...');
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        name TEXT,
+        picture TEXT,
+        google_id TEXT UNIQUE,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000)
+      )
+    `);
+    console.log('✅ Migration complete: users table created');
+  }
+
+  // Migration 4: Create sessions table (if not exists)
+  try {
+    db.exec("SELECT 1 FROM sessions LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Creating sessions table...');
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        expires_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('✅ Migration complete: sessions table created');
+  }
+
+  // Create indexes if they don't exist
+  const indexes = [
+    "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)",
+    "CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id)",
+    "CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)",
+    "CREATE INDEX IF NOT EXISTS idx_work_items_user_id ON work_items(user_id)",
+  ];
+
+  for (const idx of indexes) {
+    try {
+      db.exec(idx);
+    } catch {
+      // Index might already exist
+    }
+  }
+};
+
+/**
+ * Assign all existing work items to a user by email
+ */
+export const assignWorkItemsToUser = (email: string, userId: string): number => {
+  const stmt = db.prepare('UPDATE work_items SET user_id = ? WHERE user_id IS NULL');
+  stmt.run([userId]);
+  stmt.free();
+  
+  const countStmt = db.prepare('SELECT COUNT(*) as count FROM work_items WHERE user_id = ?');
+  countStmt.bind([userId]);
+  countStmt.step();
+  const result = countStmt.getAsObject() as { count: number };
+  countStmt.free();
+  
+  saveDatabase();
+  return result.count;
 };
 
 /**

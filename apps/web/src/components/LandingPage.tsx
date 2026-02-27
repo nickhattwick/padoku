@@ -1,12 +1,103 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { authApi, User } from '../api/auth';
 import '../styles/racing.css';
 
-interface LandingPageProps {
-  onEnter: () => void;
+// Google Identity Services types
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          renderButton: (element: HTMLElement, config: any) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
 }
 
-export const LandingPage = ({ onEnter }: LandingPageProps) => {
-  const [isHovering, setIsHovering] = useState(false);
+interface LandingPageProps {
+  onLogin: (user: User) => void;
+}
+
+export const LandingPage = ({ onLogin }: LandingPageProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [googleClientId, setGoogleClientId] = useState<string | null>(null);
+
+  // Load Google Identity Services
+  useEffect(() => {
+    const loadGoogleScript = () => {
+      if (document.getElementById('google-identity-script')) return;
+
+      const script = document.createElement('script');
+      script.id = 'google-identity-script';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    };
+
+    loadGoogleScript();
+  }, []);
+
+  // Get Google Client ID from backend
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const config = await authApi.getConfig();
+        setGoogleClientId(config.googleClientId);
+      } catch (err) {
+        console.error('Failed to get auth config:', err);
+        // Don't show error - will use dev mode
+      }
+    };
+
+    fetchConfig();
+  }, []);
+
+  // Initialize Google Sign-In when client ID is available
+  useEffect(() => {
+    if (!googleClientId || !window.google) return;
+
+    const handleCredentialResponse = async (response: any) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await authApi.loginWithGoogle(response.credential);
+        onLogin(result.user);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Login failed');
+        setIsLoading(false);
+      }
+    };
+
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleCredentialResponse,
+      auto_select: false,
+    });
+
+    const buttonDiv = document.getElementById('google-signin-button');
+    if (buttonDiv) {
+      window.google.accounts.id.renderButton(buttonDiv, {
+        theme: 'filled_black',
+        size: 'large',
+        text: 'signin_with',
+        shape: 'rectangular',
+        width: 280,
+      });
+    }
+  }, [googleClientId, onLogin]);
+
+  // Dev mode: Skip login
+  const handleDevLogin = () => {
+    // Store a fake "logged in" state for dev
+    localStorage.setItem('paddock_logged_in', 'true');
+    window.location.reload();
+  };
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
@@ -54,37 +145,43 @@ export const LandingPage = ({ onEnter }: LandingPageProps) => {
               Track tasks, crush goals, and leave the competition in the dust.
             </p>
 
-            {/* CTA Button */}
-            <button
-              onClick={onEnter}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
-              className={`
-                relative px-12 py-5 text-2xl font-black text-white rounded-2xl
-                bg-gradient-to-r from-red-600 via-red-500 to-orange-500
-                hover:from-red-500 hover:via-orange-500 hover:to-yellow-500
-                transition-all duration-300 transform
-                ${isHovering ? 'scale-110 shadow-2xl shadow-red-500/50' : 'scale-100'}
-                border-2 border-white/20
-              `}
-            >
-              <span className="flex items-center gap-3">
-                <span className={`transition-transform duration-300 ${isHovering ? 'translate-x-2' : ''}`}>
-                  🏎️
-                </span>
-                <span>Start Your Engine</span>
-                <span className={`transition-transform duration-300 ${isHovering ? 'translate-x-2' : ''}`}>
-                  →
-                </span>
-              </span>
+            {/* Login Section */}
+            <div className="flex flex-col items-center gap-4">
+              {error && (
+                <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-2 rounded-lg">
+                  {error}
+                </div>
+              )}
 
-              {/* Glow effect */}
-              <div className={`
-                absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 
-                blur-xl opacity-0 transition-opacity duration-300 -z-10
-                ${isHovering ? 'opacity-50' : ''}
-              `} />
-            </button>
+              {isLoading ? (
+                <div className="text-white text-lg">
+                  <span className="animate-pulse">🏎️ Starting engine...</span>
+                </div>
+              ) : googleClientId ? (
+                <div id="google-signin-button" className="min-h-[44px]" />
+              ) : (
+                <button
+                  onClick={handleDevLogin}
+                  className="px-12 py-5 text-2xl font-black text-white rounded-2xl
+                    bg-gradient-to-r from-red-600 via-red-500 to-orange-500
+                    hover:from-red-500 hover:via-orange-500 hover:to-yellow-500
+                    transition-all duration-300 transform hover:scale-110
+                    border-2 border-white/20 shadow-2xl shadow-red-500/30"
+                >
+                  <span className="flex items-center gap-3">
+                    <span>🏎️</span>
+                    <span>Start Your Engine</span>
+                    <span>→</span>
+                  </span>
+                </button>
+              )}
+
+              {!googleClientId && (
+                <p className="text-gray-500 text-sm mt-2">
+                  Development mode - Google OAuth not configured
+                </p>
+              )}
+            </div>
 
             {/* Quick features */}
             <div className="mt-16 flex flex-wrap justify-center gap-8 text-gray-400">
