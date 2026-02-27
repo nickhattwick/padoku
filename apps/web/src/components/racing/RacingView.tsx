@@ -66,9 +66,19 @@ const RacerCard = ({ result, isExpanded, onToggle }: RacerCardProps) => {
             )}
           </div>
 
-          {/* Avatar/Emoji */}
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl">
-            {isPlayer ? '🏎️' : racer?.emoji}
+          {/* Avatar/Image */}
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl overflow-hidden">
+            {isPlayer ? (
+              '🏎️'
+            ) : racer?.image ? (
+              <img
+                src={racer.image}
+                alt={racer.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              racer?.emoji
+            )}
           </div>
 
           {/* Name & Title */}

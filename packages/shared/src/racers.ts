@@ -20,6 +20,7 @@ export interface Racer {
   catchphrases: string[];
   vehicle: string; // Description of their racing vehicle
   vehicleEmoji: string;
+  image?: string; // Path to portrait image
   // Performance characteristics (0-100 scale)
   consistency: number; // How predictable their performance is
   peakPower: number; // Maximum potential output
@@ -46,6 +47,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Modified John Deere 9RX with nitrous injection and flame decals',
     vehicleEmoji: '🚜💨',
+    image: '/racers/turbo-ted.png',
     consistency: 85,
     peakPower: 60,
     startStrength: 40,
@@ -74,6 +76,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Tesla Roadster with custom AI autopilot and RGB lighting',
     vehicleEmoji: '🚗⚡',
+    image: '/racers/apex-alice.png',
     consistency: 95,
     peakPower: 75,
     startStrength: 70,
@@ -102,6 +105,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Armored muscle car with jousting lance hood ornament and chainmail seat covers',
     vehicleEmoji: '🏎️⚔️',
+    image: '/racers/nitro-knight.png',
     consistency: 70,
     peakPower: 85,
     startStrength: 80,
@@ -130,6 +134,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Fire-breathing monster truck with dragon scale paint and actual flamethrowers',
     vehicleEmoji: '🔥🚛',
+    image: '/racers/diesel-drake.png',
     consistency: 50,
     peakPower: 100,
     startStrength: 90,
@@ -158,6 +163,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Matte black Porsche with gold trim, Bluetooth always connected',
     vehicleEmoji: '🚗💰',
+    image: '/racers/slick-steve.png',
     consistency: 75,
     peakPower: 80,
     startStrength: 50,
@@ -186,6 +192,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Ship-themed race car with sails, working cannons, and a crow\'s nest spoiler',
     vehicleEmoji: '⛵🏴‍☠️',
+    image: '/racers/captain-clutch.png',
     consistency: 40,
     peakPower: 95,
     startStrength: 30,
@@ -214,6 +221,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Peaceful hybrid covered in plants, crystals hanging from mirror, incense burning',
     vehicleEmoji: '🚗🌸',
+    image: '/racers/zen-zara.png',
     consistency: 90,
     peakPower: 65,
     startStrength: 60,
@@ -242,6 +250,7 @@ export const RACERS: Racer[] = [
     ],
     vehicle: 'Dented Honda Civic covered in bumper stickers, energy drinks in every cupholder',
     vehicleEmoji: '🚗📚',
+    image: '/racers/rookie-roxy.png',
     consistency: 30,
     peakPower: 90,
     startStrength: 20,
