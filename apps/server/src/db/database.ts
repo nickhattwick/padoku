@@ -40,12 +40,29 @@ export const initDatabase = async (): Promise<SqlJsDatabase> => {
   const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
   db.exec(schema);
 
+  // Run migrations
+  runMigrations();
+
   // Save database to disk
   saveDatabase();
 
   console.log('✅ Database initialized successfully');
 
   return db;
+};
+
+/**
+ * Run database migrations for schema updates
+ */
+const runMigrations = (): void => {
+  // Migration 1: Add grid_points column
+  try {
+    const result = db.exec("SELECT grid_points FROM work_items LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Adding grid_points column...');
+    db.exec("ALTER TABLE work_items ADD COLUMN grid_points INTEGER");
+    console.log('✅ Migration complete: grid_points column added');
+  }
 };
 
 /**

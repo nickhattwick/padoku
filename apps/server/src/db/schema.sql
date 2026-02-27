@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS work_items (
     status TEXT NOT NULL CHECK(status IN ('garage', 'on_track', 'pits', 'checkered')),
     parent_id TEXT,
     due_at INTEGER, -- Unix timestamp in milliseconds
+    grid_points INTEGER, -- Fibonacci scale: 1, 2, 3, 5, 8, 13, 21
     is_goal INTEGER DEFAULT 0, -- SQLite boolean (0/1)
     goal_end_condition TEXT,
     goal_target INTEGER, -- Expected number of children for defined goals (null for open-ended)

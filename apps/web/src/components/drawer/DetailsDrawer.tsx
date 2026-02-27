@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useWorkItemStore } from '../../stores/workItemStore';
 import { useWorkItem, useUpdateWorkItem, useDeleteWorkItem, useWorkItems, useGenerateInstances } from '../../api/queries';
-import { STATUS_NAMES, parseRecurrenceRule, stringifyRecurrenceRule } from '@paddock/shared';
+import { STATUS_NAMES, parseRecurrenceRule, stringifyRecurrenceRule, GRID_POINTS_SCALE } from '@paddock/shared';
 import type { WorkItemStatus, RecurrenceRule } from '@paddock/shared';
 import { RecurrenceRulePicker } from '../recurring/RecurrenceRulePicker';
 import { GoalProgressBadge } from '../goals/GoalProgressBadge';
@@ -17,6 +17,7 @@ export const DetailsDrawer = () => {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<WorkItemStatus>('garage');
   const [dueDate, setDueDate] = useState('');
+  const [gridPoints, setGridPoints] = useState<number | null>(null);
   const [isGoal, setIsGoal] = useState(false);
   const [goalEndCondition, setGoalEndCondition] = useState('');
   const [goalTarget, setGoalTarget] = useState<number | null>(null);
@@ -32,6 +33,7 @@ export const DetailsDrawer = () => {
       setDescription(item.description || '');
       setStatus(item.status);
       setDueDate(item.due_at ? new Date(item.due_at).toISOString().split('T')[0] : '');
+      setGridPoints(item.grid_points);
       setIsGoal(item.is_goal);
       setGoalEndCondition(item.goal_end_condition || '');
       setGoalTarget(item.goal_target);
@@ -51,6 +53,7 @@ export const DetailsDrawer = () => {
           description: description.trim() || null,
           status,
           due_at: dueDate ? new Date(dueDate).getTime() : null,
+          grid_points: gridPoints,
           is_goal: isGoal,
           goal_end_condition: isGoal && goalEndCondition.trim() ? goalEndCondition.trim() : null,
           goal_target: isGoal && goalTarget ? goalTarget : null,
@@ -218,6 +221,47 @@ export const DetailsDrawer = () => {
                     Clear due date
                   </button>
                 )}
+              </div>
+
+              {/* Grid Points */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  🏁 Grid Points
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      setGridPoints(null);
+                      handleSave();
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      gridPoints === null
+                        ? 'bg-gray-200 text-gray-800'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    None
+                  </button>
+                  {GRID_POINTS_SCALE.map((points) => (
+                    <button
+                      key={points}
+                      onClick={() => {
+                        setGridPoints(points);
+                        handleSave();
+                      }}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        gridPoints === points
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                      }`}
+                    >
+                      {points}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Fibonacci scale — higher points = more effort
+                </p>
               </div>
 
               {/* Goal Settings */}

@@ -18,6 +18,18 @@ export const useWorkItems = (parentId?: string | null) => {
 };
 
 /**
+ * React Query hook for fetching ALL work items (no parent filter)
+ */
+export const useAllWorkItems = () => {
+  return useQuery({
+    queryKey: ['workItems', 'all'],
+    queryFn: () => workItemsApi.getAll(),
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+};
+
+/**
  * React Query hook for fetching a single work item
  */
 export const useWorkItem = (id: string) => {

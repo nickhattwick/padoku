@@ -14,6 +14,9 @@ export interface RecurrenceRule {
 // Export constants
 export { WORK_ITEM_STATUSES, STATUS_NAMES, STATUS_DESCRIPTIONS, FREQUENCY_LABELS, DAYS_OF_WEEK } from './constants.js';
 
+// Grid Points type (Fibonacci scale defined in constants)
+export type GridPoints = 1 | 2 | 3 | 5 | 8 | 13 | 21;
+
 // Work Item interface
 export interface WorkItem {
   id: string;
@@ -22,6 +25,7 @@ export interface WorkItem {
   status: WorkItemStatus;
   parent_id: string | null;
   due_at: number | null; // Unix timestamp in milliseconds
+  grid_points: number | null; // Fibonacci scale: 1, 2, 3, 5, 8, 13, 21
   is_goal: boolean;
   goal_end_condition: string | null;
   goal_target: number | null; // Expected number of children for defined goals (null for open-ended)

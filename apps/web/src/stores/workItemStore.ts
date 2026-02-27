@@ -1,9 +1,15 @@
 import { create } from 'zustand';
 
+export type DueDateFilter = 'all' | '7days' | '2weeks' | '1month';
+
 interface WorkItemStore {
   // Navigation context (which parent's children are we viewing?)
   currentParentId: string | null;
   setCurrentParent: (id: string | null) => void;
+
+  // Due date filter
+  dueDateFilter: DueDateFilter;
+  setDueDateFilter: (filter: DueDateFilter) => void;
 
   // Selected item (for details drawer)
   selectedItemId: string | null;
@@ -19,6 +25,10 @@ export const useWorkItemStore = create<WorkItemStore>((set) => ({
   // Default to viewing root items (no parent)
   currentParentId: null,
   setCurrentParent: (id) => set({ currentParentId: id }),
+
+  // Default to showing all items
+  dueDateFilter: 'all',
+  setDueDateFilter: (filter) => set({ dueDateFilter: filter }),
 
   selectedItemId: null,
   selectItem: (id) => set({ selectedItemId: id }),

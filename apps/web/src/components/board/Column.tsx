@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { WorkItem, WorkItemStatus } from '@paddock/shared';
@@ -14,13 +15,26 @@ export const Column = ({ status, title, items }: ColumnProps) => {
     id: status,
   });
 
+  // Calculate total grid points for this column
+  const totalGridPoints = useMemo(
+    () => items.reduce((sum, item) => sum + (item.grid_points || 0), 0),
+    [items]
+  );
+
   return (
     <div className="flex-1 flex flex-col bg-white rounded-lg border border-gray-200 min-w-[280px]">
       {/* Column header */}
       <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-gray-700">{title}</h2>
-          <span className="text-sm text-gray-500">{items.length}</span>
+          <div className="flex items-center gap-2">
+            {totalGridPoints > 0 && (
+              <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded font-medium">
+                🏁 {totalGridPoints} GP
+              </span>
+            )}
+            <span className="text-sm text-gray-500">{items.length}</span>
+          </div>
         </div>
       </div>
 

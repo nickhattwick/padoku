@@ -112,10 +112,10 @@ export class WorkItemService {
 
     const query = `
       INSERT INTO work_items (
-        id, title, description, status, parent_id, due_at,
+        id, title, description, status, parent_id, due_at, grid_points,
         is_goal, goal_end_condition, goal_target, is_recurring_template, recurrence_rule,
         position, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.run(query, [
@@ -125,6 +125,7 @@ export class WorkItemService {
       input.status,
       input.parent_id || null,
       input.due_at || null,
+      input.grid_points || null,
       input.is_goal ? 1 : 0,
       input.goal_end_condition || null,
       input.goal_target || null,
@@ -178,6 +179,10 @@ export class WorkItemService {
     if (input.due_at !== undefined) {
       fields.push('due_at = ?');
       values.push(input.due_at);
+    }
+    if (input.grid_points !== undefined) {
+      fields.push('grid_points = ?');
+      values.push(input.grid_points);
     }
     if (input.is_goal !== undefined) {
       fields.push('is_goal = ?');
@@ -306,6 +311,7 @@ export class WorkItemService {
         status: item.status,
         parent_id: item.parent_id,
         due_at: item.due_at,
+        grid_points: item.grid_points,
         is_goal: Boolean(item.is_goal),
         goal_end_condition: item.goal_end_condition,
         goal_target: item.goal_target,

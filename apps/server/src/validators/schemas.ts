@@ -3,6 +3,17 @@ import { z } from 'zod';
 // Work Item Status enum
 const workItemStatusEnum = z.enum(['garage', 'on_track', 'pits', 'checkered']);
 
+// Grid Points (Fibonacci scale)
+const gridPointsEnum = z.union([
+  z.literal(1),
+  z.literal(2),
+  z.literal(3),
+  z.literal(5),
+  z.literal(8),
+  z.literal(13),
+  z.literal(21),
+]);
+
 // Schema for creating a new work item
 export const createWorkItemSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500, 'Title too long'),
@@ -10,6 +21,7 @@ export const createWorkItemSchema = z.object({
   status: workItemStatusEnum.default('garage'),
   parent_id: z.string().uuid().nullable().optional(),
   due_at: z.number().int().positive().nullable().optional(),
+  grid_points: gridPointsEnum.nullable().optional(),
   is_goal: z.boolean().optional().default(false),
   goal_end_condition: z.string().nullable().optional(),
   goal_target: z.number().int().positive().nullable().optional(),

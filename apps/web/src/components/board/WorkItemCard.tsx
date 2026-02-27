@@ -53,6 +53,11 @@ export const WorkItemCard = ({ item, isDragging = false }: WorkItemCardProps) =>
       {/* Metadata & Actions */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs text-gray-500">
+          {item.grid_points && (
+            <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded font-medium">
+              🏁 {item.grid_points} GP
+            </span>
+          )}
           {item.due_at && (
             <span className="px-2 py-1 bg-pits-50 text-pits-700 rounded">
               📅 {dueDateLabel}
