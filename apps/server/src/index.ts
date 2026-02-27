@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { createApp } from './app.js';
 import { initDatabase, closeDb } from './db/database.js';
 import { mkdir } from 'fs/promises';
