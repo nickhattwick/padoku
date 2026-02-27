@@ -92,14 +92,26 @@ const RacerCard = ({ result, isExpanded, onToggle }: RacerCardProps) => {
       {/* Expanded content */}
       {isExpanded && racer && (
         <div className="mt-4 pt-4 border-t border-gray-200">
+          {/* Vehicle */}
+          <div className="flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-lg">
+            <span className="text-2xl">{racer.vehicleEmoji}</span>
+            <div>
+              <div className="text-xs text-gray-500">Vehicle</div>
+              <div className="text-sm font-medium text-gray-700">{racer.vehicle}</div>
+            </div>
+          </div>
+
+          {/* Profession & Quote */}
           <div className="flex items-center gap-2 mb-2">
             <span className="text-sm font-medium text-gray-600">Profession:</span>
             <span className="text-sm">{racer.profession}</span>
           </div>
-          <div className="italic text-gray-600 text-sm">
+          <div className="italic text-gray-600 text-sm mb-4">
             "{getRandomCatchphrase(racer)}"
           </div>
-          <div className="mt-3 grid grid-cols-4 gap-2 text-xs">
+
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-2 text-xs mb-4">
             <div className="text-center p-2 bg-gray-50 rounded">
               <div className="font-bold">{racer.consistency}</div>
               <div className="text-gray-500">Consistency</div>
@@ -115,6 +127,31 @@ const RacerCard = ({ result, isExpanded, onToggle }: RacerCardProps) => {
             <div className="text-center p-2 bg-gray-50 rounded">
               <div className="font-bold">{racer.endStrength}</div>
               <div className="text-gray-500">Clutch</div>
+            </div>
+          </div>
+
+          {/* Completed Tickets */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">
+              🏁 Recently Checkered
+            </h4>
+            <div className="space-y-2">
+              {racer.completedTickets.slice(0, 3).map((ticket, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-gray-800">{ticket.title}</span>
+                    <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded">
+                      {ticket.gridPoints} GP
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-600 italic">
+                    "{ticket.completedQuip}"
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
