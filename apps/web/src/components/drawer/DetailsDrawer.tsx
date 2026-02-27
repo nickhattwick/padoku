@@ -117,20 +117,22 @@ export const DetailsDrawer = () => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-30 z-40"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
         onClick={handleClose}
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-gray-900 shadow-2xl z-50 flex flex-col border-l border-gray-700">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Work Item Details</h2>
+        <div className="px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <span className="text-purple-400">📋</span> Work Item Details
+          </h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -139,14 +141,17 @@ export const DetailsDrawer = () => {
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {isLoading ? (
-            <div className="text-center text-gray-500 mt-8">Loading...</div>
+            <div className="text-center text-gray-400 mt-8">
+              <div className="text-3xl mb-2 animate-pulse">🏎️</div>
+              Loading...
+            </div>
           ) : !item ? (
-            <div className="text-center text-red-500 mt-8">Item not found</div>
+            <div className="text-center text-red-400 mt-8">Item not found</div>
           ) : (
             <div className="space-y-6">
               {/* Title */}
               <div>
-                <label htmlFor="drawer-title" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="drawer-title" className="block text-sm font-medium text-gray-400 mb-1">
                   Title
                 </label>
                 <input
@@ -155,13 +160,13 @@ export const DetailsDrawer = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={handleSave}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label htmlFor="drawer-description" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="drawer-description" className="block text-sm font-medium text-gray-400 mb-1">
                   Description
                 </label>
                 <textarea
@@ -169,14 +174,14 @@ export const DetailsDrawer = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   onBlur={handleSave}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   rows={4}
                 />
               </div>
 
               {/* Status */}
               <div>
-                <label htmlFor="drawer-status" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="drawer-status" className="block text-sm font-medium text-gray-400 mb-1">
                   Status
                 </label>
                 <select
@@ -186,18 +191,18 @@ export const DetailsDrawer = () => {
                     setStatus(e.target.value as WorkItemStatus);
                     handleSave();
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 >
-                  <option value="garage">{STATUS_NAMES.garage}</option>
-                  <option value="on_track">{STATUS_NAMES.on_track}</option>
-                  <option value="pits">{STATUS_NAMES.pits}</option>
-                  <option value="checkered">{STATUS_NAMES.checkered}</option>
+                  <option value="garage">🔧 {STATUS_NAMES.garage}</option>
+                  <option value="on_track">🏎️ {STATUS_NAMES.on_track}</option>
+                  <option value="pits">⏸️ {STATUS_NAMES.pits}</option>
+                  <option value="checkered">🏁 {STATUS_NAMES.checkered}</option>
                 </select>
               </div>
 
               {/* Due Date */}
               <div>
-                <label htmlFor="drawer-due-date" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="drawer-due-date" className="block text-sm font-medium text-gray-400 mb-1">
                   Due Date
                 </label>
                 <input
@@ -208,7 +213,7 @@ export const DetailsDrawer = () => {
                     setDueDate(e.target.value);
                   }}
                   onBlur={handleSave}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent [color-scheme:dark]"
                 />
                 {dueDate && (
                   <button
@@ -216,16 +221,16 @@ export const DetailsDrawer = () => {
                       setDueDate('');
                       handleSave();
                     }}
-                    className="text-xs text-gray-500 hover:text-gray-700 mt-1"
+                    className="text-xs text-gray-500 hover:text-gray-300 mt-1"
                   >
-                    Clear due date
+                    ✕ Clear due date
                   </button>
                 )}
               </div>
 
               {/* Grid Points */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-400 mb-2">
                   🏁 Grid Points
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -234,10 +239,10 @@ export const DetailsDrawer = () => {
                       setGridPoints(null);
                       handleSave();
                     }}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                       gridPoints === null
-                        ? 'bg-gray-200 text-gray-800'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-gray-700 text-white border border-gray-500'
+                        : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
                     }`}
                   >
                     None
@@ -249,10 +254,10 @@ export const DetailsDrawer = () => {
                         setGridPoints(points);
                         handleSave();
                       }}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
                         gridPoints === points
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                          : 'bg-purple-900/30 text-purple-300 border border-purple-700/50 hover:bg-purple-800/50'
                       }`}
                     >
                       {points}
@@ -265,7 +270,7 @@ export const DetailsDrawer = () => {
               </div>
 
               {/* Goal Settings */}
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-gray-700">
                 <div className="flex items-center gap-2 mb-2">
                   <input
                     type="checkbox"
@@ -275,9 +280,9 @@ export const DetailsDrawer = () => {
                       setIsGoal(e.target.checked);
                       handleSave();
                     }}
-                    className="rounded border-gray-300 text-track-600 focus:ring-track-500"
+                    className="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
                   />
-                  <label htmlFor="drawer-is-goal" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="drawer-is-goal" className="text-sm font-medium text-gray-300">
                     🎯 This is a Goal (finite, completes once)
                   </label>
                 </div>
@@ -286,14 +291,14 @@ export const DetailsDrawer = () => {
                   <div className="mt-4 space-y-4">
                     {/* Goal Progress Display */}
                     {item && children.length > 0 && (
-                      <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                         <GoalProgressBadge goal={item} children={children} size="large" />
                       </div>
                     )}
 
                     {/* Goal End Condition */}
                     <div>
-                      <label htmlFor="drawer-goal-condition" className="block text-sm text-gray-600 mb-1">
+                      <label htmlFor="drawer-goal-condition" className="block text-sm text-gray-400 mb-1">
                         What's the end condition?
                       </label>
                       <input
@@ -303,13 +308,13 @@ export const DetailsDrawer = () => {
                         onChange={(e) => setGoalEndCondition(e.target.value)}
                         onBlur={handleSave}
                         placeholder="e.g., Get degree, Launch v1.0, Pass exam"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500 text-sm"
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
 
                     {/* Goal Target */}
                     <div>
-                      <label htmlFor="drawer-goal-target" className="block text-sm text-gray-600 mb-1">
+                      <label htmlFor="drawer-goal-target" className="block text-sm text-gray-400 mb-1">
                         Expected number of items (optional)
                       </label>
                       <input
@@ -320,7 +325,7 @@ export const DetailsDrawer = () => {
                         onChange={(e) => setGoalTarget(e.target.value ? parseInt(e.target.value) : null)}
                         onBlur={handleSave}
                         placeholder="e.g., 10 courses"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500 text-sm"
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Leave empty for open-ended goals with unknown items
@@ -331,7 +336,7 @@ export const DetailsDrawer = () => {
               </div>
 
               {/* Recurring Template Settings */}
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-gray-700">
                 <div className="flex items-center gap-2 mb-2">
                   <input
                     type="checkbox"
@@ -341,9 +346,9 @@ export const DetailsDrawer = () => {
                       setIsRecurringTemplate(e.target.checked);
                       handleSave();
                     }}
-                    className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                    className="rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
                   />
-                  <label htmlFor="drawer-is-recurring" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="drawer-is-recurring" className="text-sm font-medium text-gray-300">
                     🔄 This is a Recurring Template
                   </label>
                 </div>
@@ -360,7 +365,7 @@ export const DetailsDrawer = () => {
                     <button
                       onClick={handleGenerateInstances}
                       disabled={!recurrenceRule || generateInstancesMutation.isPending}
-                      className="mt-3 w-full px-4 py-2 bg-track-600 text-white rounded-md hover:bg-track-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                      className="mt-3 w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-bold"
                     >
                       {generateInstancesMutation.isPending ? 'Generating...' : '⚡ Generate Next 7 Days'}
                     </button>
@@ -370,14 +375,14 @@ export const DetailsDrawer = () => {
 
               {/* Children */}
               {children.length > 0 && (
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-700">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-700">
+                    <h3 className="text-sm font-medium text-gray-300">
                       Children ({children.length})
                     </h3>
                     <button
                       onClick={handleViewChildren}
-                      className="text-xs text-track-600 hover:text-track-700 font-medium"
+                      className="text-xs text-purple-400 hover:text-purple-300 font-medium"
                     >
                       View All →
                     </button>
@@ -386,9 +391,9 @@ export const DetailsDrawer = () => {
                     {children.slice(0, 5).map((child) => (
                       <div
                         key={child.id}
-                        className="text-sm text-gray-600 px-3 py-2 bg-gray-50 rounded border border-gray-200"
+                        className="text-sm px-3 py-2 bg-gray-800 rounded-lg border border-gray-700"
                       >
-                        <div className="font-medium text-gray-900">{child.title}</div>
+                        <div className="font-medium text-white">{child.title}</div>
                         <div className="text-xs text-gray-500 mt-1">
                           {STATUS_NAMES[child.status]}
                         </div>
@@ -404,19 +409,19 @@ export const DetailsDrawer = () => {
               )}
 
               {/* Metadata */}
-              <div className="pt-4 border-t border-gray-200">
-                <div className="space-y-2 text-sm text-gray-600">
+              <div className="pt-4 border-t border-gray-700">
+                <div className="space-y-2 text-sm text-gray-500">
                   <div>
-                    <span className="font-medium">Created:</span>{' '}
+                    <span className="font-medium text-gray-400">Created:</span>{' '}
                     {new Date(item.created_at).toLocaleString()}
                   </div>
                   <div>
-                    <span className="font-medium">Updated:</span>{' '}
+                    <span className="font-medium text-gray-400">Updated:</span>{' '}
                     {new Date(item.updated_at).toLocaleString()}
                   </div>
                   <div>
-                    <span className="font-medium">ID:</span>{' '}
-                    <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">{item.id}</code>
+                    <span className="font-medium text-gray-400">ID:</span>{' '}
+                    <code className="text-xs bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded border border-gray-700">{item.id}</code>
                   </div>
                 </div>
               </div>
@@ -425,17 +430,17 @@ export const DetailsDrawer = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
+        <div className="px-6 py-4 border-t border-gray-700 bg-gray-900 flex justify-between">
           <button
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50 border border-transparent hover:border-red-800"
           >
-            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+            {deleteMutation.isPending ? 'Deleting...' : '🗑️ Delete'}
           </button>
           <button
             onClick={handleClose}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors border border-gray-700"
           >
             Close
           </button>

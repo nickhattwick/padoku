@@ -69,14 +69,16 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">New Work Item</h2>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-700 mx-4">
+        <h2 className="text-2xl font-black text-white mb-4 flex items-center gap-2">
+          <span className="text-green-400">+</span> New Work Item
+        </h2>
 
         <form onSubmit={handleSubmit}>
           {/* Title */}
           <div className="mb-4">
-            <label htmlFor="new-item-title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="new-item-title" className="block text-sm font-medium text-gray-400 mb-1">
               Title *
             </label>
             <input
@@ -89,21 +91,21 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
                   handleSubmit(e);
                 }
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-500"
               placeholder="What needs to be done?"
             />
           </div>
 
           {/* Description */}
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-400 mb-1">
               Description
             </label>
             <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-500"
               placeholder="Additional details..."
               rows={3}
             />
@@ -111,40 +113,40 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
 
           {/* Status */}
           <div className="mb-6">
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="status" className="block text-sm font-medium text-gray-400 mb-1">
               Status
             </label>
             <select
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as WorkItemStatus)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-track-500"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              <option value="garage">{STATUS_NAMES.garage}</option>
-              <option value="on_track">{STATUS_NAMES.on_track}</option>
-              <option value="pits">{STATUS_NAMES.pits}</option>
-              <option value="checkered">{STATUS_NAMES.checkered}</option>
+              <option value="garage">🔧 {STATUS_NAMES.garage}</option>
+              <option value="on_track">🏎️ {STATUS_NAMES.on_track}</option>
+              <option value="pits">⏸️ {STATUS_NAMES.pits}</option>
+              <option value="checkered">🏁 {STATUS_NAMES.checkered}</option>
             </select>
           </div>
 
           {/* Optional flags */}
           <div className="mb-6 flex gap-4">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <label className="flex items-center gap-2 text-sm cursor-pointer text-gray-300 hover:text-white transition-colors">
               <input
                 type="checkbox"
                 checked={isGoal}
                 onChange={(e) => setIsGoal(e.target.checked)}
-                className="rounded border-gray-300 text-track-600 focus:ring-track-500"
+                className="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
               />
               <span>🎯 Goal</span>
             </label>
 
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <label className="flex items-center gap-2 text-sm cursor-pointer text-gray-300 hover:text-white transition-colors">
               <input
                 type="checkbox"
                 checked={isRecurringTemplate}
                 onChange={(e) => setIsRecurringTemplate(e.target.checked)}
-                className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                className="rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
               />
               <span>🔄 Template</span>
             </label>
@@ -155,16 +157,16 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              className="px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-transparent hover:border-gray-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!title.trim() || createMutation.isPending}
-              className="px-4 py-2 bg-track-600 text-white rounded-md hover:bg-track-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold shadow-lg shadow-green-900/30"
             >
-              {createMutation.isPending ? 'Creating...' : 'Create'}
+              {createMutation.isPending ? '🏎️ Creating...' : '🏁 Create'}
             </button>
           </div>
         </form>

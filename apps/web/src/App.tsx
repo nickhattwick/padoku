@@ -10,6 +10,7 @@ import { CalendarView } from './components/calendar/CalendarView';
 import { PodiumView } from './components/podium/PodiumView';
 import { RacingView } from './components/racing/RacingView';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
+import './styles/racing.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,55 +30,58 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="w-full h-full flex flex-col bg-gray-50">
+      <div className="w-full h-full flex flex-col bg-gray-950">
+        {/* Checkered accent line */}
+        <div className="checkered-pattern-dark h-1" />
+
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <header className="bg-gradient-to-r from-gray-900 to-gray-950 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">
-              <span className="text-track-600">🏁</span> Paddock
+            <h1 className="text-2xl font-black text-white speed-text">
+              <span className="text-red-500">🏁</span> Paddock
             </h1>
-            <p className="text-sm text-gray-500">Run your laps. Beat your pace.</p>
+            <p className="text-sm text-gray-500 hidden sm:block">Run your laps. Beat your pace.</p>
           </div>
 
           <div className="flex items-center gap-3">
             {/* View Toggle */}
-            <div className="flex bg-gray-100 rounded-md p-1">
+            <div className="flex bg-gray-800/80 rounded-lg p-1 border border-gray-700">
               <button
                 onClick={() => setView('board')}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   view === 'board'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
                 🏁 Paddock
               </button>
               <button
                 onClick={() => setView('calendar')}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   view === 'calendar'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
                 📅 Track
               </button>
               <button
                 onClick={() => setView('podium')}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   view === 'podium'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
                 🏆 Podium
               </button>
               <button
                 onClick={() => setView('racing')}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   view === 'racing'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
                 🏎️ Race
@@ -86,29 +90,29 @@ function App() {
 
             <button
               onClick={() => alert('Keyboard Shortcuts:\n\nN - New work item\nESC - Close drawer / Go to root\nH - Go home\n? - Show help')}
-              className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+              className="px-3 py-2 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-transparent hover:border-gray-700"
               title="Keyboard shortcuts"
             >
               ?
             </button>
             <button
               onClick={() => setIsNewItemModalOpen(true)}
-              className="px-4 py-2 bg-track-600 text-white rounded-md hover:bg-track-700 transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg transition-all flex items-center gap-2 font-medium shadow-lg shadow-green-900/30"
             >
               <span className="text-lg">+</span>
               <span>New Item</span>
-              <span className="text-xs opacity-75">(N)</span>
+              <span className="text-xs opacity-75 bg-white/20 px-1.5 py-0.5 rounded">N</span>
             </button>
           </div>
         </header>
 
         {/* Breadcrumbs */}
-        <div className="px-6 py-3 bg-white border-b border-gray-200">
+        <div className="px-6 py-2 bg-gray-900/50 border-b border-gray-800">
           <Breadcrumbs />
         </div>
 
         {/* Main content */}
-        <main className="flex-1 overflow-hidden flex">
+        <main className="flex-1 overflow-hidden flex bg-gradient-to-b from-gray-900 to-gray-950">
           {view === 'board' ? (
             <>
               <Sidebar />

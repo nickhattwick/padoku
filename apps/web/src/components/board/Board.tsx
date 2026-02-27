@@ -154,7 +154,10 @@ export const Board = ({ onCreateItem }: BoardProps) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-gray-400">
+          <div className="text-3xl mb-2 animate-pulse">🏎️</div>
+          Loading...
+        </div>
       </div>
     );
   }
@@ -162,7 +165,9 @@ export const Board = ({ onCreateItem }: BoardProps) => {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-red-500">Error loading work items: {error.message}</div>
+        <div className="text-red-400 bg-red-900/20 border border-red-800 rounded-lg px-4 py-3">
+          ⚠️ Error loading work items: {error.message}
+        </div>
       </div>
     );
   }
@@ -177,8 +182,9 @@ export const Board = ({ onCreateItem }: BoardProps) => {
     const filterLabel = dueDateFilter === '7days' ? '7 days' : dueDateFilter === '2weeks' ? '2 weeks' : '1 month';
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-center text-gray-500">
-          <p className="text-lg mb-2">No items due within {filterLabel}</p>
+        <div className="text-center text-gray-400 bg-gray-800/50 border border-gray-700 rounded-xl px-8 py-6">
+          <div className="text-3xl mb-3">🏁</div>
+          <p className="text-lg mb-2 text-white">No items due within {filterLabel}</p>
           <p className="text-sm">Try a different filter or add due dates to your items</p>
         </div>
       </div>

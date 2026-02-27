@@ -24,10 +24,10 @@ export const Breadcrumbs = () => {
       {/* Root level */}
       <button
         onClick={() => handleNavigate(null)}
-        className={`px-3 py-1 rounded-md transition-colors ${
+        className={`px-3 py-1.5 rounded-lg transition-all ${
           currentParentId === null
-            ? 'bg-track-100 text-track-700 font-medium'
-            : 'text-gray-600 hover:bg-gray-100'
+            ? 'bg-gradient-to-r from-red-600 to-red-700 text-white font-medium shadow-lg'
+            : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700'
         }`}
       >
         🏠 All Items
@@ -36,10 +36,10 @@ export const Breadcrumbs = () => {
       {/* Ancestors */}
       {ancestors.map((ancestor) => (
         <div key={ancestor.id} className="flex items-center gap-2">
-          <span className="text-gray-400">/</span>
+          <span className="text-gray-600">/</span>
           <button
             onClick={() => handleNavigate(ancestor.id)}
-            className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+            className="px-3 py-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all border border-transparent hover:border-gray-700"
           >
             {ancestor.title}
           </button>
@@ -49,24 +49,24 @@ export const Breadcrumbs = () => {
       {/* Current item indicator */}
       {currentParentId && (
         <div className="flex items-center gap-2">
-          <span className="text-gray-400">/</span>
-          <span className="px-3 py-1 bg-track-100 text-track-700 font-medium rounded-md">
+          <span className="text-gray-600">/</span>
+          <span className="px-3 py-1.5 bg-gray-800 text-white font-medium rounded-lg border border-gray-700">
             Current
           </span>
         </div>
       )}
 
       {/* Due Date Filter */}
-      <div className="flex items-center gap-1 ml-4 pl-4 border-l border-gray-200">
-        <span className="text-gray-500 mr-1">📅 Due:</span>
+      <div className="flex items-center gap-1 ml-4 pl-4 border-l border-gray-700">
+        <span className="text-gray-500 mr-1">🏁 Due:</span>
         {FILTER_OPTIONS.map((option) => (
           <button
             key={option.value}
             onClick={() => setDueDateFilter(option.value)}
-            className={`px-2 py-1 rounded-md transition-colors text-xs ${
+            className={`px-2.5 py-1 rounded-lg transition-all text-xs font-medium ${
               dueDateFilter === option.value
-                ? 'bg-blue-100 text-blue-700 font-medium'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                : 'text-gray-500 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700'
             }`}
           >
             {option.label}
