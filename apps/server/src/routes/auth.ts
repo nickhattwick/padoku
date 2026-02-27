@@ -11,11 +11,11 @@ import {
 
 const router = Router();
 
-// Allowlist of emails permitted to use Paddock
+// Allowlist of emails permitted to use Padoku
 // Add emails here to grant access
 const ALLOWED_EMAILS = new Set([
   'admin@example.com',
-  // Add more emails as needed
+  'user@example.com',
 ]);
 
 // Schema for Google login

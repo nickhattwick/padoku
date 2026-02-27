@@ -59,7 +59,7 @@ export const LandingPage = ({ onLogin }: LandingPageProps) => {
 
   // Initialize Google Sign-In when client ID is available
   useEffect(() => {
-    if (!googleClientId || !window.google) return;
+    if (!googleClientId) return;
 
     const handleCredentialResponse = async (response: any) => {
       setIsLoading(true);
@@ -74,22 +74,32 @@ export const LandingPage = ({ onLogin }: LandingPageProps) => {
       }
     };
 
-    window.google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: handleCredentialResponse,
-      auto_select: false,
-    });
+    const initializeGoogle = () => {
+      if (!window.google?.accounts?.id) {
+        // Script not loaded yet, retry
+        setTimeout(initializeGoogle, 100);
+        return;
+      }
 
-    const buttonDiv = document.getElementById('google-signin-button');
-    if (buttonDiv) {
-      window.google.accounts.id.renderButton(buttonDiv, {
-        theme: 'filled_black',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'rectangular',
-        width: 280,
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleCredentialResponse,
+        auto_select: false,
       });
-    }
+
+      const buttonDiv = document.getElementById('google-signin-button');
+      if (buttonDiv) {
+        window.google.accounts.id.renderButton(buttonDiv, {
+          theme: 'filled_black',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'rectangular',
+          width: 280,
+        });
+      }
+    };
+
+    initializeGoogle();
   }, [googleClientId, onLogin]);
 
   return (
