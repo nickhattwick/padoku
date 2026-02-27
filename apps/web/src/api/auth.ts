@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 export interface User {
   id: string;
@@ -43,7 +43,7 @@ export const authApi = {
    * Get OAuth config (Google Client ID)
    */
   getConfig: async (): Promise<{ googleClientId: string }> => {
-    const res = await fetch(`${API_URL}/api/auth/config`);
+    const res = await fetch(`${API_BASE}/auth/config`);
     if (!res.ok) {
       throw new Error('Failed to get auth config');
     }
@@ -54,7 +54,7 @@ export const authApi = {
    * Login with Google ID token
    */
   loginWithGoogle: async (idToken: string): Promise<AuthResponse> => {
-    const res = await fetch(`${API_URL}/api/auth/google`, {
+    const res = await fetch(`${API_BASE}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken }),
@@ -78,7 +78,7 @@ export const authApi = {
     if (!token) return null;
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/me`, {
+      const res = await fetch(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -105,7 +105,7 @@ export const authApi = {
     const token = getStoredToken();
     if (token) {
       try {
-        await fetch(`${API_URL}/api/auth/logout`, {
+        await fetch(`${API_BASE}/auth/logout`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -123,7 +123,7 @@ export const authApi = {
     const token = getStoredToken();
     if (!token) throw new Error('Not authenticated');
 
-    const res = await fetch(`${API_URL}/api/auth/migrate`, {
+    const res = await fetch(`${API_BASE}/auth/migrate`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     });
