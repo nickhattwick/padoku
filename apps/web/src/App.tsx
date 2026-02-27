@@ -8,6 +8,7 @@ import { Breadcrumbs } from './components/navigation/Breadcrumbs';
 import { ActiveTimerBar } from './components/timer/ActiveTimerBar';
 import { CalendarView } from './components/calendar/CalendarView';
 import { PodiumView } from './components/podium/PodiumView';
+import { RacingView } from './components/racing/RacingView';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
 
 const queryClient = new QueryClient({
@@ -21,7 +22,7 @@ const queryClient = new QueryClient({
 
 function App() {
   const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
-  const [view, setView] = useState<'board' | 'calendar' | 'podium'>('board');
+  const [view, setView] = useState<'board' | 'calendar' | 'podium' | 'racing'>('board');
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts(() => setIsNewItemModalOpen(true));
@@ -71,6 +72,16 @@ function App() {
               >
                 🏆 Podium
               </button>
+              <button
+                onClick={() => setView('racing')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  view === 'racing'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                🏎️ Race
+              </button>
             </div>
 
             <button
@@ -109,9 +120,13 @@ function App() {
             <div className="flex-1 overflow-hidden">
               <CalendarView />
             </div>
-          ) : (
+          ) : view === 'podium' ? (
             <div className="flex-1 overflow-hidden">
               <PodiumView />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-hidden">
+              <RacingView />
             </div>
           )}
         </main>
