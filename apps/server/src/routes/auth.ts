@@ -11,6 +11,13 @@ import {
 
 const router = Router();
 
+// Allowlist of emails permitted to use Paddock
+// Add emails here to grant access
+const ALLOWED_EMAILS = new Set([
+  'admin@example.com',
+  // Add more emails as needed
+]);
+
 // Schema for Google login
 const googleLoginSchema = z.object({
   idToken: z.string().min(1),
@@ -40,6 +47,12 @@ router.post('/google', async (req: Request, res: Response) => {
     }
 
     const { user, token, isNewUser } = result;
+
+    // Check if email is in allowlist
+    if (!ALLOWED_EMAILS.has(user.email)) {
+      console.log(`🚫 Access denied for ${user.email} - not in allowlist`);
+      return res.status(403).json({ error: 'Access denied. Contact admin for access.' });
+    }
 
     // If this is admin@example.com, migrate existing items
     if (user.email === 'admin@example.com') {
