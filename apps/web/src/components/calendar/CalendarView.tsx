@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { timeLogsApi } from '../../api/timeLogs';
 import { useWorkItemStore } from '../../stores/workItemStore';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import './calendar-dark.css';
 
 const locales = { 'en-US': enUS };
 
@@ -59,7 +60,7 @@ export const CalendarView = () => {
         const workItem = workItems.find((item) => item.id === log.work_item_id);
         if (workItem) {
           calendarEvents.push({
-            title: `Worked on: ${workItem.title}`,
+            title: `⏱️ ${workItem.title}`,
             start: new Date(log.start_time),
             end: new Date(log.end_time!),
             allDay: false,
@@ -79,12 +80,14 @@ export const CalendarView = () => {
 
   const eventStyleGetter = (event: CalendarEvent) => {
     const style: React.CSSProperties = {
-      backgroundColor: event.type === 'due_date' ? '#ff9800' : '#2196f3',
-      borderRadius: '4px',
-      opacity: 0.9,
+      backgroundColor: event.type === 'due_date' ? '#f59e0b' : '#3b82f6',
+      borderRadius: '6px',
+      opacity: 1,
       color: 'white',
       border: 'none',
       display: 'block',
+      fontWeight: 600,
+      fontSize: '12px',
     };
 
     return { style };
@@ -96,14 +99,23 @@ export const CalendarView = () => {
   };
 
   return (
-    <div className="h-full p-6 bg-white">
+    <div className="h-full p-6 bg-gradient-to-b from-gray-900 to-gray-950">
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Track View - Calendar</h2>
-        <p className="text-sm text-gray-600">
-          📌 Orange = Due dates • 🔵 Blue = Time logs
+        <h2 className="text-2xl font-black text-white flex items-center gap-2">
+          <span className="text-blue-400">📅</span> Track View
+        </h2>
+        <p className="text-sm text-gray-400 flex items-center gap-4 mt-1">
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 bg-amber-500 rounded"></span>
+            Due dates
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 bg-blue-500 rounded"></span>
+            Time logs
+          </span>
         </p>
       </div>
-      <div className="h-[calc(100%-4rem)]">
+      <div className="h-[calc(100%-4rem)] bg-gray-900 rounded-xl border border-gray-700 overflow-hidden">
         <Calendar
           localizer={localizer}
           events={events}

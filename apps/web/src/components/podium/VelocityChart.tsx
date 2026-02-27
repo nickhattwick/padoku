@@ -22,7 +22,7 @@ export const VelocityChart = ({ startDate, endDate, granularity }: VelocityChart
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[300px]">
-        <div className="text-gray-500">Loading velocity data...</div>
+        <div className="text-gray-400 animate-pulse">Loading velocity data...</div>
       </div>
     );
   }
@@ -30,7 +30,7 @@ export const VelocityChart = ({ startDate, endDate, granularity }: VelocityChart
   if (error) {
     return (
       <div className="flex items-center justify-center h-[300px]">
-        <div className="text-red-500">Error loading velocity data</div>
+        <div className="text-red-400">Error loading velocity data</div>
       </div>
     );
   }
@@ -46,31 +46,34 @@ export const VelocityChart = ({ startDate, endDate, granularity }: VelocityChart
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
         <XAxis
           dataKey="period"
           stroke="#6b7280"
           style={{ fontSize: '12px' }}
+          tick={{ fill: '#9ca3af' }}
         />
         <YAxis
           stroke="#6b7280"
           style={{ fontSize: '12px' }}
-          label={{ value: 'Completed Items', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
+          tick={{ fill: '#9ca3af' }}
+          label={{ value: 'Completed Items', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fill: '#9ca3af' } }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#fff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
+            backgroundColor: '#1f2937',
+            border: '1px solid #374151',
+            borderRadius: '8px',
+            color: '#e5e7eb',
           }}
         />
         <Line
           type="monotone"
           dataKey="completed"
-          stroke="#1e88e5"
-          strokeWidth={2}
-          dot={{ fill: '#1e88e5', r: 4 }}
-          activeDot={{ r: 6 }}
+          stroke="#3b82f6"
+          strokeWidth={3}
+          dot={{ fill: '#3b82f6', r: 4, stroke: '#1f2937', strokeWidth: 2 }}
+          activeDot={{ r: 6, fill: '#60a5fa' }}
         />
       </LineChart>
     </ResponsiveContainer>
