@@ -107,6 +107,20 @@ export const LandingPage = ({ onLogin }: LandingPageProps) => {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
 
+      {/* Giant Katakana Background */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+        <span 
+          className="text-[40vw] font-black text-white/[0.03] select-none"
+          style={{ 
+            writingMode: 'vertical-rl',
+            textOrientation: 'upright',
+            letterSpacing: '-0.1em'
+          }}
+        >
+          パドク
+        </span>
+      </div>
+
       {/* Checkered pattern accent at top */}
       <div className="absolute top-0 left-0 right-0 checkered-pattern-dark h-2 opacity-50" />
 
@@ -114,9 +128,14 @@ export const LandingPage = ({ onLogin }: LandingPageProps) => {
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
         <header className="p-6">
-          <div className="flex items-center gap-3">
-            <span className="text-4xl">🏁</span>
-            <h1 className="text-3xl font-black text-white speed-text">Paddock</h1>
+          <div className="flex items-center gap-4">
+            <img src="/padoku-logo.png" alt="Padoku" className="h-12 w-12 rounded-lg shadow-lg" />
+            <div>
+              <h1 className="text-3xl font-black text-white speed-text tracking-tight">
+                Padoku
+              </h1>
+              <span className="text-sm text-red-500/80 font-light tracking-[0.3em]">パドク</span>
+            </div>
           </div>
         </header>
 

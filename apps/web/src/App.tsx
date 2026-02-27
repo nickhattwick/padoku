@@ -92,10 +92,12 @@ function AppContent() {
       {/* Header */}
       <header className="bg-gradient-to-r from-gray-900 to-gray-950 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black text-white speed-text">
-            <span className="text-red-500">🏁</span> Paddock
-          </h1>
-          <p className="text-sm text-gray-500 hidden sm:block">Run your laps. Beat your pace.</p>
+          <img src="/padoku-logo.png" alt="Padoku" className="h-8 w-8 rounded" />
+          <div className="flex items-baseline gap-2">
+            <h1 className="text-2xl font-black text-white speed-text">Padoku</h1>
+            <span className="text-xs text-red-500/60 tracking-[0.2em] hidden sm:inline">パドク</span>
+          </div>
+          <p className="text-sm text-gray-500 hidden md:block ml-2">Run your laps. Beat your pace.</p>
         </div>
 
         <div className="flex items-center gap-3">
