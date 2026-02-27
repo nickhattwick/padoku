@@ -92,13 +92,6 @@ export const LandingPage = ({ onLogin }: LandingPageProps) => {
     }
   }, [googleClientId, onLogin]);
 
-  // Dev mode: Skip login
-  const handleDevLogin = () => {
-    // Store a fake "logged in" state for dev
-    localStorage.setItem('paddock_logged_in', 'true');
-    window.location.reload();
-  };
-
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Hero Background Image */}
@@ -160,26 +153,9 @@ export const LandingPage = ({ onLogin }: LandingPageProps) => {
               ) : googleClientId ? (
                 <div id="google-signin-button" className="min-h-[44px]" />
               ) : (
-                <button
-                  onClick={handleDevLogin}
-                  className="px-12 py-5 text-2xl font-black text-white rounded-2xl
-                    bg-gradient-to-r from-red-600 via-red-500 to-orange-500
-                    hover:from-red-500 hover:via-orange-500 hover:to-yellow-500
-                    transition-all duration-300 transform hover:scale-110
-                    border-2 border-white/20 shadow-2xl shadow-red-500/30"
-                >
-                  <span className="flex items-center gap-3">
-                    <span>🏎️</span>
-                    <span>Start Your Engine</span>
-                    <span>→</span>
-                  </span>
-                </button>
-              )}
-
-              {!googleClientId && (
-                <p className="text-gray-500 text-sm mt-2">
-                  Development mode - Google OAuth not configured
-                </p>
+                <div className="text-gray-400">
+                  <span className="animate-pulse">Loading sign-in...</span>
+                </div>
               )}
             </div>
 

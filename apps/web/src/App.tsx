@@ -35,8 +35,8 @@ function AppContent() {
   // Check auth on mount
   useEffect(() => {
     const checkAuth = async () => {
-      // Check for legacy login state
-      const legacyLoggedIn = localStorage.getItem('paddock_logged_in') === 'true';
+      // Clear any legacy dev login state
+      localStorage.removeItem('paddock_logged_in');
       
       // Check for real auth token
       const token = getStoredToken();
@@ -50,14 +50,6 @@ function AppContent() {
         } else {
           clearAuth();
         }
-      } else if (legacyLoggedIn) {
-        // Legacy dev mode - create a fake user
-        setUser({
-          id: 'dev-user',
-          email: 'dev@paddock.local',
-          name: 'Dev User',
-          picture: null,
-        });
       }
       
       setIsCheckingAuth(false);
