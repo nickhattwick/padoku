@@ -30,6 +30,11 @@ export const createApp = () => {
     res.sendFile('openapi.json', { root: './public' });
   });
 
+  // MCP server for Claude Desktop
+  app.get('/api/mcp-server.js', (_req: Request, res: Response) => {
+    res.sendFile('index.js', { root: '../mcp-server/dist' });
+  });
+
   // API Routes
   app.use('/api/auth', authRouter);
   
