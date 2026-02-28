@@ -1,0 +1,199 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Padoku Task API",
+    "description": "Manage tasks in Padoku - your racing-themed productivity system",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://padoku.com/api"
+    }
+  ],
+  "paths": {
+    "/work-items": {
+      "get": {
+        "operationId": "listTasks",
+        "summary": "List all tasks",
+        "description": "Get all tasks. Filter by status or parent project.",
+        "parameters": [
+          {
+            "name": "parent_id",
+            "in": "query",
+            "description": "Filter by parent project ID",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/WorkItem" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createTask",
+        "summary": "Create a new task",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title"],
+                "properties": {
+                  "title": { "type": "string", "description": "Task title" },
+                  "description": { "type": "string", "description": "Task description" },
+                  "status": { 
+                    "type": "string", 
+                    "enum": ["garage", "on_track", "pits", "checkered"],
+                    "default": "garage",
+                    "description": "garage=backlog, on_track=in progress, pits=blocked, checkered=done"
+                  },
+                  "parent_id": { "type": "string", "description": "Parent project ID" },
+                  "due_at": { "type": "integer", "description": "Due date as Unix timestamp (ms)" },
+                  "grid_points": { 
+                    "type": "integer", 
+                    "enum": [1, 2, 3, 5, 8, 13, 21],
+                    "description": "Story points (Fibonacci scale)" 
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created task",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkItem" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/work-items/{id}": {
+      "get": {
+        "operationId": "getTask",
+        "summary": "Get a specific task",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkItem" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateTask",
+        "summary": "Update a task",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "status": { 
+                    "type": "string", 
+                    "enum": ["garage", "on_track", "pits", "checkered"]
+                  },
+                  "due_at": { "type": "integer" },
+                  "grid_points": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated task",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkItem" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTask",
+        "summary": "Delete a task",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Task deleted" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WorkItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "status": { 
+            "type": "string",
+            "enum": ["garage", "on_track", "pits", "checkered"]
+          },
+          "parent_id": { "type": "string", "nullable": true },
+          "due_at": { "type": "integer", "nullable": true },
+          "grid_points": { "type": "integer", "nullable": true },
+          "is_goal": { "type": "boolean" },
+          "position": { "type": "number" },
+          "created_at": { "type": "integer" },
+          "updated_at": { "type": "integer" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    { "bearerAuth": [] }
+  ]
+}

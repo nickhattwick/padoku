@@ -25,6 +25,11 @@ export const createApp = () => {
     res.json({ status: 'ok', timestamp: Date.now() });
   });
 
+  // OpenAPI spec for ChatGPT Custom GPT Actions
+  app.get('/api/openapi.json', (_req: Request, res: Response) => {
+    res.sendFile('openapi.json', { root: './public' });
+  });
+
   // API Routes
   app.use('/api/auth', authRouter);
   
