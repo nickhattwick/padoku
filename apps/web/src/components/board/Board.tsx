@@ -23,6 +23,11 @@ const filterByDueDate = (items: WorkItem[], filter: DueDateFilter): WorkItem[] =
   if (filter === 'all') return items;
 
   const now = Date.now();
+  // Start of today (midnight)
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const todayMs = startOfToday.getTime();
+  
   const filterDays = {
     '7days': 7,
     '2weeks': 14,
@@ -32,8 +37,11 @@ const filterByDueDate = (items: WorkItem[], filter: DueDateFilter): WorkItem[] =
   const cutoffDate = now + filterDays * 24 * 60 * 60 * 1000;
 
   return items.filter((item) => {
-    // Include items with no due date, or due date within the filter window
-    if (!item.due_at) return false; // Hide items with no due date when filtering
+    // Hide items with no due date when filtering
+    if (!item.due_at) return false;
+    // Hide items with due dates in the past (before today)
+    if (item.due_at < todayMs) return false;
+    // Show items due within the filter window
     return item.due_at <= cutoffDate;
   });
 };
@@ -198,8 +206,8 @@ export const Board = ({ onCreateItem }: BoardProps) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-full p-6 overflow-auto">
-        <div className="flex gap-4 h-full">
+      <div className="h-full p-3 md:p-6 overflow-auto">
+        <div className="flex gap-3 md:gap-4 h-full min-w-max md:min-w-0">
           {WORK_ITEM_STATUSES.map((status) => (
             <Column
               key={status}

@@ -57,7 +57,7 @@ export const Column = ({ status, title, items }: ColumnProps) => {
   );
 
   return (
-    <div className={`flex-1 flex flex-col bg-gray-900/80 rounded-xl border ${styles.accent} min-w-[280px] shadow-lg`}>
+    <div className={`flex-1 flex flex-col bg-gray-900/80 rounded-xl border ${styles.accent} w-[260px] min-w-[260px] md:w-auto md:min-w-[280px] shadow-lg`}>
       {/* Column header */}
       <div className={`px-4 py-3 ${styles.headerBg} rounded-t-xl`}>
         <div className="flex items-center justify-between">
