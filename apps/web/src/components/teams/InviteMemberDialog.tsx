@@ -5,7 +5,9 @@ interface User {
   id: string;
   email: string;
   name: string | null;
+  display_name: string | null;
   picture: string | null;
+  profile_code: string | null;
 }
 
 interface InviteMemberDialogProps {
@@ -105,7 +107,7 @@ export const InviteMemberDialog = ({
               <span>👥</span> Invite to {teamName}
             </h3>
             <p className="text-sm text-gray-400 mt-1">
-              Search by email or name
+              Search by email, name, or profile code
             </p>
           </div>
           <button
@@ -126,7 +128,7 @@ export const InviteMemberDialog = ({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by email or name..."
+              placeholder="Email, name, or profile code..."
               className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-500"
               autoFocus
             />
@@ -173,8 +175,13 @@ export const InviteMemberDialog = ({
                 )}
                 
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-white truncate">
-                    {user.name || 'No name'}
+                  <div className="font-medium text-white truncate flex items-center gap-2">
+                    {user.display_name || user.name || 'No name'}
+                    {user.profile_code && (
+                      <span className="text-xs font-mono text-amber-400 bg-amber-900/30 px-1.5 py-0.5 rounded">
+                        {user.profile_code}
+                      </span>
+                    )}
                   </div>
                   <div className="text-sm text-gray-400 truncate">
                     {user.email}
