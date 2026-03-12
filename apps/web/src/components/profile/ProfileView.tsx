@@ -228,6 +228,70 @@ export const ProfileView = ({ user, onClose }: ProfileViewProps) => {
     .filter(item => item.status === 'checkered')
     .reduce((sum, item) => sum + (item.grid_points || 0), 0);
 
+  // Calculate streak (consecutive days with completed tasks)
+  const calculateStreak = () => {
+    const completedItems = workItems.filter(item => item.status === 'checkered');
+    if (completedItems.length === 0) return { current: 0, best: 0 };
+
+    // Get all unique dates with completions (normalize to start of day)
+    const completionDates = new Set<string>();
+    completedItems.forEach(item => {
+      const date = new Date(item.updated_at);
+      const dateStr = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      completionDates.add(dateStr);
+    });
+
+    // Sort dates
+    const sortedDates = Array.from(completionDates).sort();
+    
+    // Calculate current streak (from today/yesterday backwards)
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
+
+    let currentStreak = 0;
+    let checkDate = completionDates.has(todayStr) ? today : 
+                    completionDates.has(yesterdayStr) ? yesterday : null;
+    
+    if (checkDate) {
+      while (true) {
+        const checkStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+        if (completionDates.has(checkStr)) {
+          currentStreak++;
+          checkDate = new Date(checkDate);
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+    }
+
+    // Calculate best streak ever
+    let bestStreak = 0;
+    let tempStreak = 1;
+    for (let i = 1; i < sortedDates.length; i++) {
+      const [prevY, prevM, prevD] = sortedDates[i - 1].split('-').map(Number);
+      const [currY, currM, currD] = sortedDates[i].split('-').map(Number);
+      const prevDate = new Date(prevY, prevM, prevD);
+      const currDate = new Date(currY, currM, currD);
+      const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        tempStreak++;
+      } else {
+        bestStreak = Math.max(bestStreak, tempStreak);
+        tempStreak = 1;
+      }
+    }
+    bestStreak = Math.max(bestStreak, tempStreak, currentStreak);
+
+    return { current: currentStreak, best: bestStreak };
+  };
+
+  const { current: _currentStreak, best: bestStreak } = calculateStreak();
+
   // Determine earned badges (simplified logic)
   const earnedBadges = new Set<string>();
   
@@ -255,6 +319,13 @@ export const ProfileView = ({ user, onClose }: ProfileViewProps) => {
   // GP badges
   ALL_BADGES.gridPoints.forEach(badge => {
     if (totalGridPoints >= (badge.requirement || 0)) {
+      earnedBadges.add(badge.id);
+    }
+  });
+
+  // Streak badges (based on best streak ever)
+  ALL_BADGES.streaks.forEach(badge => {
+    if (bestStreak >= (badge.requirement || 0)) {
       earnedBadges.add(badge.id);
     }
   });

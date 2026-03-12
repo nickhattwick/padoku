@@ -52,6 +52,16 @@ const ALL_BADGES: Record<string, Badge[]> = {
     { id: 'gp-25000-master', name: 'Grid Master', description: 'Earn 25,000 GP', requirement: 25000, image: '/badges/gp-25000-master/image_0.png' },
     { id: 'gp-50000-king', name: 'Grid Point King', description: 'Earn 50,000 GP', requirement: 50000, image: '/badges/gp-50000-king/image_0.png' },
   ],
+  streaks: [
+    { id: 'streak-03-warming', name: 'Warming Up', description: '3-day streak', requirement: 3, image: '/badges/streak-03-warming/image_0.png' },
+    { id: 'streak-07-on-fire', name: 'On Fire', description: '7-day streak', requirement: 7, image: '/badges/streak-07-on-fire/image_0.png' },
+    { id: 'streak-14-volcanic', name: 'Volcanic', description: '14-day streak', requirement: 14, image: '/badges/streak-14-volcanic/image_0.png' },
+    { id: 'streak-30-meteor', name: 'Meteor', description: '30-day streak', requirement: 30, image: '/badges/streak-30-meteor/image_0.png' },
+    { id: 'streak-60-supernova', name: 'Supernova', description: '60-day streak', requirement: 60, image: '/badges/streak-60-supernova/image_0.png' },
+    { id: 'streak-90-cosmic', name: 'Cosmic', description: '90-day streak', requirement: 90, image: '/badges/streak-90-cosmic/image_0.png' },
+    { id: 'streak-180-galactic', name: 'Galactic', description: '180-day streak', requirement: 180, image: '/badges/streak-180-galactic/image_0.png' },
+    { id: 'streak-365-eternal', name: 'Eternal Flame', description: '365-day streak', requirement: 365, image: '/badges/streak-365-eternal/image_0.png' },
+  ],
 };
 
 const STORAGE_KEY = 'paddock_shown_badges';
@@ -93,6 +103,39 @@ export const useBadgeUnlock = () => {
     .filter(item => item.status === 'checkered')
     .reduce((sum, item) => sum + (item.grid_points || 0), 0);
 
+  // Calculate best streak
+  const bestStreak = (() => {
+    const completedItems = workItems.filter(item => item.status === 'checkered');
+    if (completedItems.length === 0) return 0;
+
+    const completionDates = new Set<string>();
+    completedItems.forEach(item => {
+      const date = new Date(item.updated_at);
+      completionDates.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+    });
+
+    const sortedDates = Array.from(completionDates).sort();
+    let best = 1;
+    let temp = 1;
+    
+    for (let i = 1; i < sortedDates.length; i++) {
+      const [prevY, prevM, prevD] = sortedDates[i - 1].split('-').map(Number);
+      const [currY, currM, currD] = sortedDates[i].split('-').map(Number);
+      const diffDays = Math.round(
+        (new Date(currY, currM, currD).getTime() - new Date(prevY, prevM, prevD).getTime()) 
+        / (1000 * 60 * 60 * 24)
+      );
+      
+      if (diffDays === 1) {
+        temp++;
+        best = Math.max(best, temp);
+      } else {
+        temp = 1;
+      }
+    }
+    return best;
+  })();
+
   // Calculate currently earned badges
   const calculateEarnedBadges = useCallback(() => {
     const earned = new Set<string>();
@@ -121,8 +164,14 @@ export const useBadgeUnlock = () => {
       }
     });
 
+    ALL_BADGES.streaks.forEach(badge => {
+      if (bestStreak >= (badge.requirement || 0)) {
+        earned.add(badge.id);
+      }
+    });
+
     return earned;
-  }, [completedTasks, createdTasks, startedTasks, totalGridPoints]);
+  }, [completedTasks, createdTasks, startedTasks, totalGridPoints, bestStreak]);
 
   // Check for newly unlocked badges (only after data loads)
   useEffect(() => {
@@ -167,7 +216,7 @@ export const useBadgeUnlock = () => {
   }, [pendingBadges, unlockedBadge]);
 
   // Also check for new badges when stats change (after initial load)
-  const prevStatsRef = useRef({ completedTasks: 0, createdTasks: 0, startedTasks: 0, totalGridPoints: 0 });
+  const prevStatsRef = useRef({ completedTasks: 0, createdTasks: 0, startedTasks: 0, totalGridPoints: 0, bestStreak: 0 });
   
   useEffect(() => {
     // Skip if not initialized yet
@@ -178,10 +227,11 @@ export const useBadgeUnlock = () => {
       completedTasks !== prevStats.completedTasks ||
       createdTasks !== prevStats.createdTasks ||
       startedTasks !== prevStats.startedTasks ||
+      bestStreak !== prevStats.bestStreak ||
       totalGridPoints !== prevStats.totalGridPoints;
 
     if (statsChanged) {
-      prevStatsRef.current = { completedTasks, createdTasks, startedTasks, totalGridPoints };
+      prevStatsRef.current = { completedTasks, createdTasks, startedTasks, totalGridPoints, bestStreak };
       
       const currentBadges = calculateEarnedBadges();
       const shownBadges = getShownBadges();
@@ -204,7 +254,7 @@ export const useBadgeUnlock = () => {
         setPendingBadges(prev => [...prev, ...newBadges]);
       }
     }
-  }, [completedTasks, createdTasks, startedTasks, totalGridPoints, calculateEarnedBadges]);
+  }, [completedTasks, createdTasks, startedTasks, totalGridPoints, bestStreak, calculateEarnedBadges]);
 
   const closeBadgeModal = useCallback(() => {
     setUnlockedBadge(null);
