@@ -198,3 +198,70 @@ export const useBurndown = (startDate: number, endDate: number) => {
     staleTime: 60000,
   });
 };
+
+// ============ Comments ============
+
+import { commentsApi } from './comments';
+
+/**
+ * Query hook for fetching comments for a work item
+ */
+export const useComments = (workItemId: string) => {
+  return useQuery({
+    queryKey: ['comments', workItemId],
+    queryFn: () => commentsApi.getByWorkItem(workItemId),
+    enabled: !!workItemId,
+  });
+};
+
+/**
+ * Mutation hook for creating a comment
+ */
+export const useCreateComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workItemId, content }: { workItemId: string; content: string }) =>
+      commentsApi.create(workItemId, content),
+    onSuccess: (_, { workItemId }) => {
+      queryClient.invalidateQueries({ queryKey: ['comments', workItemId] });
+    },
+  });
+};
+
+/**
+ * Mutation hook for updating a comment
+ */
+export const useUpdateComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workItemId,
+      commentId,
+      content,
+    }: {
+      workItemId: string;
+      commentId: string;
+      content: string;
+    }) => commentsApi.update(workItemId, commentId, content),
+    onSuccess: (_, { workItemId }) => {
+      queryClient.invalidateQueries({ queryKey: ['comments', workItemId] });
+    },
+  });
+};
+
+/**
+ * Mutation hook for deleting a comment
+ */
+export const useDeleteComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workItemId, commentId }: { workItemId: string; commentId: string }) =>
+      commentsApi.delete(workItemId, commentId),
+    onSuccess: (_, { workItemId }) => {
+      queryClient.invalidateQueries({ queryKey: ['comments', workItemId] });
+    },
+  });
+};

@@ -39,10 +39,13 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
         status,
         parent_id: currentParentId, // Create as child of current context
         due_at: null,
+        grid_points: null,
         is_goal: isGoal,
         goal_end_condition: null, // Will be set later in drawer
+        goal_target: null,
         is_recurring_template: isRecurringTemplate,
         recurrence_rule: null, // Will be set later in drawer
+        user_id: null, // Will be set by server based on auth
       });
 
       // Reset form and close

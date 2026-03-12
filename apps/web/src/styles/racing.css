@@ -244,3 +244,69 @@
   background-repeat: repeat-x;
   animation: checkered-animate 1s linear infinite;
 }
+
+/* Speed slide animation for profile cards */
+@keyframes slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-52px); }
+}
+
+/* Racer profile card glow effects */
+.glow-gold {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+.glow-silver {
+  box-shadow: 0 0 30px rgba(192, 192, 192, 0.4);
+}
+
+.glow-bronze {
+  box-shadow: 0 0 30px rgba(205, 127, 50, 0.4);
+}
+
+/* Profile card vehicle background fade */
+.vehicle-bg-fade {
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+}
+
+/* Racer portrait drop shadow */
+.racer-portrait {
+  filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.8));
+}
+
+/* Tier glow animations */
+@keyframes elite-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
+}
+
+@keyframes pro-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.6); }
+}
+
+.tier-elite {
+  animation: elite-pulse 2s ease-in-out infinite;
+}
+
+.tier-pro {
+  animation: pro-pulse 2s ease-in-out infinite;
+}
+
+/* Stat bar animations */
+.stat-bar-fill {
+  transition: width 0.5s ease-out;
+}
+
+/* Checkered footer */
+.checkered-footer {
+  height: 12px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #000 0px,
+    #000 10px,
+    #fff 10px,
+    #fff 20px
+  );
+}

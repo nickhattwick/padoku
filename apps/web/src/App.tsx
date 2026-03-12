@@ -9,8 +9,11 @@ import { ActiveTimerBar } from './components/timer/ActiveTimerBar';
 import { CalendarView } from './components/calendar/CalendarView';
 import { PodiumView } from './components/podium/PodiumView';
 import { RacingView } from './components/racing/RacingView';
+import { ProfileView } from './components/profile/ProfileView';
+import { BadgeUnlockModal } from './components/badges/BadgeUnlockModal';
 import { LandingPage } from './components/LandingPage';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
+import { useBadgeUnlock } from './hooks/useBadgeUnlock';
 import { getStoredUser, getStoredToken, clearAuth, authApi, User } from './api/auth';
 import './styles/racing.css';
 
@@ -30,9 +33,13 @@ function AppContent() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts(() => setIsNewItemModalOpen(true));
+
+  // Badge unlock tracking
+  const { unlockedBadge, closeBadgeModal } = useBadgeUnlock();
 
   // Check auth on mount
   useEffect(() => {
@@ -169,13 +176,19 @@ function AppContent() {
 
             {/* User menu */}
             <div className="flex items-center gap-2">
-              {user.picture ? (
-                <img src={user.picture} alt={user.name || ''} className="w-8 h-8 rounded-full" />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm">
-                  {user.name?.[0] || user.email[0].toUpperCase()}
-                </div>
-              )}
+              <button
+                onClick={() => setIsProfileOpen(true)}
+                className="rounded-full hover:ring-2 hover:ring-purple-500 transition-all"
+                title="View Profile"
+              >
+                {user.picture ? (
+                  <img src={user.picture} alt={user.name || ''} className="w-8 h-8 rounded-full" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm">
+                    {user.name?.[0] || user.email[0].toUpperCase()}
+                  </div>
+                )}
+              </button>
               <button
                 onClick={handleLogout}
                 className="px-3 py-2 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-transparent hover:border-gray-700"
@@ -197,13 +210,18 @@ function AppContent() {
 
           {/* Mobile: Quick actions */}
           <div className="flex md:hidden items-center gap-2">
-            {user.picture ? (
-              <img src={user.picture} alt={user.name || ''} className="w-7 h-7 rounded-full" />
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs">
-                {user.name?.[0] || user.email[0].toUpperCase()}
-              </div>
-            )}
+            <button
+              onClick={() => setIsProfileOpen(true)}
+              className="rounded-full hover:ring-2 hover:ring-purple-500 transition-all"
+            >
+              {user.picture ? (
+                <img src={user.picture} alt={user.name || ''} className="w-7 h-7 rounded-full" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs">
+                  {user.name?.[0] || user.email[0].toUpperCase()}
+                </div>
+              )}
+            </button>
             <button
               onClick={() => setIsNewItemModalOpen(true)}
               className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg shadow-lg"
@@ -339,6 +357,14 @@ function AppContent() {
 
       {/* Active Timer Bar */}
       <ActiveTimerBar />
+
+      {/* Profile View */}
+      {isProfileOpen && (
+        <ProfileView user={user} onClose={() => setIsProfileOpen(false)} />
+      )}
+
+      {/* Badge Unlock Modal */}
+      <BadgeUnlockModal badge={unlockedBadge} onClose={closeBadgeModal} />
     </div>
   );
 }

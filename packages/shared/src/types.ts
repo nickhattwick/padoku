@@ -59,6 +59,19 @@ export interface BlockRecord {
   created_at: number; // Unix timestamp in milliseconds
 }
 
+// Comment interface
+export interface Comment {
+  id: string;
+  work_item_id: string;
+  user_id: string | null;
+  content: string;
+  created_at: number; // Unix timestamp in milliseconds
+  updated_at: number; // Unix timestamp in milliseconds
+  // Joined fields
+  user_name?: string;
+  user_picture?: string;
+}
+
 // Input types for API
 export type CreateWorkItemInput = Omit<
   WorkItem,
@@ -87,6 +100,15 @@ export type CreateBlockRecordInput = {
   reason?: string;
   blocked_by_work_item_id?: string;
   start_time: number;
+};
+
+export type CreateCommentInput = {
+  work_item_id: string;
+  content: string;
+};
+
+export type UpdateCommentInput = {
+  content: string;
 };
 
 // Analytics types

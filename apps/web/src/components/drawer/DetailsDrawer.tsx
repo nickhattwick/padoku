@@ -5,6 +5,7 @@ import { STATUS_NAMES, parseRecurrenceRule, stringifyRecurrenceRule, GRID_POINTS
 import type { WorkItemStatus, RecurrenceRule } from '@paddock/shared';
 import { RecurrenceRulePicker } from '../recurring/RecurrenceRulePicker';
 import { GoalProgressBadge } from '../goals/GoalProgressBadge';
+import { CommentsSection } from '../comments/CommentsSection';
 
 export const DetailsDrawer = () => {
   const { isDrawerOpen, selectedItemId, closeDrawer, setCurrentParent } = useWorkItemStore();
@@ -407,6 +408,9 @@ export const DetailsDrawer = () => {
                   </div>
                 </div>
               )}
+
+              {/* Comments */}
+              <CommentsSection workItemId={item.id} />
 
               {/* Metadata */}
               <div className="pt-4 border-t border-gray-700">

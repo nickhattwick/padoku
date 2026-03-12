@@ -6,11 +6,15 @@ import {
   moveWorkItemSchema,
 } from '../validators/schemas.js';
 import { optionalAuth } from '../middleware/auth.js';
+import commentsRouter from './comments.js';
 
 const router = Router();
 
 // Apply optional auth middleware to all routes
 router.use(optionalAuth);
+
+// Mount comments router
+router.use('/', commentsRouter);
 
 // Lazy-initialize service to avoid database init issues
 const getService = () => new WorkItemService();

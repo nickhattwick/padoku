@@ -1078,32 +1078,117 @@ export const calculateRacerDailyPoints = (
 export const calculateRacerWeeklyPoints = calculateRacerDailyPoints;
 
 /**
- * Simulate a full daily race with all 32 racers
+ * Get week number of the year (1-52)
+ */
+export const getWeekNumber = (date: Date = new Date()): number => {
+  const startOfYear = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+  return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+};
+
+/**
+ * Get month number (1-12)
+ */
+export const getMonthNumber = (date: Date = new Date()): number => {
+  return date.getMonth() + 1;
+};
+
+/**
+ * Get quarter/season (1-4)
+ */
+export const getSeasonNumber = (date: Date = new Date()): number => {
+  return Math.ceil((date.getMonth() + 1) / 3);
+};
+
+/**
+ * Get season name
+ */
+export const getSeasonName = (season: number): string => {
+  const names = ['', 'Winter', 'Spring', 'Summer', 'Fall'];
+  return names[season] || '';
+};
+
+/**
+ * Get month name
+ */
+export const getMonthName = (month: number): string => {
+  const names = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+                 'July', 'August', 'September', 'October', 'November', 'December'];
+  return names[month] || '';
+};
+
+/**
+ * Seeded random number generator for reproducible results
+ */
+const seededRandom = (seed: number): number => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
+
+/**
+ * Select random racers for a weekly race (deterministic based on week seed)
+ * Player replaces one racer, so we pick (fieldSize - 1) AI racers
+ */
+export const selectWeeklyRacers = (
+  weekSeed: number,
+  fieldSize: number = 8
+): Racer[] => {
+  // Use week seed to deterministically shuffle and select racers
+  const shuffled = [...RACERS].sort((a, b) => {
+    const seedA = seededRandom(weekSeed + a.id.charCodeAt(0) + a.id.charCodeAt(1));
+    const seedB = seededRandom(weekSeed + b.id.charCodeAt(0) + b.id.charCodeAt(1));
+    return seedA - seedB;
+  });
+
+  // Weight selection toward higher tiers but include variety
+  // For field of 8: 3 elite, 2 pro, 1 amateur, 1 rookie = 7 AI + player
+  const aiCount = fieldSize - 1;
+  const selected: Racer[] = [];
+  
+  const elites = shuffled.filter(r => r.tier === 'elite');
+  const pros = shuffled.filter(r => r.tier === 'pro');
+  const amateurs = shuffled.filter(r => r.tier === 'amateur');
+  const rookies = shuffled.filter(r => r.tier === 'rookie');
+
+  // Distribution based on field size
+  if (aiCount >= 7) {
+    selected.push(...elites.slice(0, 3));
+    selected.push(...pros.slice(0, 2));
+    selected.push(...amateurs.slice(0, 1));
+    selected.push(...rookies.slice(0, 1));
+  } else if (aiCount >= 5) {
+    selected.push(...elites.slice(0, 2));
+    selected.push(...pros.slice(0, 2));
+    selected.push(...amateurs.slice(0, 1));
+  } else {
+    selected.push(...elites.slice(0, aiCount));
+  }
+
+  return selected.slice(0, aiCount);
+};
+
+/**
+ * Simulate a weekly race
+ * Player is one of the fieldSize racers (not extra)
  * Returns sorted standings
  */
-export const simulateRace = (
-  dayNumber: number,
+export const simulateWeeklyRace = (
+  weekNumber: number,
+  year: number,
   playerPoints: number,
   difficulty: 'easy' | 'medium' | 'hard' = 'medium',
-  racerCount: number = 9 // Default: player + 8 elites (backwards compatible)
+  fieldSize: number = 8
 ): RaceResult[] => {
-  // Select racers based on count
-  let selectedRacers: Racer[];
-  if (racerCount >= 32) {
-    selectedRacers = RACERS;
-  } else if (racerCount >= 16) {
-    selectedRacers = [...getRacersByTier('elite'), ...getRacersByTier('pro')];
-  } else {
-    selectedRacers = getRacersByTier('elite');
-  }
+  const weekSeed = year * 100 + weekNumber;
+  const selectedRacers = selectWeeklyRacers(weekSeed, fieldSize);
 
   const results: RaceResult[] = selectedRacers.map((racer) => ({
     racer,
-    points: calculateRacerDailyPoints(racer, dayNumber, difficulty),
+    points: calculateRacerDailyPoints(racer, weekSeed, difficulty),
     isPlayer: false,
   }));
 
-  // Add player
+  // Add player as part of the field (not extra)
   results.push({
     racer: null,
     points: playerPoints,
@@ -1121,7 +1206,264 @@ export const simulateRace = (
 };
 
 /**
- * Simulate full Grand Prix season standings (cumulative)
+ * Legacy: Simulate a full daily race (backwards compatible)
+ * Note: Player is ADDED to the field (old behavior)
+ */
+export const simulateRace = (
+  dayNumber: number,
+  playerPoints: number,
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium',
+  racerCount: number = 8 // Field size including player
+): RaceResult[] => {
+  // Select racers - player is part of the count now
+  const aiCount = racerCount - 1;
+  let selectedRacers: Racer[];
+  
+  if (aiCount >= 32) {
+    selectedRacers = RACERS;
+  } else if (aiCount >= 16) {
+    selectedRacers = [...getRacersByTier('elite'), ...getRacersByTier('pro')].slice(0, aiCount);
+  } else if (aiCount >= 8) {
+    selectedRacers = getRacersByTier('elite');
+  } else {
+    selectedRacers = getRacersByTier('elite').slice(0, aiCount);
+  }
+
+  const results: RaceResult[] = selectedRacers.map((racer) => ({
+    racer,
+    points: calculateRacerDailyPoints(racer, dayNumber, difficulty),
+    isPlayer: false,
+  }));
+
+  // Add player as part of the field
+  results.push({
+    racer: null,
+    points: playerPoints,
+    isPlayer: true,
+  });
+
+  // Sort by points descending
+  results.sort((a, b) => b.points - a.points);
+
+  // Assign positions
+  return results.map((result, index) => ({
+    ...result,
+    position: index + 1,
+  }));
+};
+
+/**
+ * Get weeks in a month
+ */
+const getWeeksInMonth = (month: number, year: number): number[] => {
+  const weeks: number[] = [];
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+  
+  let currentDate = new Date(firstDay);
+  while (currentDate <= lastDay) {
+    const week = getWeekNumber(currentDate);
+    if (!weeks.includes(week)) {
+      weeks.push(week);
+    }
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
+  return weeks;
+};
+
+/**
+ * Simulate Monthly Grand Prix standings
+ * Based on weekly race results within the month
+ */
+export const simulateMonthlyGrandPrix = (
+  month: number, // 1-12
+  year: number,
+  playerWeeklyPoints: Map<number, number>, // week -> total GP earned
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+): ChampionshipStanding[] => {
+  const standings = new Map<string, ChampionshipStanding>();
+  const currentWeek = getWeekNumber();
+  const currentYear = new Date().getFullYear();
+
+  // Initialize standings for all 32 racers
+  RACERS.forEach(racer => {
+    standings.set(racer.id, {
+      racer,
+      totalPoints: 0,
+      races: 0,
+      wins: 0,
+      podiums: 0,
+      isPlayer: false,
+    });
+  });
+
+  standings.set('player', {
+    racer: null,
+    totalPoints: 0,
+    races: 0,
+    wins: 0,
+    podiums: 0,
+    isPlayer: true,
+  });
+
+  // Get weeks in this month
+  const weeks = getWeeksInMonth(month, year);
+  
+  // Simulate each weekly race
+  for (const week of weeks) {
+    // Don't simulate future weeks
+    if (year > currentYear || (year === currentYear && week > currentWeek)) {
+      continue;
+    }
+
+    const playerPoints = playerWeeklyPoints.get(week) || 0;
+    const results = simulateWeeklyRace(week, year, playerPoints, difficulty, 8);
+
+    // Update standings only for racers who participated this week
+    results.forEach(result => {
+      const id = result.isPlayer ? 'player' : result.racer!.id;
+      let standing = standings.get(id);
+      
+      if (!standing) {
+        // Racer wasn't in initial set (shouldn't happen but safety check)
+        return;
+      }
+
+      standing.races++;
+      standing.totalPoints += getPositionPoints(result.position!);
+      if (result.position === 1) standing.wins++;
+      if (result.position! <= 3) standing.podiums++;
+    });
+  }
+
+  // Convert to array, filter to only those who raced, and sort
+  return Array.from(standings.values())
+    .filter(s => s.races > 0)
+    .sort((a, b) => b.totalPoints - a.totalPoints)
+    .map((standing, index) => ({
+      ...standing,
+      position: index + 1,
+    }));
+};
+
+/**
+ * Simulate Seasonal Championship standings (3 months / quarter)
+ */
+export const simulateSeasonalChampionship = (
+  season: number, // 1-4 (Q1-Q4)
+  year: number,
+  playerWeeklyPoints: Map<number, number>,
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+): ChampionshipStanding[] => {
+  const standings = new Map<string, ChampionshipStanding>();
+
+  // Initialize all racers
+  RACERS.forEach(racer => {
+    standings.set(racer.id, {
+      racer,
+      totalPoints: 0,
+      races: 0,
+      wins: 0,
+      podiums: 0,
+      isPlayer: false,
+    });
+  });
+
+  standings.set('player', {
+    racer: null,
+    totalPoints: 0,
+    races: 0,
+    wins: 0,
+    podiums: 0,
+    isPlayer: true,
+  });
+
+  // Get months in this season
+  const startMonth = (season - 1) * 3 + 1; // 1, 4, 7, 10
+  const months = [startMonth, startMonth + 1, startMonth + 2];
+
+  // Aggregate monthly GP results
+  for (const month of months) {
+    const monthlyStandings = simulateMonthlyGrandPrix(month, year, playerWeeklyPoints, difficulty);
+    
+    monthlyStandings.forEach(ms => {
+      const id = ms.isPlayer ? 'player' : ms.racer!.id;
+      const standing = standings.get(id)!;
+      
+      // Award points based on monthly GP position
+      standing.totalPoints += getPositionPoints(ms.position!);
+      standing.races += ms.races;
+      standing.wins += ms.wins;
+      standing.podiums += ms.podiums;
+    });
+  }
+
+  return Array.from(standings.values())
+    .filter(s => s.races > 0)
+    .sort((a, b) => b.totalPoints - a.totalPoints)
+    .map((standing, index) => ({
+      ...standing,
+      position: index + 1,
+    }));
+};
+
+/**
+ * Simulate Annual Championship standings
+ */
+export const simulateAnnualChampionship = (
+  year: number,
+  playerWeeklyPoints: Map<number, number>,
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+): ChampionshipStanding[] => {
+  const standings = new Map<string, ChampionshipStanding>();
+
+  RACERS.forEach(racer => {
+    standings.set(racer.id, {
+      racer,
+      totalPoints: 0,
+      races: 0,
+      wins: 0,
+      podiums: 0,
+      isPlayer: false,
+    });
+  });
+
+  standings.set('player', {
+    racer: null,
+    totalPoints: 0,
+    races: 0,
+    wins: 0,
+    podiums: 0,
+    isPlayer: true,
+  });
+
+  // Aggregate all 4 seasonal championships
+  for (let season = 1; season <= 4; season++) {
+    const seasonalStandings = simulateSeasonalChampionship(season, year, playerWeeklyPoints, difficulty);
+    
+    seasonalStandings.forEach(ss => {
+      const id = ss.isPlayer ? 'player' : ss.racer!.id;
+      const standing = standings.get(id)!;
+      
+      standing.totalPoints += getPositionPoints(ss.position!);
+      standing.races += ss.races;
+      standing.wins += ss.wins;
+      standing.podiums += ss.podiums;
+    });
+  }
+
+  return Array.from(standings.values())
+    .filter(s => s.races > 0)
+    .sort((a, b) => b.totalPoints - a.totalPoints)
+    .map((standing, index) => ({
+      ...standing,
+      position: index + 1,
+    }));
+};
+
+/**
+ * Legacy: Simulate full Grand Prix season standings (cumulative over days)
+ * @deprecated Use simulateMonthlyGrandPrix instead
  */
 export const simulateGrandPrixStandings = (
   currentDay: number,
@@ -1156,11 +1498,12 @@ export const simulateGrandPrixStandings = (
   const startDay = Math.max(1, currentDay - 30); // Last 30 days of season
   for (let day = startDay; day <= currentDay; day++) {
     const playerPoints = playerDailyPoints.get(day) || 0;
-    const results = simulateRace(day, playerPoints, difficulty, 33);
+    const results = simulateRace(day, playerPoints, difficulty, 8);
 
     results.forEach(result => {
       const id = result.isPlayer ? 'player' : result.racer!.id;
-      const standing = standings.get(id)!;
+      const standing = standings.get(id);
+      if (!standing) return;
 
       standing.races++;
       standing.totalPoints += getPositionPoints(result.position!);
@@ -1171,6 +1514,7 @@ export const simulateGrandPrixStandings = (
 
   // Convert to array and sort
   return Array.from(standings.values())
+    .filter(s => s.races > 0)
     .sort((a, b) => b.totalPoints - a.totalPoints)
     .map((standing, index) => ({
       ...standing,

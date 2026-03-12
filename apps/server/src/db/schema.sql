@@ -76,6 +76,20 @@ CREATE TABLE IF NOT EXISTS sessions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Comments table
+-- Stores comments on work items
+CREATE TABLE IF NOT EXISTS comments (
+    id TEXT PRIMARY KEY,
+    work_item_id TEXT NOT NULL,
+    user_id TEXT, -- NULL for anonymous/system comments
+    content TEXT NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+    updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+
+    FOREIGN KEY (work_item_id) REFERENCES work_items(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
 -- Indexes for performance
 -- User queries
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -101,6 +115,10 @@ CREATE INDEX IF NOT EXISTS idx_block_records_work_item ON block_records(work_ite
 -- Session queries
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+
+-- Comment queries
+CREATE INDEX IF NOT EXISTS idx_comments_work_item ON comments(work_item_id);
+CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id);
 
 -- Trigger to update updated_at timestamp on work_items
 CREATE TRIGGER IF NOT EXISTS update_work_items_timestamp

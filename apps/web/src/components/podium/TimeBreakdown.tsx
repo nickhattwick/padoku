@@ -76,7 +76,7 @@ export const TimeBreakdown = ({ startDate, endDate, granularity }: TimeBreakdown
             borderRadius: '8px',
             color: '#e5e7eb',
           }}
-          formatter={(value: number) => `${value.toFixed(2)}h`}
+          formatter={(value) => `${(value as number).toFixed(2)}h`}
         />
         <Legend wrapperStyle={{ color: '#9ca3af' }} />
         <Bar dataKey="garage" stackId="a" fill="#6b7280" name="🔧 Garage" radius={[0, 0, 0, 0]} />
