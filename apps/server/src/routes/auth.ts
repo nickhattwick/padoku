@@ -7,6 +7,9 @@ import {
   verifyToken,
   getGoogleClientId,
   migrateWorkItemsToUser,
+  findUserByEmail,
+  createSession,
+  generateToken,
 } from '../services/AuthService.js';
 
 const router = Router();
@@ -157,6 +160,27 @@ router.post('/migrate', (req: Request, res: Response) => {
     migratedCount,
     message: `Migrated ${migratedCount} work items to your account`,
   });
+});
+
+/**
+ * GET /auth/dev-token
+ * Development only - get a test token for API testing
+ * Remove this in production!
+ */
+router.get('/dev-token', (_req: Request, res: Response) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
+  const user = findUserByEmail('admin@example.com');
+  if (!user) {
+    return res.status(500).json({ error: 'Test user not found' });
+  }
+
+  const session = createSession(user.id);
+  const token = generateToken(user, session);
+
+  return res.json({ token, user: { id: user.id, email: user.email } });
 });
 
 export default router;

@@ -91,3 +91,1111 @@ Generating: gp-jun-silver
 
 Wrote: gp-jun-silver/index.html
 Generating: gp-jun-gold
+[1/1] Racing badge emblem, gold frame blazing with light, golden sun king trophy P1 champion, June GP winner theme, square medal, transparent background, no text
+
+Wrote: gp-jun-gold/index.html
+Generating: gp-jul-participant
+[1/1] Racing badge emblem, red white blue frame, firework with small race flag, July GP participant theme, square medal, transparent background, no text
+
+Wrote: gp-jul-participant/index.html
+Generating: gp-jul-bronze
+[1/1] Racing badge emblem, bronze frame with stars, sparkler behind bronze podium P3, July GP third place theme, square medal, transparent background, no text
+
+Wrote: gp-jul-bronze/index.html
+Generating: gp-jul-silver
+[1/1] Racing badge emblem, silver frame with stripes, liberty trophy silver P2 podium, July GP second place theme, square medal, transparent background, no text
+
+Wrote: gp-jul-silver/index.html
+Generating: gp-jul-gold
+[1/1] Racing badge emblem, gold frame with fireworks explosion, golden eagle trophy P1 champion, July GP winner theme, square medal, transparent background, no text
+
+Wrote: gp-jul-gold/index.html
+Generating: gp-aug-participant
+[1/1] Racing badge emblem, teal frame, palm tree with small race flag, August GP participant theme, square medal, transparent background, no text
+
+Wrote: gp-aug-participant/index.html
+Generating: gp-aug-bronze
+[1/1] Racing badge emblem, bronze frame with sand, beach ball behind bronze podium P3, August GP third place theme, square medal, transparent background, no text
+
+Wrote: gp-aug-bronze/index.html
+Generating: gp-aug-silver
+[1/1] Racing badge emblem, silver frame with waves, surfboard trophy silver P2 podium, August GP second place theme, square medal, transparent background, no text
+
+Wrote: gp-aug-silver/index.html
+Generating: gp-aug-gold
+[1/1] Racing badge emblem, gold frame with sunset, golden tropical trophy P1 champion, August GP winner theme, square medal, transparent background, no text
+
+Wrote: gp-aug-gold/index.html
+Generating: gp-sep-participant
+[1/1] Racing badge emblem, orange brown frame, falling leaf with small race flag, September GP participant theme, square medal, transparent background, no text
+
+Wrote: gp-sep-participant/index.html
+Generating: gp-sep-bronze
+[1/1] Racing badge emblem, bronze frame with acorns, apple behind bronze podium P3, September GP third place theme, square medal, transparent background, no text
+
+Wrote: gp-sep-bronze/index.html
+Generating: gp-sep-silver
+[1/1] Racing badge emblem, silver frame with leaves, harvest trophy silver P2 podium, September GP second place theme, square medal, transparent background, no text
+
+Wrote: gp-sep-silver/index.html
+Generating: gp-sep-gold
+[1/1] Racing badge emblem, gold frame with autumn wreath, golden cornucopia trophy P1 champion, September GP winner theme, square medal, transparent background, no text
+
+Wrote: gp-sep-gold/index.html
+Generating: gp-oct-participant
+[1/1] Racing badge emblem, purple black frame, pumpkin with small race flag, October GP participant theme, square medal, transparent background, no text
+
+Wrote: gp-oct-participant/index.html
+Generating: gp-oct-bronze
+[1/1] Racing badge emblem, bronze frame with bats, ghost behind bronze podium P3, October GP third place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-oct-silver
+[1/1] Racing badge emblem, silver frame with cobwebs, skull trophy silver P2 podium, October GP second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-oct-gold
+[1/1] Racing badge emblem, gold frame with jack-o-lanterns, golden phantom trophy P1 champion, October GP winner theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-nov-participant
+[1/1] Racing badge emblem, brown orange frame, turkey feather with small race flag, November GP participant theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-nov-bronze
+[1/1] Racing badge emblem, bronze frame with leaves, pilgrim hat behind bronze podium P3, November GP third place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-nov-silver
+[1/1] Racing badge emblem, silver frame with wheat, feast trophy silver P2 podium, November GP second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-nov-gold
+[1/1] Racing badge emblem, gold frame with cornucopia, golden turkey trophy P1 champion, November GP winner theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-dec-participant
+[1/1] Racing badge emblem, red green frame, snowflake with small race flag, December GP participant theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-dec-bronze
+[1/1] Racing badge emblem, bronze frame with holly, candy cane behind bronze podium P3, December GP third place theme, square medal, transparent background, no text
+
+Wrote: gp-dec-bronze/index.html
+Generating: gp-dec-silver
+[1/1] Racing badge emblem, silver frame with ornaments, christmas tree trophy silver P2 podium, December GP second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: gp-dec-gold
+[1/1] Racing badge emblem, gold frame with presents, golden star trophy P1 champion, December GP winner theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-winter-participant
+[1/1] Racing badge emblem, ice blue frame, snowman with small race flag, Winter championship participant theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-winter-bronze
+[1/1] Racing badge emblem, bronze frame with icicles, frozen podium P3, Winter championship third place theme, square medal, transparent background, no text
+
+Wrote: season-winter-bronze/index.html
+Generating: season-winter-silver
+[1/1] Racing badge emblem, silver frame with frost, ice sculpture trophy P2, Winter championship second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-winter-gold
+[1/1] Racing badge emblem, gold frame with diamond snowflakes, golden ice crown trophy P1, Winter champion theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-spring-participant
+[1/1] Racing badge emblem, green pink frame, butterfly with small race flag, Spring championship participant theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-spring-bronze
+[1/1] Racing badge emblem, bronze frame with flowers, garden podium P3, Spring championship third place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-spring-silver
+[1/1] Racing badge emblem, silver frame with blossoms, floral trophy P2, Spring championship second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-spring-gold
+[1/1] Racing badge emblem, gold frame with cherry blossoms, golden bloom trophy P1, Spring champion theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-summer-participant
+[1/1] Racing badge emblem, orange yellow frame, sun with small race flag, Summer championship participant theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-summer-bronze
+[1/1] Racing badge emblem, bronze frame with sun rays, beach podium P3, Summer championship third place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-summer-silver
+[1/1] Racing badge emblem, silver frame with heat waves, summer trophy P2, Summer championship second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-summer-gold
+[1/1] Racing badge emblem, gold frame blazing with flames, golden sun trophy P1, Summer champion theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-fall-participant
+[1/1] Racing badge emblem, orange brown frame, maple leaf with small race flag, Fall championship participant theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-fall-bronze
+[1/1] Racing badge emblem, bronze frame with leaves, harvest podium P3, Fall championship third place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-fall-silver
+[1/1] Racing badge emblem, silver frame with acorns, autumn trophy P2, Fall championship second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: season-fall-gold
+[1/1] Racing badge emblem, gold frame with golden leaves, harvest king trophy P1, Fall champion theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: champ-participant
+[1/1] Racing badge emblem, platinum frame, world globe with racing flag, Annual championship participant theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: champ-bronze
+[1/1] Racing badge emblem, bronze frame with laurels, world championship podium P3, Annual third place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: champ-silver
+[1/1] Racing badge emblem, silver frame with stars, world trophy P2, Annual championship second place theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+Generating: champ-gold
+[1/1] Racing badge emblem, golden diamond frame with crown jewels, world champion trophy with globe P1, World champion ultimate glory theme, square medal, transparent background, no text
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 122, in request_images
+    with urllib.request.urlopen(req, timeout=300) as resp:
+  File "/usr/lib64/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib64/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/usr/lib64/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 240, in <module>
+    raise SystemExit(main())
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 205, in main
+    res = request_images(
+  File "/home/ec2-user/.npm-global/lib/node_modules/openclaw/skills/openai-image-gen/scripts/gen.py", line 126, in request_images
+    raise RuntimeError(f"OpenAI Images API failed ({e.code}): {payload}") from e
+RuntimeError: OpenAI Images API failed (400): {
+  "error": {
+    "message": "Billing hard limit has been reached.",
+    "type": "billing_limit_user_error",
+    "param": null,
+    "code": "billing_hard_limit_reached"
+  }
+}
+All GP, Seasonal, and Championship badges generated!

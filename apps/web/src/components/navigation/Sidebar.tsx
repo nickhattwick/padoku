@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useWorkItems } from '../../api/queries';
 import { workItemsApi } from '../../api/workItems';
 import { useWorkItemStore } from '../../stores/workItemStore';
+import { TeamsPanel } from '../teams/TeamsPanel';
 import type { WorkItem } from '@paddock/shared';
 
 export const Sidebar = () => {
@@ -86,6 +87,9 @@ export const Sidebar = () => {
           </div>
         )}
       </div>
+
+      {/* Teams section */}
+      <TeamsPanel />
     </div>
   );
 };

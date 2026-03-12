@@ -337,7 +337,7 @@ export const ProfileView = ({ user, onClose }: ProfileViewProps) => {
     earnedBadges.add(`${monthBadges[currentMonth]}-${ALL_BADGES.monthly[currentMonth].id.split('-').slice(1).join('-')}`);
   }
 
-  const totalBadges = Object.values(ALL_BADGES).flat().length;
+  // const totalBadges = Object.values(ALL_BADGES).flat().length;
   const earnedCount = earnedBadges.size;
 
   return (
@@ -355,8 +355,8 @@ export const ProfileView = ({ user, onClose }: ProfileViewProps) => {
           </button>
         </div>
         
-        {/* Tabs */}
-        <div className="max-w-4xl mx-auto px-4 pb-2 flex gap-2">
+        {/* Tabs - All Badges hidden for now */}
+        {/* <div className="max-w-4xl mx-auto px-4 pb-2 flex gap-2">
           <button
             onClick={() => setActiveTab('profile')}
             className={`px-4 py-2 rounded-lg font-bold transition-all ${
@@ -377,7 +377,7 @@ export const ProfileView = ({ user, onClose }: ProfileViewProps) => {
           >
             All Badges ({earnedCount}/{totalBadges})
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">

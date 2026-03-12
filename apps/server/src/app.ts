@@ -6,6 +6,7 @@ import blockRecordsRouter from './routes/blockRecords.js';
 import analyticsRouter from './routes/analytics.js';
 import authRouter from './routes/auth.js';
 import commentsRouter from './routes/comments.js';
+import teamsRouter from './routes/teams.js';
 import { requireAuth } from './middleware/auth.js';
 
 export const createApp = () => {
@@ -45,6 +46,7 @@ export const createApp = () => {
   app.use('/api/time-logs', requireAuth, timeLogsRouter);
   app.use('/api/block-records', requireAuth, blockRecordsRouter);
   app.use('/api/analytics', requireAuth, analyticsRouter);
+  app.use('/api/teams', teamsRouter); // Teams routes handle their own auth
 
   // 404 handler
   app.use((_req: Request, res: Response) => {

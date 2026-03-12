@@ -6,6 +6,7 @@ import type { WorkItemStatus, RecurrenceRule } from '@paddock/shared';
 import { RecurrenceRulePicker } from '../recurring/RecurrenceRulePicker';
 import { GoalProgressBadge } from '../goals/GoalProgressBadge';
 import { CommentsSection } from '../comments/CommentsSection';
+import { ShareDialog } from '../teams/ShareDialog';
 
 export const DetailsDrawer = () => {
   const { isDrawerOpen, selectedItemId, closeDrawer, setCurrentParent } = useWorkItemStore();
@@ -24,6 +25,7 @@ export const DetailsDrawer = () => {
   const [goalTarget, setGoalTarget] = useState<number | null>(null);
   const [isRecurringTemplate, setIsRecurringTemplate] = useState(false);
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const generateInstancesMutation = useGenerateInstances();
 
@@ -435,13 +437,22 @@ export const DetailsDrawer = () => {
 
         {/* Footer Actions */}
         <div className="px-6 py-4 border-t border-gray-700 bg-gray-900 flex justify-between">
-          <button
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="px-4 py-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50 border border-transparent hover:border-red-800"
-          >
-            {deleteMutation.isPending ? 'Deleting...' : '🗑️ Delete'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="px-4 py-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50 border border-transparent hover:border-red-800"
+            >
+              {deleteMutation.isPending ? 'Deleting...' : '🗑️ Delete'}
+            </button>
+            <button
+              onClick={() => setShowShareDialog(true)}
+              className="px-4 py-2 text-cyan-400 hover:bg-cyan-900/30 rounded-lg transition-colors border border-transparent hover:border-cyan-800"
+              title="Share to team"
+            >
+              🏎️ Share
+            </button>
+          </div>
           <button
             onClick={handleClose}
             className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors border border-gray-700"
@@ -450,6 +461,16 @@ export const DetailsDrawer = () => {
           </button>
         </div>
       </div>
+
+      {/* Share Dialog */}
+      {item && (
+        <ShareDialog
+          workItemId={item.id}
+          workItemTitle={item.title}
+          isOpen={showShareDialog}
+          onClose={() => setShowShareDialog(false)}
+        />
+      )}
     </>
   );
 };

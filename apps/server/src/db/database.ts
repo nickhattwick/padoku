@@ -148,6 +148,74 @@ const runMigrations = (): void => {
     console.log('✅ Migration complete: comments table created');
   }
 
+  // Migration 6: Add teams tables
+  try {
+    db.exec("SELECT 1 FROM teams LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Creating teams tables...');
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS teams (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        code TEXT UNIQUE NOT NULL,
+        owner_id TEXT NOT NULL,
+        is_public INTEGER DEFAULT 0,
+        max_members INTEGER DEFAULT 10,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS team_members (
+        team_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'member' CHECK(role IN ('owner', 'admin', 'member')),
+        status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'pending', 'invited')),
+        team_project_id TEXT,
+        joined_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        PRIMARY KEY (team_id, user_id),
+        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (team_project_id) REFERENCES work_items(id) ON DELETE SET NULL
+      )
+    `);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS team_work_items (
+        id TEXT PRIMARY KEY,
+        team_id TEXT NOT NULL,
+        work_item_id TEXT NOT NULL,
+        shared_by TEXT NOT NULL,
+        shared_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        UNIQUE (team_id, work_item_id),
+        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+        FOREIGN KEY (work_item_id) REFERENCES work_items(id) ON DELETE CASCADE,
+        FOREIGN KEY (shared_by) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('✅ Migration complete: teams tables created');
+  }
+
+  // Migration 7: Add assignee_id to work_items
+  try {
+    db.exec("SELECT assignee_id FROM work_items LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Adding assignee_id to work_items...');
+    db.exec("ALTER TABLE work_items ADD COLUMN assignee_id TEXT");
+    console.log('✅ Migration complete: assignee_id column added');
+  }
+
+  // Migration 8: Add user profile fields
+  try {
+    db.exec("SELECT is_public FROM users LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Adding user profile fields...');
+    try { db.exec("ALTER TABLE users ADD COLUMN is_public INTEGER DEFAULT 0"); } catch {}
+    try { db.exec("ALTER TABLE users ADD COLUMN profile_code TEXT"); } catch {}
+    try { db.exec("ALTER TABLE users ADD COLUMN display_name TEXT"); } catch {}
+    console.log('✅ Migration complete: user profile fields added');
+  }
+
   // Create indexes if they don't exist
   const indexes = [
     "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)",
@@ -157,6 +225,12 @@ const runMigrations = (): void => {
     "CREATE INDEX IF NOT EXISTS idx_work_items_user_id ON work_items(user_id)",
     "CREATE INDEX IF NOT EXISTS idx_comments_work_item ON comments(work_item_id)",
     "CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_teams_owner ON teams(owner_id)",
+    "CREATE INDEX IF NOT EXISTS idx_teams_code ON teams(code)",
+    "CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_team_work_items_team ON team_work_items(team_id)",
+    "CREATE INDEX IF NOT EXISTS idx_work_items_assignee ON work_items(assignee_id)",
+    "CREATE INDEX IF NOT EXISTS idx_users_profile_code ON users(profile_code)",
   ];
 
   for (const idx of indexes) {

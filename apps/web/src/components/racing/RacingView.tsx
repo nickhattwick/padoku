@@ -741,7 +741,7 @@ export const RacingView = () => {
                 </span>
               </div>
               <div className="divide-y divide-gray-800">
-                {monthlyStandings.slice(0, 10).map(standing => (
+                {monthlyStandings.slice(0, 32).map(standing => (
                   <StandingRow
                     key={standing.isPlayer ? 'player' : standing.racer?.id}
                     standing={standing}
@@ -796,7 +796,7 @@ export const RacingView = () => {
                 </span>
               </div>
               <div className="divide-y divide-gray-800">
-                {seasonalStandings.slice(0, 10).map(standing => (
+                {seasonalStandings.slice(0, 32).map(standing => (
                   <StandingRow
                     key={standing.isPlayer ? 'player' : standing.racer?.id}
                     standing={standing}
@@ -833,7 +833,7 @@ export const RacingView = () => {
                 </span>
               </div>
               <div className="divide-y divide-gray-800">
-                {championshipStandings.slice(0, 15).map(standing => (
+                {championshipStandings.slice(0, 32).map(standing => (
                   <StandingRow
                     key={standing.isPlayer ? 'player' : standing.racer?.id}
                     standing={standing}

@@ -149,3 +149,104 @@ export interface BurndownDataPoint {
   remaining: number; // Items not yet checkered
   completed: number; // Items in checkered status
 }
+
+// ============ TEAMS ============
+
+export type TeamMemberRole = 'owner' | 'admin' | 'member';
+export type TeamMemberStatus = 'active' | 'pending' | 'invited';
+
+// Team interface
+export interface Team {
+  id: string;
+  name: string;
+  code: string; // 6-char invite code
+  owner_id: string;
+  is_public: boolean;
+  max_members: number;
+  created_at: number;
+  updated_at: number;
+  // Computed/joined fields
+  member_count?: number;
+  owner_name?: string;
+}
+
+// Team member interface
+export interface TeamMember {
+  team_id: string;
+  user_id: string;
+  role: TeamMemberRole;
+  status: TeamMemberStatus;
+  team_project_id: string | null; // User's local project that syncs with team
+  joined_at: number;
+  // Joined fields
+  user_name?: string;
+  user_email?: string;
+  user_picture?: string;
+}
+
+// Team work item (shared item)
+export interface TeamWorkItem {
+  id: string;
+  team_id: string;
+  work_item_id: string;
+  shared_by: string;
+  shared_at: number;
+  // Joined fields
+  work_item?: WorkItem;
+  shared_by_name?: string;
+}
+
+// User profile (extended user info)
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string | null;
+  display_name: string | null;
+  picture: string | null;
+  is_public: boolean;
+  profile_code: string | null;
+  created_at: number;
+}
+
+// Input types for Teams API
+export interface CreateTeamInput {
+  name: string;
+  is_public?: boolean;
+}
+
+export interface UpdateTeamInput {
+  name?: string;
+  is_public?: boolean;
+}
+
+export interface InviteTeamMemberInput {
+  user_id: string;
+}
+
+export interface JoinTeamInput {
+  code: string;
+}
+
+export interface ShareWorkItemInput {
+  work_item_id: string;
+  include_children?: boolean; // Default true
+}
+
+export interface UpdateUserProfileInput {
+  display_name?: string;
+  is_public?: boolean;
+}
+
+// Response types
+export interface TeamWithMembers extends Team {
+  members: TeamMember[];
+}
+
+export interface TeamBoardItem extends WorkItem {
+  team_id: string;
+  shared_by: string;
+  shared_by_name?: string;
+  shared_at: number;
+  assignee_name?: string;
+  assignee_picture?: string;
+}
