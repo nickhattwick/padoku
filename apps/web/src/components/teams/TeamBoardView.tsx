@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTeams } from '../../hooks/useTeams';
 import { getStoredUser } from '../../api/auth';
+import { InviteMemberDialog } from './InviteMemberDialog';
 import type { Team, TeamWithMembers, TeamBoardItem } from '@paddock/shared';
 
 // Status display config
@@ -25,6 +26,7 @@ export const TeamBoardView = ({ team, onClose, onOpenItem }: TeamBoardViewProps)
   const [showMembers, setShowMembers] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showInvite, setShowInvite] = useState(false);
   
   const currentUser = getStoredUser();
   const isOwner = teamDetails?.owner_id === currentUser?.id;
@@ -118,6 +120,14 @@ export const TeamBoardView = ({ team, onClose, onOpenItem }: TeamBoardViewProps)
           </div>
           
           <div className="flex items-center gap-2">
+            {isOwner && (
+              <button
+                onClick={() => setShowInvite(true)}
+                className="px-3 py-1.5 text-sm rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors"
+              >
+                ➕ Invite
+              </button>
+            )}
             <button
               onClick={() => setShowMembers(!showMembers)}
               className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
@@ -289,6 +299,15 @@ export const TeamBoardView = ({ team, onClose, onOpenItem }: TeamBoardViewProps)
           </div>
         </div>
       </div>
+
+      {/* Invite Dialog */}
+      <InviteMemberDialog
+        teamId={team.id}
+        teamName={team.name}
+        isOpen={showInvite}
+        onClose={() => setShowInvite(false)}
+        onInvited={() => loadTeamData()}
+      />
     </div>
   );
 };
