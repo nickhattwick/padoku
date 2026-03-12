@@ -19,6 +19,26 @@ import { useAllWorkItems } from '../../api/queries';
 import { RacerProfileCard } from './RacerProfileCard';
 import '../../styles/racing.css';
 
+// Square portrait avatars for race standings (provided by Nick)
+const RACER_AVATARS: Record<string, string> = {
+  'nitro-knight': '/avatars/nitro-knight.jpg',
+  'apex-alice': '/avatars/apex-alice.jpg',
+  'slick-steve': '/avatars/slick-steve.jpg',
+  'diesel-drake': '/avatars/diesel-drake.jpg',
+  'zen-zara': '/avatars/zen-zara.jpg',
+  'captain-clutch': '/avatars/captain-clutch.jpg',
+  'turbo-ted': '/avatars/turbo-ted.jpg',
+  'rookie-roxy': '/avatars/rookie-roxy.jpg',
+  'player': '/avatars/player.jpg',
+};
+
+// Get avatar for a racer (falls back to emoji if no avatar)
+const getRacerAvatar = (racer: Racer | null, isPlayer: boolean): string | null => {
+  if (isPlayer) return RACER_AVATARS['player'];
+  if (!racer) return null;
+  return RACER_AVATARS[racer.id] || racer.image || null;
+};
+
 // Position badge component
 const PositionBadge = ({ position, size = 'md' }: { position: number; size?: 'sm' | 'md' | 'lg' }) => {
   const medal = getPositionMedal(position);
@@ -85,6 +105,7 @@ interface RacerCardProps {
 const RacerCard = ({ result, onClick }: RacerCardProps) => {
   const { racer, points, isPlayer, position = 0 } = result;
   const championshipPoints = getPositionPoints(position);
+  const avatarSrc = getRacerAvatar(racer, isPlayer);
 
   const cardClass = isPlayer
     ? 'bg-gradient-to-r from-blue-900/80 to-indigo-900/80 border-blue-500 pit-lane-blue'
@@ -104,10 +125,8 @@ const RacerCard = ({ result, onClick }: RacerCardProps) => {
           <div className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl overflow-hidden border-2 ${
             position <= 3 ? 'border-yellow-500/50' : 'border-gray-600'
           }`}>
-            {isPlayer ? (
-              <img src="/avatars/player.jpg" alt="You" className="w-full h-full object-cover" />
-            ) : racer?.image ? (
-              <img src={racer.image} alt={racer.name} className="w-full h-full object-cover" />
+            {avatarSrc ? (
+              <img src={avatarSrc} alt={isPlayer ? 'You' : racer?.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                 {racer?.emoji || '🏎️'}
@@ -135,6 +154,7 @@ const RacerCard = ({ result, onClick }: RacerCardProps) => {
 // Standing row for championships
 const StandingRow = ({ standing, onClick }: { standing: ChampionshipStanding; onClick: () => void }) => {
   const { racer, isPlayer, position = 0, totalPoints, wins, podiums } = standing;
+  const avatarSrc = getRacerAvatar(racer, isPlayer);
 
   return (
     <div
@@ -143,10 +163,8 @@ const StandingRow = ({ standing, onClick }: { standing: ChampionshipStanding; on
     >
       <PositionBadge position={position} size="sm" />
       <div className="w-14 h-14 rounded-lg overflow-hidden border-2 border-gray-600 flex-shrink-0">
-        {isPlayer ? (
-          <img src="/avatars/player.jpg" alt="You" className="w-full h-full object-cover" />
-        ) : racer?.image ? (
-          <img src={racer.image} alt={racer.name} className="w-full h-full object-cover" />
+        {avatarSrc ? (
+          <img src={avatarSrc} alt={isPlayer ? 'You' : racer?.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gray-800 flex items-center justify-center text-lg">
             {racer?.emoji || '🏎️'}
