@@ -128,6 +128,26 @@ const runMigrations = (): void => {
     console.log('✅ Migration complete: sessions table created');
   }
 
+  // Migration 5: Create comments table (if not exists)
+  try {
+    db.exec("SELECT 1 FROM comments LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Creating comments table...');
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS comments (
+        id TEXT PRIMARY KEY,
+        work_item_id TEXT NOT NULL,
+        user_id TEXT,
+        content TEXT NOT NULL,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+        FOREIGN KEY (work_item_id) REFERENCES work_items(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    console.log('✅ Migration complete: comments table created');
+  }
+
   // Create indexes if they don't exist
   const indexes = [
     "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)",
@@ -135,6 +155,8 @@ const runMigrations = (): void => {
     "CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id)",
     "CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)",
     "CREATE INDEX IF NOT EXISTS idx_work_items_user_id ON work_items(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_comments_work_item ON comments(work_item_id)",
+    "CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id)",
   ];
 
   for (const idx of indexes) {

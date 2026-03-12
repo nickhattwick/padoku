@@ -5,6 +5,7 @@ import timeLogsRouter from './routes/timeLogs.js';
 import blockRecordsRouter from './routes/blockRecords.js';
 import analyticsRouter from './routes/analytics.js';
 import authRouter from './routes/auth.js';
+import commentsRouter from './routes/comments.js';
 import { requireAuth } from './middleware/auth.js';
 
 export const createApp = () => {
@@ -40,6 +41,7 @@ export const createApp = () => {
   
   // Protected routes - require authentication
   app.use('/api/work-items', requireAuth, workItemsRouter);
+  app.use('/api/work-items', requireAuth, commentsRouter); // Comments are nested under work-items
   app.use('/api/time-logs', requireAuth, timeLogsRouter);
   app.use('/api/block-records', requireAuth, blockRecordsRouter);
   app.use('/api/analytics', requireAuth, analyticsRouter);
