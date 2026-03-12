@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTeams } from '../../hooks/useTeams';
 import { getStoredUser } from '../../api/auth';
 import { InviteMemberDialog } from './InviteMemberDialog';
+import { TeamWorkItemCard } from './TeamWorkItemCard';
+import { NewTeamTaskModal } from './NewTeamTaskModal';
 import type { Team, TeamWithMembers, TeamBoardItem } from '@paddock/shared';
 
 // Status display config
@@ -28,6 +30,7 @@ export const TeamBoardView = ({ team, onClose, onOpenItem, isFullScreen = false 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showInvite, setShowInvite] = useState(false);
+  const [showNewTask, setShowNewTask] = useState(false);
   
   const currentUser = getStoredUser();
   const isOwner = teamDetails?.owner_id === currentUser?.id;
@@ -138,12 +141,18 @@ export const TeamBoardView = ({ team, onClose, onOpenItem, isFullScreen = false 
           </div>
           
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowNewTask(true)}
+              className="px-3 py-1.5 text-sm rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors"
+            >
+              ➕ Add Task
+            </button>
             {isOwner && (
               <button
                 onClick={() => setShowInvite(true)}
                 className="px-3 py-1.5 text-sm rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors"
               >
-                ➕ Invite
+                👥 Invite
               </button>
             )}
             <button
@@ -284,32 +293,11 @@ export const TeamBoardView = ({ team, onClose, onOpenItem, isFullScreen = false 
                     
                     <div className="space-y-2">
                       {itemsByStatus[status]?.map((item) => (
-                        <div
+                        <TeamWorkItemCard
                           key={item.id}
-                          onClick={() => onOpenItem?.(item.id)}
-                          className="p-3 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 cursor-pointer transition-colors group"
-                        >
-                          <div className="font-medium text-white text-sm mb-1 line-clamp-2">
-                            {item.title}
-                          </div>
-                          
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            {item.grid_points && (
-                              <span className="px-1.5 py-0.5 bg-purple-900/50 text-purple-300 rounded">
-                                {item.grid_points} GP
-                              </span>
-                            )}
-                            {item.due_at && (
-                              <span className="text-gray-600">
-                                📅 {new Date(item.due_at).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
-                          
-                          <div className="mt-2 pt-2 border-t border-gray-700 flex items-center gap-2 text-xs text-gray-600">
-                            <span>Shared by {item.shared_by_name || 'Unknown'}</span>
-                          </div>
-                        </div>
+                          item={item}
+                          onOpenItem={onOpenItem}
+                        />
                       ))}
                     </div>
                   </div>
@@ -327,6 +315,14 @@ export const TeamBoardView = ({ team, onClose, onOpenItem, isFullScreen = false 
         isOpen={showInvite}
         onClose={() => setShowInvite(false)}
         onInvited={() => loadTeamData()}
+      />
+
+      {/* New Task Modal */}
+      <NewTeamTaskModal
+        teamId={team.id}
+        isOpen={showNewTask}
+        onClose={() => setShowNewTask(false)}
+        onCreated={() => loadTeamData()}
       />
     </div>
   );
