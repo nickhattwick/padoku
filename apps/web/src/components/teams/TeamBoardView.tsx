@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTeams } from '../../hooks/useTeams';
 import { getStoredUser } from '../../api/auth';
 import { InviteMemberDialog } from './InviteMemberDialog';
-import { TeamWorkItemCard } from './TeamWorkItemCard';
+// TeamWorkItemCard removed - hierarchy is in sidebar now
 import { NewTeamTaskModal } from './NewTeamTaskModal';
 import type { Team, TeamWithMembers, TeamBoardItem } from '@paddock/shared';
 
@@ -293,11 +293,32 @@ export const TeamBoardView = ({ team, onClose, onOpenItem, isFullScreen = false 
                     
                     <div className="space-y-2">
                       {itemsByStatus[status]?.map((item) => (
-                        <TeamWorkItemCard
+                        <div
                           key={item.id}
-                          item={item}
-                          onOpenItem={onOpenItem}
-                        />
+                          onClick={() => onOpenItem?.(item.id)}
+                          className="p-3 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 cursor-pointer transition-colors"
+                        >
+                          <div className="font-medium text-white text-sm mb-1 line-clamp-2">
+                            {item.title}
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            {item.grid_points && (
+                              <span className="px-1.5 py-0.5 bg-purple-900/50 text-purple-300 rounded">
+                                {item.grid_points} GP
+                              </span>
+                            )}
+                            {item.due_at && (
+                              <span className="text-gray-600">
+                                📅 {new Date(item.due_at).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-600">
+                            Shared by {item.shared_by_name || 'Unknown'}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
