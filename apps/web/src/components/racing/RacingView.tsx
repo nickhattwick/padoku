@@ -11,6 +11,9 @@ import {
   getSeasonNumber,
   getSeasonName,
   getMonthName,
+  getGrandPrixTheme,
+  getDaysRemainingInMonth,
+  getWeekOfMonth,
   type Racer,
   type RaceResult,
   type ChampionshipStanding,
@@ -407,11 +410,44 @@ export const RacingView = () => {
         )}
 
         {/* Monthly GP Tab */}
-        {activeTab === 'monthly' && (
+        {activeTab === 'monthly' && (() => {
+          const gpTheme = getGrandPrixTheme(selectedMonth);
+          const isCurrentMonth = selectedMonth === currentMonth && selectedYear === currentYear;
+          const daysRemaining = isCurrentMonth ? getDaysRemainingInMonth() : 0;
+          const weekOfMonth = isCurrentMonth ? getWeekOfMonth() : 4;
+          
+          return (
           <div className="space-y-6">
-            <div className="text-center">
-              <h1 className="text-4xl font-black text-white mb-1 speed-text">🏆 MONTHLY GRAND PRIX</h1>
-              <p className="text-gray-400 text-lg">{getMonthName(selectedMonth)} {selectedYear}</p>
+            {/* Themed GP Header */}
+            <div className={`rounded-2xl p-6 bg-gradient-to-r ${gpTheme.color} border border-white/20 shadow-lg`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-4xl">{gpTheme.emoji}</span>
+                    <div>
+                      <h1 className="text-3xl font-black text-white speed-text">{gpTheme.cup}</h1>
+                      <p className="text-white/80 text-sm font-medium">{gpTheme.name} • {selectedYear}</p>
+                    </div>
+                  </div>
+                  <p className="text-white/70 text-sm max-w-md">{gpTheme.description}</p>
+                </div>
+                {isCurrentMonth && (
+                  <div className="text-center bg-black/30 rounded-xl px-6 py-4">
+                    <div className="text-xs text-white/60 uppercase tracking-wider mb-1">Race Week</div>
+                    <div className="text-4xl font-black text-white">{weekOfMonth}/4</div>
+                    <div className="text-sm text-white/80 mt-1">
+                      {daysRemaining === 0 ? 'Final day!' : `${daysRemaining} days left`}
+                    </div>
+                  </div>
+                )}
+                {!isCurrentMonth && selectedMonth < currentMonth && (
+                  <div className="text-center bg-black/30 rounded-xl px-6 py-4">
+                    <div className="text-xs text-white/60 uppercase tracking-wider mb-1">Status</div>
+                    <div className="text-2xl font-black text-white">COMPLETE</div>
+                    <div className="text-sm text-white/80 mt-1">🏁 Championship decided</div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Month Navigation */}
@@ -436,9 +472,9 @@ export const RacingView = () => {
 
             {/* Standings */}
             <div className="timing-board rounded-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2">
+              <div className={`bg-gradient-to-r ${gpTheme.color} px-4 py-2`}>
                 <span className="text-white font-bold uppercase tracking-wider text-sm">
-                  {getMonthName(selectedMonth)} Grand Prix Standings
+                  {gpTheme.emoji} {gpTheme.cup} Standings
                 </span>
               </div>
               <div className="divide-y divide-gray-800">
@@ -461,7 +497,7 @@ export const RacingView = () => {
               </div>
             </div>
           </div>
-        )}
+        );})()}
 
         {/* Seasonal Tab */}
         {activeTab === 'seasonal' && (

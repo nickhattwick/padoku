@@ -1118,6 +1118,126 @@ export const getMonthName = (month: number): string => {
 };
 
 /**
+ * Monthly Grand Prix themes
+ */
+export interface GrandPrixTheme {
+  name: string;
+  cup: string;
+  emoji: string;
+  color: string; // Tailwind gradient classes
+  description: string;
+}
+
+export const MONTHLY_GP_THEMES: Record<number, GrandPrixTheme> = {
+  1: {
+    name: 'Polar Prix',
+    cup: 'Frostbite Cup',
+    emoji: '❄️',
+    color: 'from-cyan-600 to-blue-700',
+    description: 'Brave the frozen tracks in the coldest championship of the year',
+  },
+  2: {
+    name: 'Valentines Grand Prix',
+    cup: 'Heartbreaker Cup',
+    emoji: '💘',
+    color: 'from-pink-600 to-red-600',
+    description: 'Race for love and glory in the most romantic GP of the season',
+  },
+  3: {
+    name: 'Lucky Lap',
+    cup: 'Shamrock Cup',
+    emoji: '🍀',
+    color: 'from-green-600 to-emerald-700',
+    description: 'Fortune favors the bold in this luck-of-the-Irish showdown',
+  },
+  4: {
+    name: 'Spring Sprint',
+    cup: 'April Showers Cup',
+    emoji: '🌧️',
+    color: 'from-blue-500 to-purple-600',
+    description: 'Navigate treacherous wet conditions as spring storms roll in',
+  },
+  5: {
+    name: 'Bloom Boost',
+    cup: 'Flower Power Cup',
+    emoji: '🌸',
+    color: 'from-pink-500 to-yellow-500',
+    description: 'Spring into action as the track comes alive with color',
+  },
+  6: {
+    name: 'Summer Solstice GP',
+    cup: 'Heatwave Cup',
+    emoji: '☀️',
+    color: 'from-orange-500 to-yellow-500',
+    description: 'Push through the heat in the longest racing days of the year',
+  },
+  7: {
+    name: 'Independence GP',
+    cup: 'Fireworks Cup',
+    emoji: '🎆',
+    color: 'from-red-600 to-blue-600',
+    description: 'Celebrate freedom with explosive speed and dazzling finishes',
+  },
+  8: {
+    name: 'Beach Burnout',
+    cup: 'Sandstorm Cup',
+    emoji: '🏖️',
+    color: 'from-amber-500 to-orange-600',
+    description: 'Hit the coastal circuits for summer\'s hottest racing action',
+  },
+  9: {
+    name: 'Back to Track',
+    cup: 'Harvest Cup',
+    emoji: '🍂',
+    color: 'from-orange-600 to-amber-700',
+    description: 'Return to serious racing as autumn leaves fall on the track',
+  },
+  10: {
+    name: 'Phantom Prix',
+    cup: 'Spooky Cup',
+    emoji: '👻',
+    color: 'from-purple-700 to-gray-900',
+    description: 'Race through haunted tracks where only the brave survive',
+  },
+  11: {
+    name: 'Gratitude GP',
+    cup: 'Turkey Trophy',
+    emoji: '🦃',
+    color: 'from-amber-600 to-orange-700',
+    description: 'Give thanks by dominating the competition on turkey day tracks',
+  },
+  12: {
+    name: 'Winter Wonderland',
+    cup: 'Sleigh Rider Cup',
+    emoji: '🎄',
+    color: 'from-red-600 to-green-600',
+    description: 'Dash through the snow to claim the final cup of the year',
+  },
+};
+
+/**
+ * Get the current GP theme
+ */
+export const getGrandPrixTheme = (month: number): GrandPrixTheme => {
+  return MONTHLY_GP_THEMES[month] || MONTHLY_GP_THEMES[1];
+};
+
+/**
+ * Get days remaining in the current month
+ */
+export const getDaysRemainingInMonth = (date: Date = new Date()): number => {
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  return lastDay.getDate() - date.getDate();
+};
+
+/**
+ * Get current week number within the month (1-5)
+ */
+export const getWeekOfMonth = (date: Date = new Date()): number => {
+  return Math.ceil(date.getDate() / 7);
+};
+
+/**
  * Seeded random number generator for reproducible results
  */
 const seededRandom = (seed: number): number => {
