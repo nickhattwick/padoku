@@ -325,18 +325,28 @@ function AppContent() {
       {/* Main content */}
       <main className="flex-1 overflow-hidden flex bg-gradient-to-b from-gray-900 to-gray-950">
         {view === 'team' && selectedTeam ? (
-          <div className="flex-1 overflow-hidden">
-            <TeamBoardView
-              team={selectedTeam}
-              onClose={() => { setSelectedTeam(null); setView('board'); }}
-              onOpenItem={(itemId) => {
-                // Open item in drawer
-                const { openDrawer } = require('./stores/workItemStore').useWorkItemStore.getState();
-                openDrawer(itemId);
-              }}
-              isFullScreen={true}
-            />
-          </div>
+          <>
+            {/* Desktop sidebar */}
+            <div className="hidden md:block">
+              <Sidebar 
+                onSelectTeam={(team) => {
+                  setSelectedTeam(team);
+                }}
+              />
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <TeamBoardView
+                team={selectedTeam}
+                onClose={() => { setSelectedTeam(null); setView('board'); }}
+                onOpenItem={(itemId) => {
+                  // Open item in drawer
+                  const { openDrawer } = require('./stores/workItemStore').useWorkItemStore.getState();
+                  openDrawer(itemId);
+                }}
+                isFullScreen={true}
+              />
+            </div>
+          </>
         ) : view === 'board' ? (
           <>
             {/* Desktop sidebar */}
