@@ -4,7 +4,7 @@ import { initDatabase, closeDb } from './db/database.js';
 import { mkdir } from 'fs/promises';
 import { dirname } from 'path';
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const DB_PATH = process.env.DB_PATH || './data/paddock.db';
 
 async function start() {

@@ -1,6 +1,6 @@
 import { Database as SqlJsDatabase } from 'sql.js';
 import { getDb } from '../db/database.js';
-import type { WorkItem, RecurrenceRule } from '@paddock/shared';
+import type { WorkItem } from '@paddock/shared';
 import { parseRecurrenceRule, generateInstancesInRange } from '@paddock/shared';
 import { WorkItemService } from './WorkItemService.js';
 
@@ -53,14 +53,15 @@ export class RecurringService {
       // Create new instance
       const instance = this.workItemService.create({
         title: `${template.title} – ${this.formatDate(date)}`,
-        description: template.description,
+        description: template.description ?? undefined,
         status: 'garage', // Always start in garage
-        parent_id: template.parent_id, // Same parent as template
+        parent_id: template.parent_id ?? undefined,
         due_at: date.getTime(),
         is_goal: false,
-        goal_end_condition: null,
+        goal_end_condition: undefined,
         is_recurring_template: false,
-        recurrence_rule: null,
+        recurrence_rule: undefined,
+        position: 0, // Will be recalculated by service
       });
 
       instances.push(instance);
@@ -141,15 +142,19 @@ export class RecurringService {
 
     return {
       id: item.id,
+      user_id: item.user_id,
       title: item.title,
       description: item.description,
       status: item.status,
       parent_id: item.parent_id,
       due_at: item.due_at,
+      grid_points: item.grid_points,
       is_goal: Boolean(item.is_goal),
       goal_end_condition: item.goal_end_condition,
+      goal_target: item.goal_target,
       is_recurring_template: Boolean(item.is_recurring_template),
       recurrence_rule: item.recurrence_rule,
+      assignee_id: item.assignee_id,
       position: item.position,
       created_at: item.created_at,
       updated_at: item.updated_at,

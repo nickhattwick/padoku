@@ -245,7 +245,7 @@ const runMigrations = (): void => {
 /**
  * Assign all existing work items to a user by email
  */
-export const assignWorkItemsToUser = (email: string, userId: string): number => {
+export const assignWorkItemsToUser = (_email: string, userId: string): number => {
   const stmt = db.prepare('UPDATE work_items SET user_id = ? WHERE user_id IS NULL');
   stmt.run([userId]);
   stmt.free();

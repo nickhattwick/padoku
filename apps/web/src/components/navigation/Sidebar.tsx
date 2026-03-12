@@ -4,13 +4,9 @@ import { useWorkItems } from '../../api/queries';
 import { workItemsApi } from '../../api/workItems';
 import { useWorkItemStore } from '../../stores/workItemStore';
 import { TeamsPanel } from '../teams/TeamsPanel';
-import type { WorkItem, Team } from '@paddock/shared';
+import type { WorkItem } from '@paddock/shared';
 
-interface SidebarProps {
-  onSelectTeam?: (team: Team) => void;
-}
-
-export const Sidebar = ({ onSelectTeam }: SidebarProps = {}) => {
+export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const currentParentId = useWorkItemStore((s) => s.currentParentId);
   const setCurrentParent = useWorkItemStore((s) => s.setCurrentParent);
@@ -94,8 +90,8 @@ export const Sidebar = ({ onSelectTeam }: SidebarProps = {}) => {
 
       {/* Teams section */}
       <TeamsPanel 
-        onSelectTeam={onSelectTeam}
         onOpenItem={(itemId) => openDrawer(itemId)} 
+        onNavigate={(itemId) => handleNavigate(itemId)}
       />
     </div>
   );

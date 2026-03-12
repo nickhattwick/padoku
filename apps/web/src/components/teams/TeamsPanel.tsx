@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTeams } from '../../hooks/useTeams';
-import { TeamBoardView } from './TeamBoardView';
+import { TeamManageDialog } from './TeamManageDialog';
 import type { Team } from '@paddock/shared';
 
 interface TeamsPanelProps {
-  onSelectTeam?: (team: Team) => void;
   onOpenItem?: (itemId: string) => void;
+  onNavigate?: (itemId: string) => void;
 }
 
-export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
+export const TeamsPanel = ({ onOpenItem, onNavigate }: TeamsPanelProps) => {
   const { teams, loading, createTeam, joinTeam, getPendingInvites, acceptInvite, declineInvite } = useTeams();
   const [isExpanded, setIsExpanded] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -241,26 +241,20 @@ export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
               <TeamItem
                 key={team.id}
                 team={team}
-                onSelectTeam={() => {
-                  if (onSelectTeam) {
-                    onSelectTeam(team);
-                  } else {
-                    setSelectedTeam(team);
-                  }
-                }}
                 onOpenItem={onOpenItem}
+                onNavigate={onNavigate}
+                onManageTeam={setSelectedTeam}
               />
             ))
           )}
         </div>
       )}
 
-      {/* Team Board View Modal */}
+      {/* Team Management Dialog */}
       {selectedTeam && (
-        <TeamBoardView
+        <TeamManageDialog
           team={selectedTeam}
           onClose={() => setSelectedTeam(null)}
-          onOpenItem={onOpenItem}
         />
       )}
     </div>
@@ -269,11 +263,12 @@ export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
 
 interface TeamItemProps {
   team: Team;
-  onSelectTeam?: () => void;
   onOpenItem?: (itemId: string) => void;
+  onNavigate?: (itemId: string) => void;
+  onManageTeam?: (team: Team) => void;
 }
 
-const TeamItem = ({ team, onSelectTeam, onOpenItem }: TeamItemProps) => {
+const TeamItem = ({ team, onOpenItem, onNavigate, onManageTeam }: TeamItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
@@ -287,6 +282,11 @@ const TeamItem = ({ team, onSelectTeam, onOpenItem }: TeamItemProps) => {
       setLoadingItems(false);
     }
     setIsExpanded(!isExpanded);
+  };
+
+  const copyTeamCode = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(team.code);
   };
 
   return (
@@ -311,17 +311,34 @@ const TeamItem = ({ team, onSelectTeam, onOpenItem }: TeamItemProps) => {
           )}
         </button>
         
-        {/* Team name - click to open full view */}
+        {/* Team name - click to expand (like a folder) */}
         <button 
-          onClick={onSelectTeam}
+          onClick={handleExpand}
           className="flex-1 text-left text-sm text-white font-medium truncate hover:text-amber-400"
         >
-          {team.name}
+          🏎️ {team.name}
         </button>
         
-        <span className="text-xs text-gray-500">
-          {team.member_count || 1} 👤
-        </span>
+        {/* Team code (click to copy) */}
+        <button
+          onClick={copyTeamCode}
+          className="text-xs font-mono text-gray-500 hover:text-amber-400 px-1"
+          title="Click to copy team code"
+        >
+          {team.code}
+        </button>
+        
+        {/* Manage button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onManageTeam?.(team); }}
+          className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-purple-400 p-1 rounded hover:bg-gray-600 transition-all"
+          title="Manage team"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
       </div>
 
       {/* Expanded team items */}
@@ -335,6 +352,7 @@ const TeamItem = ({ team, onSelectTeam, onOpenItem }: TeamItemProps) => {
               key={item.id}
               item={item}
               onOpenItem={onOpenItem}
+              onNavigate={onNavigate}
               level={0}
             />
           ))}
@@ -348,10 +366,11 @@ const TeamItem = ({ team, onSelectTeam, onOpenItem }: TeamItemProps) => {
 interface TeamTreeItemProps {
   item: any;
   onOpenItem?: (itemId: string) => void;
+  onNavigate?: (itemId: string) => void;
   level: number;
 }
 
-const TeamTreeItem = ({ item, onOpenItem, level }: TeamTreeItemProps) => {
+const TeamTreeItem = ({ item, onOpenItem, onNavigate, level }: TeamTreeItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -409,9 +428,9 @@ const TeamTreeItem = ({ item, onOpenItem, level }: TeamTreeItemProps) => {
         {/* Status dot */}
         <div className={`w-2 h-2 rounded-full ${statusColors[item.status] || 'bg-gray-500'}`} />
         
-        {/* Item title */}
+        {/* Item title - click to navigate (show children in main board) */}
         <button
-          onClick={() => onOpenItem?.(item.id)}
+          onClick={() => onNavigate?.(item.id)}
           className="flex-1 text-left text-sm text-gray-300 hover:text-white truncate"
         >
           {item.title}
@@ -421,6 +440,17 @@ const TeamTreeItem = ({ item, onOpenItem, level }: TeamTreeItemProps) => {
         {item.grid_points && (
           <span className="text-xs text-purple-400">{item.grid_points}</span>
         )}
+        
+        {/* Edit button - opens drawer */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onOpenItem?.(item.id); }}
+          className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-purple-400 p-0.5 rounded transition-all"
+          title="Edit item"
+        >
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </button>
       </div>
 
       {/* Children */}
@@ -431,6 +461,7 @@ const TeamTreeItem = ({ item, onOpenItem, level }: TeamTreeItemProps) => {
               key={child.id}
               item={child}
               onOpenItem={onOpenItem}
+              onNavigate={onNavigate}
               level={level + 1}
             />
           ))}

@@ -5,7 +5,7 @@ import { getDb, saveDatabase, assignWorkItemsToUser } from '../db/database.js';
 
 // Environment variables (will be set in .env)
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+// const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || ''; // Reserved for future use
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-jwt-secret-change-me';
 const JWT_EXPIRES_IN = '7d';
 
@@ -28,6 +28,17 @@ export interface Session {
   expires_at: number;
   created_at: number;
 }
+
+// Helper to map ParamsObject to User
+const mapRowToUser = (row: Record<string, unknown>): User => ({
+  id: row.id as string,
+  email: row.email as string,
+  name: row.name as string | null,
+  picture: row.picture as string | null,
+  google_id: row.google_id as string | null,
+  created_at: row.created_at as number,
+  updated_at: row.updated_at as number,
+});
 
 export interface JWTPayload {
   userId: string;
@@ -76,9 +87,9 @@ export const findUserByEmail = (email: string): User | null => {
   stmt.bind([email]);
   
   if (stmt.step()) {
-    const user = stmt.getAsObject() as User;
+    const row = stmt.getAsObject();
     stmt.free();
-    return user;
+    return mapRowToUser(row as Record<string, unknown>);
   }
   
   stmt.free();
@@ -94,9 +105,9 @@ export const findUserById = (id: string): User | null => {
   stmt.bind([id]);
   
   if (stmt.step()) {
-    const user = stmt.getAsObject() as User;
+    const row = stmt.getAsObject();
     stmt.free();
-    return user;
+    return mapRowToUser(row as Record<string, unknown>);
   }
   
   stmt.free();
@@ -201,9 +212,14 @@ export const findValidSession = (sessionId: string): Session | null => {
   stmt.bind([sessionId, now]);
   
   if (stmt.step()) {
-    const session = stmt.getAsObject() as Session;
+    const row = stmt.getAsObject();
     stmt.free();
-    return session;
+    return {
+      id: row.id as string,
+      user_id: row.user_id as string,
+      expires_at: row.expires_at as number,
+      created_at: row.created_at as number,
+    };
   }
   
   stmt.free();

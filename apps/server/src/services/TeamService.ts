@@ -794,6 +794,7 @@ export function getTeamWorkItems(teamId: string, userId: string): TeamBoardItem[
     shared_by: row[cols.indexOf('shared_by')] as string,
     shared_by_name: row[cols.indexOf('shared_by_name')] as string,
     shared_at: row[cols.indexOf('shared_at')] as number,
+    assignee_id: row[cols.indexOf('assignee_id')] as string | null,
     assignee_name: row[cols.indexOf('assignee_name')] as string,
     assignee_picture: row[cols.indexOf('assignee_picture')] as string,
   }));
