@@ -1138,7 +1138,7 @@ export const MONTHLY_GP_THEMES: Record<number, GrandPrixTheme> = {
   },
   2: {
     name: 'Valentines Grand Prix',
-    cup: 'Heartbreaker Cup',
+    cup: "Cupid's Cup",
     emoji: '💘',
     color: 'from-pink-600 to-red-600',
     description: 'Race for love and glory in the most romantic GP of the season',
@@ -1159,14 +1159,14 @@ export const MONTHLY_GP_THEMES: Record<number, GrandPrixTheme> = {
   },
   5: {
     name: 'Bloom Boost',
-    cup: 'Flower Power Cup',
+    cup: 'Blossom Grand Prix',
     emoji: '🌸',
     color: 'from-pink-500 to-yellow-500',
     description: 'Spring into action as the track comes alive with color',
   },
   6: {
     name: 'Summer Solstice GP',
-    cup: 'Heatwave Cup',
+    cup: 'Solstice Grand Prix',
     emoji: '☀️',
     color: 'from-orange-500 to-yellow-500',
     description: 'Push through the heat in the longest racing days of the year',
@@ -1180,7 +1180,7 @@ export const MONTHLY_GP_THEMES: Record<number, GrandPrixTheme> = {
   },
   8: {
     name: 'Beach Burnout',
-    cup: 'Sandstorm Cup',
+    cup: 'Summer Slam Cup',
     emoji: '🏖️',
     color: 'from-amber-500 to-orange-600',
     description: 'Hit the coastal circuits for summer\'s hottest racing action',
@@ -1201,7 +1201,7 @@ export const MONTHLY_GP_THEMES: Record<number, GrandPrixTheme> = {
   },
   11: {
     name: 'Gratitude GP',
-    cup: 'Turkey Trophy',
+    cup: 'Gobbler Grand Prix',
     emoji: '🦃',
     color: 'from-amber-600 to-orange-700',
     description: 'Give thanks by dominating the competition on turkey day tracks',
