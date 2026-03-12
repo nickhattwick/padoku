@@ -7,6 +7,8 @@ import { RecurrenceRulePicker } from '../recurring/RecurrenceRulePicker';
 import { GoalProgressBadge } from '../goals/GoalProgressBadge';
 import { CommentsSection } from '../comments/CommentsSection';
 import { ShareDialog } from '../teams/ShareDialog';
+import { AssigneeDropdown } from '../teams/AssigneeDropdown';
+import { useTeams } from '../../hooks/useTeams';
 
 export const DetailsDrawer = () => {
   const { isDrawerOpen, selectedItemId, closeDrawer, setCurrentParent } = useWorkItemStore();
@@ -26,7 +28,9 @@ export const DetailsDrawer = () => {
   const [isRecurringTemplate, setIsRecurringTemplate] = useState(false);
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [assigneeId, setAssigneeId] = useState<string | null>(null);
 
+  const { assignWorkItem } = useTeams();
   const generateInstancesMutation = useGenerateInstances();
 
   // Update local state when item loads
@@ -42,6 +46,7 @@ export const DetailsDrawer = () => {
       setGoalTarget(item.goal_target);
       setIsRecurringTemplate(item.is_recurring_template);
       setRecurrenceRule(parseRecurrenceRule(item.recurrence_rule));
+      setAssigneeId(item.assignee_id || null);
     }
   }, [item]);
 
@@ -269,6 +274,26 @@ export const DetailsDrawer = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   Fibonacci scale — higher points = more effort
+                </p>
+              </div>
+
+              {/* Assignee */}
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">
+                  👤 Assignee
+                </label>
+                <AssigneeDropdown
+                  workItemId={selectedItemId || ''}
+                  currentAssigneeId={assigneeId}
+                  onAssign={async (userId) => {
+                    setAssigneeId(userId);
+                    if (selectedItemId) {
+                      await assignWorkItem(selectedItemId, userId);
+                    }
+                  }}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Assign to a team member
                 </p>
               </div>
 

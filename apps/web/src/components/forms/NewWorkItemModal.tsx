@@ -46,6 +46,7 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
         is_recurring_template: isRecurringTemplate,
         recurrence_rule: null, // Will be set later in drawer
         user_id: null, // Will be set by server based on auth
+        assignee_id: null, // Will be set later in drawer
       });
 
       // Reset form and close

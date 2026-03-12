@@ -138,8 +138,8 @@ export class WorkItemService {
       INSERT INTO work_items (
         id, user_id, title, description, status, parent_id, due_at, grid_points,
         is_goal, goal_end_condition, goal_target, is_recurring_template, recurrence_rule,
-        position, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        position, assignee_id, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.run(query, [
@@ -157,6 +157,7 @@ export class WorkItemService {
       input.is_recurring_template ? 1 : 0,
       input.recurrence_rule || null,
       input.position ?? 0,
+      input.assignee_id || null,
       now,
       now,
     ]);
@@ -232,6 +233,10 @@ export class WorkItemService {
     if (input.position !== undefined) {
       fields.push('position = ?');
       values.push(input.position);
+    }
+    if (input.assignee_id !== undefined) {
+      fields.push('assignee_id = ?');
+      values.push(input.assignee_id);
     }
 
     if (fields.length === 0) {
@@ -366,6 +371,7 @@ export class WorkItemService {
         is_recurring_template: Boolean(item.is_recurring_template),
         recurrence_rule: item.recurrence_rule,
         position: item.position,
+        assignee_id: item.assignee_id,
         created_at: item.created_at,
         updated_at: item.updated_at,
       };

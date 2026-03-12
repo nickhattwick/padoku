@@ -28,6 +28,7 @@ export const createWorkItemSchema = z.object({
   is_recurring_template: z.boolean().optional().default(false),
   recurrence_rule: z.string().nullable().optional(),
   position: z.number().optional().default(0),
+  assignee_id: z.string().uuid().nullable().optional(),
 });
 
 // Schema for updating an existing work item

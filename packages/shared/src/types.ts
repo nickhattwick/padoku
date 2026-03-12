@@ -33,6 +33,7 @@ export interface WorkItem {
   is_recurring_template: boolean;
   recurrence_rule: string | null; // JSON string for rrule
   position: number; // For ordering within status column
+  assignee_id: string | null; // User assigned to this work item (teams feature)
   created_at: number; // Unix timestamp in milliseconds
   updated_at: number; // Unix timestamp in milliseconds
 }

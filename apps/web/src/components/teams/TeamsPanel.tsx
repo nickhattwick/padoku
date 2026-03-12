@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useTeams } from '../../hooks/useTeams';
+import { TeamBoardView } from './TeamBoardView';
 import type { Team } from '@paddock/shared';
 
 interface TeamsPanelProps {
   onSelectTeam?: (team: Team) => void;
+  onOpenItem?: (itemId: string) => void;
 }
 
-export const TeamsPanel = ({ onSelectTeam }: TeamsPanelProps) => {
+export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
   const { teams, loading, createTeam, joinTeam } = useTeams();
   const [isExpanded, setIsExpanded] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -15,6 +17,7 @@ export const TeamsPanel = ({ onSelectTeam }: TeamsPanelProps) => {
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   const handleCreate = async () => {
     if (!newTeamName.trim()) return;
@@ -49,10 +52,10 @@ export const TeamsPanel = ({ onSelectTeam }: TeamsPanelProps) => {
   return (
     <div className="border-t border-gray-800 pt-2 mt-2">
       {/* Header */}
-      <div className="px-4 py-2 flex items-center justify-between">
+      <div className="px-4 py-3 flex items-center justify-between bg-gray-800/50">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          className="flex items-center gap-2 text-white hover:text-amber-400 transition-colors"
         >
           <svg
             className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
@@ -62,9 +65,9 @@ export const TeamsPanel = ({ onSelectTeam }: TeamsPanelProps) => {
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          <span className="text-sm font-medium">🏎️ Teams</span>
+          <span className="font-bold">🏎️ Teams</span>
           {teams.length > 0 && (
-            <span className="text-xs bg-gray-700 px-1.5 py-0.5 rounded-full">
+            <span className="text-xs bg-amber-600 text-white px-1.5 py-0.5 rounded-full">
               {teams.length}
             </span>
           )}
@@ -96,13 +99,13 @@ export const TeamsPanel = ({ onSelectTeam }: TeamsPanelProps) => {
         <div className="px-2 pb-2 space-y-1">
           {/* Create form */}
           {showCreate && (
-            <div className="p-2 bg-gray-800/50 rounded-lg space-y-2">
+            <div className="p-3 bg-gray-800 rounded-lg space-y-2 border border-gray-700">
               <input
                 type="text"
                 value={newTeamName}
                 onChange={(e) => setNewTeamName(e.target.value)}
                 placeholder="Team name..."
-                className="w-full px-2 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded focus:border-green-500 focus:outline-none"
+                className="w-full px-3 py-2 text-white bg-gray-900 border border-gray-600 rounded-lg focus:border-green-500 focus:outline-none placeholder-gray-500"
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                 autoFocus
               />
@@ -126,13 +129,13 @@ export const TeamsPanel = ({ onSelectTeam }: TeamsPanelProps) => {
 
           {/* Join form */}
           {showJoin && (
-            <div className="p-2 bg-gray-800/50 rounded-lg space-y-2">
+            <div className="p-3 bg-gray-800 rounded-lg space-y-2 border border-gray-700">
               <input
                 type="text"
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                 placeholder="Team code (e.g. ABC123)"
-                className="w-full px-2 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded focus:border-cyan-500 focus:outline-none uppercase"
+                className="w-full px-3 py-2 text-white bg-gray-900 border border-gray-600 rounded-lg focus:border-cyan-500 focus:outline-none uppercase placeholder-gray-500 font-mono tracking-wider"
                 maxLength={6}
                 onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
                 autoFocus
@@ -164,23 +167,35 @@ export const TeamsPanel = ({ onSelectTeam }: TeamsPanelProps) => {
 
           {/* Team list */}
           {loading ? (
-            <div className="text-center text-gray-600 text-xs py-2">Loading...</div>
+            <div className="text-center text-gray-400 text-sm py-3">Loading...</div>
           ) : teams.length === 0 ? (
-            <div className="text-center text-gray-600 text-xs py-4">
-              <div className="text-lg mb-1">🏁</div>
-              No teams yet
-              <div className="text-gray-700 mt-1">Create or join one!</div>
+            <div className="text-center text-gray-400 text-sm py-6">
+              <div className="text-2xl mb-2">🏁</div>
+              <div className="font-medium">No teams yet</div>
+              <div className="text-gray-500 mt-1 text-xs">Create or join one!</div>
             </div>
           ) : (
             teams.map((team) => (
               <TeamItem
                 key={team.id}
                 team={team}
-                onClick={() => onSelectTeam?.(team)}
+                onClick={() => {
+                  setSelectedTeam(team);
+                  onSelectTeam?.(team);
+                }}
               />
             ))
           )}
         </div>
+      )}
+
+      {/* Team Board View Modal */}
+      {selectedTeam && (
+        <TeamBoardView
+          team={selectedTeam}
+          onClose={() => setSelectedTeam(null)}
+          onOpenItem={onOpenItem}
+        />
       )}
     </div>
   );
@@ -190,12 +205,12 @@ const TeamItem = ({ team, onClick }: { team: Team; onClick?: () => void }) => {
   const [showCode, setShowCode] = useState(false);
 
   return (
-    <div className="group flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all cursor-pointer">
-      <button onClick={onClick} className="flex-1 text-left text-sm truncate">
+    <div className="group flex items-center gap-2 px-3 py-2.5 rounded-lg bg-gray-800/50 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 transition-all cursor-pointer">
+      <button onClick={onClick} className="flex-1 text-left text-sm text-white font-medium truncate">
         {team.name}
       </button>
       
-      <span className="text-xs text-gray-600">
+      <span className="text-xs text-gray-400">
         {team.member_count || 1} 👤
       </span>
       

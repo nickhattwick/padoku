@@ -89,7 +89,7 @@ export const Sidebar = () => {
       </div>
 
       {/* Teams section */}
-      <TeamsPanel />
+      <TeamsPanel onOpenItem={(itemId) => openDrawer(itemId)} />
     </div>
   );
 };

@@ -139,17 +139,55 @@ export function useTeams() {
     }
   };
 
-  const leaveTeam = async (teamId: string): Promise<boolean> => {
+  const leaveTeam = async (teamId: string, userId: string): Promise<{ ok: boolean; error?: string }> => {
+    if (!token) return { ok: false, error: 'Not authenticated' };
+    
+    try {
+      const res = await fetch(`${API_BASE}/${teamId}/members/${userId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setTeams(prev => prev.filter(t => t.id !== teamId));
+        return { ok: true };
+      }
+      return { ok: false, error: data.error || 'Failed to leave team' };
+    } catch {
+      return { ok: false, error: 'Network error' };
+    }
+  };
+
+  const kickMember = async (teamId: string, userId: string): Promise<{ ok: boolean; error?: string }> => {
+    if (!token) return { ok: false, error: 'Not authenticated' };
+    
+    try {
+      const res = await fetch(`${API_BASE}/${teamId}/members/${userId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { ok: false, error: data.error || 'Failed to remove member' };
+      }
+      return { ok: true };
+    } catch {
+      return { ok: false, error: 'Network error' };
+    }
+  };
+
+  const assignWorkItem = async (workItemId: string, assigneeId: string | null): Promise<boolean> => {
     if (!token) return false;
     
     try {
-      const res = await fetch(`${API_BASE}/${teamId}/leave`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`/api/work-items/${workItemId}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ assignee_id: assigneeId }),
       });
-      if (res.ok) {
-        setTeams(prev => prev.filter(t => t.id !== teamId));
-      }
       return res.ok;
     } catch {
       return false;
@@ -167,6 +205,8 @@ export function useTeams() {
     shareWorkItem,
     deleteTeam,
     leaveTeam,
+    kickMember,
+    assignWorkItem,
     refreshTeams: fetchTeams,
   };
 }
