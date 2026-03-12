@@ -194,6 +194,51 @@ export function useTeams() {
     }
   };
 
+  const getPendingInvites = async (): Promise<Array<Team & { invited_at: number }>> => {
+    if (!token) return [];
+    
+    try {
+      const res = await fetch(`${API_BASE}/invites`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  };
+
+  const acceptInvite = async (teamId: string): Promise<boolean> => {
+    if (!token) return false;
+    
+    try {
+      const res = await fetch(`${API_BASE}/invites/${teamId}/accept`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        await fetchTeams();
+      }
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const declineInvite = async (teamId: string): Promise<boolean> => {
+    if (!token) return false;
+    
+    try {
+      const res = await fetch(`${API_BASE}/invites/${teamId}/decline`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
   return {
     teams,
     loading,
@@ -207,6 +252,9 @@ export function useTeams() {
     leaveTeam,
     kickMember,
     assignWorkItem,
+    getPendingInvites,
+    acceptInvite,
+    declineInvite,
     refreshTeams: fetchTeams,
   };
 }

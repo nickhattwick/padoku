@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTeams } from '../../hooks/useTeams';
 import { TeamBoardView } from './TeamBoardView';
 import type { Team } from '@paddock/shared';
@@ -9,7 +9,7 @@ interface TeamsPanelProps {
 }
 
 export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
-  const { teams, loading, createTeam, joinTeam } = useTeams();
+  const { teams, loading, createTeam, joinTeam, getPendingInvites, acceptInvite, declineInvite } = useTeams();
   const [isExpanded, setIsExpanded] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
@@ -18,6 +18,31 @@ export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [invites, setInvites] = useState<Array<Team & { invited_at: number }>>([]);
+  const [inviteAction, setInviteAction] = useState<string | null>(null);
+
+  // Load pending invites
+  useEffect(() => {
+    getPendingInvites().then(setInvites);
+  }, [teams]); // Refresh when teams change
+
+  const handleAcceptInvite = async (teamId: string) => {
+    setInviteAction(teamId);
+    const ok = await acceptInvite(teamId);
+    if (ok) {
+      setInvites(prev => prev.filter(i => i.id !== teamId));
+    }
+    setInviteAction(null);
+  };
+
+  const handleDeclineInvite = async (teamId: string) => {
+    setInviteAction(teamId);
+    const ok = await declineInvite(teamId);
+    if (ok) {
+      setInvites(prev => prev.filter(i => i.id !== teamId));
+    }
+    setInviteAction(null);
+  };
 
   const handleCreate = async () => {
     if (!newTeamName.trim()) return;
@@ -66,9 +91,9 @@ export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
           <span className="font-bold">🏎️ Teams</span>
-          {teams.length > 0 && (
+          {(teams.length > 0 || invites.length > 0) && (
             <span className="text-xs bg-amber-600 text-white px-1.5 py-0.5 rounded-full">
-              {teams.length}
+              {teams.length}{invites.length > 0 && <span className="text-amber-200">+{invites.length}</span>}
             </span>
           )}
         </button>
@@ -162,6 +187,43 @@ export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
           {error && (
             <div className="px-2 py-1 text-xs text-red-400 bg-red-900/30 rounded">
               {error}
+            </div>
+          )}
+
+          {/* Pending invites */}
+          {invites.length > 0 && (
+            <div className="mb-3">
+              <div className="text-xs font-medium text-amber-400 mb-2 px-1">
+                📬 Pending Invites
+              </div>
+              <div className="space-y-2">
+                {invites.map((invite) => (
+                  <div
+                    key={invite.id}
+                    className="p-3 bg-amber-900/20 border border-amber-700/50 rounded-lg"
+                  >
+                    <div className="font-medium text-white text-sm mb-2">
+                      {invite.name}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleAcceptInvite(invite.id)}
+                        disabled={inviteAction === invite.id}
+                        className="flex-1 px-2 py-1.5 text-xs bg-green-600 hover:bg-green-500 disabled:bg-gray-700 text-white rounded transition-colors"
+                      >
+                        {inviteAction === invite.id ? '...' : '✓ Accept'}
+                      </button>
+                      <button
+                        onClick={() => handleDeclineInvite(invite.id)}
+                        disabled={inviteAction === invite.id}
+                        className="flex-1 px-2 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-gray-300 rounded transition-colors"
+                      >
+                        ✕ Decline
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

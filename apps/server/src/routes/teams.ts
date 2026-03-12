@@ -22,6 +22,9 @@ import {
   searchUsers,
   getUserProfile,
   updateUserProfile,
+  getPendingInvites,
+  acceptInvite,
+  declineInvite,
 } from '../services/TeamService.js';
 
 const router = Router();
@@ -65,6 +68,54 @@ router.get('/', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get teams error:', error);
     return res.status(500).json({ error: 'Failed to get teams' });
+  }
+});
+
+/**
+ * GET /teams/invites
+ * Get pending invites for current user
+ */
+router.get('/invites', async (req: Request, res: Response) => {
+  try {
+    const invites = getPendingInvites(req.user!.id);
+    return res.json(invites);
+  } catch (error) {
+    console.error('Get invites error:', error);
+    return res.status(500).json({ error: 'Failed to get invites' });
+  }
+});
+
+/**
+ * POST /teams/invites/:teamId/accept
+ * Accept a team invite
+ */
+router.post('/invites/:teamId/accept', async (req: Request, res: Response) => {
+  try {
+    const result = acceptInvite(req.params.teamId, req.user!.id);
+    if (!result.ok) {
+      return res.status(400).json({ error: result.error });
+    }
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Accept invite error:', error);
+    return res.status(500).json({ error: 'Failed to accept invite' });
+  }
+});
+
+/**
+ * POST /teams/invites/:teamId/decline
+ * Decline a team invite
+ */
+router.post('/invites/:teamId/decline', async (req: Request, res: Response) => {
+  try {
+    const result = declineInvite(req.params.teamId, req.user!.id);
+    if (!result.ok) {
+      return res.status(400).json({ error: result.error });
+    }
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Decline invite error:', error);
+    return res.status(500).json({ error: 'Failed to decline invite' });
   }
 });
 

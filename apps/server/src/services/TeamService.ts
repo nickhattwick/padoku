@@ -171,6 +171,83 @@ export function getUserTeams(userId: string): Team[] {
   }));
 }
 
+export function getPendingInvites(userId: string): Array<Team & { invited_at: number }> {
+  const db = getDb();
+  const result = db.exec(
+    `SELECT t.*, tm.joined_at as invited_at
+     FROM teams t
+     JOIN team_members tm ON t.id = tm.team_id
+     WHERE tm.user_id = ? AND tm.status = 'invited'
+     ORDER BY tm.joined_at DESC`,
+    [userId]
+  );
+
+  if (result.length === 0) {
+    return [];
+  }
+
+  const cols = result[0].columns;
+  return result[0].values.map(row => ({
+    id: row[cols.indexOf('id')] as string,
+    name: row[cols.indexOf('name')] as string,
+    code: row[cols.indexOf('code')] as string,
+    owner_id: row[cols.indexOf('owner_id')] as string,
+    is_public: row[cols.indexOf('is_public')] === 1,
+    max_members: row[cols.indexOf('max_members')] as number || 10,
+    created_at: row[cols.indexOf('created_at')] as number,
+    updated_at: row[cols.indexOf('updated_at')] as number,
+    invited_at: row[cols.indexOf('invited_at')] as number,
+  }));
+}
+
+export function acceptInvite(teamId: string, userId: string): { ok: boolean; error?: string } {
+  const db = getDb();
+
+  // Check if user has an invite
+  const result = db.exec(
+    `SELECT status FROM team_members WHERE team_id = ? AND user_id = ?`,
+    [teamId, userId]
+  );
+
+  if (result.length === 0 || result[0].values.length === 0) {
+    return { ok: false, error: 'No invite found' };
+  }
+
+  const status = result[0].values[0][0];
+  if (status !== 'invited') {
+    return { ok: false, error: 'No pending invite' };
+  }
+
+  db.run(
+    `UPDATE team_members SET status = 'active', joined_at = ? WHERE team_id = ? AND user_id = ?`,
+    [Date.now(), teamId, userId]
+  );
+
+  saveDatabase();
+  return { ok: true };
+}
+
+export function declineInvite(teamId: string, userId: string): { ok: boolean; error?: string } {
+  const db = getDb();
+
+  const result = db.exec(
+    `SELECT status FROM team_members WHERE team_id = ? AND user_id = ?`,
+    [teamId, userId]
+  );
+
+  if (result.length === 0 || result[0].values.length === 0) {
+    return { ok: false, error: 'No invite found' };
+  }
+
+  db.run(
+    `DELETE FROM team_members WHERE team_id = ? AND user_id = ? AND status = 'invited'`,
+    [teamId, userId]
+  );
+
+  saveDatabase();
+  return { ok: true };
+}
+
 export function updateTeam(teamId: string, userId: string, input: UpdateTeamInput): Team | null {
   const db = getDb();
 
