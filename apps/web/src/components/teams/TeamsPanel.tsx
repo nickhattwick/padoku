@@ -242,8 +242,13 @@ export const TeamsPanel = ({ onSelectTeam, onOpenItem }: TeamsPanelProps) => {
                 key={team.id}
                 team={team}
                 onClick={() => {
-                  setSelectedTeam(team);
-                  onSelectTeam?.(team);
+                  // If parent handles team selection, use that (full screen mode)
+                  // Otherwise open the modal
+                  if (onSelectTeam) {
+                    onSelectTeam(team);
+                  } else {
+                    setSelectedTeam(team);
+                  }
                 }}
               />
             ))

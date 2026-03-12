@@ -10,11 +10,13 @@ import { CalendarView } from './components/calendar/CalendarView';
 import { PodiumView } from './components/podium/PodiumView';
 import { RacingView } from './components/racing/RacingView';
 import { ProfileView } from './components/profile/ProfileView';
+import { TeamBoardView } from './components/teams/TeamBoardView';
 import { BadgeUnlockModal } from './components/badges/BadgeUnlockModal';
 import { LandingPage } from './components/LandingPage';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
 import { useBadgeUnlock } from './hooks/useBadgeUnlock';
 import { getStoredUser, getStoredToken, clearAuth, authApi, User } from './api/auth';
+import type { Team } from '@paddock/shared';
 import './styles/racing.css';
 
 const queryClient = new QueryClient({
@@ -28,12 +30,13 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
-  const [view, setView] = useState<'board' | 'calendar' | 'podium' | 'racing'>('board');
+  const [view, setView] = useState<'board' | 'calendar' | 'podium' | 'racing' | 'team'>('board');
   const [user, setUser] = useState<User | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts(() => setIsNewItemModalOpen(true));
@@ -321,11 +324,29 @@ function AppContent() {
 
       {/* Main content */}
       <main className="flex-1 overflow-hidden flex bg-gradient-to-b from-gray-900 to-gray-950">
-        {view === 'board' ? (
+        {view === 'team' && selectedTeam ? (
+          <div className="flex-1 overflow-hidden">
+            <TeamBoardView
+              team={selectedTeam}
+              onClose={() => { setSelectedTeam(null); setView('board'); }}
+              onOpenItem={(itemId) => {
+                // Open item in drawer
+                const { openDrawer } = require('./stores/workItemStore').useWorkItemStore.getState();
+                openDrawer(itemId);
+              }}
+              isFullScreen={true}
+            />
+          </div>
+        ) : view === 'board' ? (
           <>
             {/* Desktop sidebar */}
             <div className="hidden md:block">
-              <Sidebar />
+              <Sidebar 
+                onSelectTeam={(team) => {
+                  setSelectedTeam(team);
+                  setView('team');
+                }}
+              />
             </div>
             <div className="flex-1 overflow-hidden">
               <Board onCreateItem={() => setIsNewItemModalOpen(true)} />

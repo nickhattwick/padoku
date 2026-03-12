@@ -4,9 +4,13 @@ import { useWorkItems } from '../../api/queries';
 import { workItemsApi } from '../../api/workItems';
 import { useWorkItemStore } from '../../stores/workItemStore';
 import { TeamsPanel } from '../teams/TeamsPanel';
-import type { WorkItem } from '@paddock/shared';
+import type { WorkItem, Team } from '@paddock/shared';
 
-export const Sidebar = () => {
+interface SidebarProps {
+  onSelectTeam?: (team: Team) => void;
+}
+
+export const Sidebar = ({ onSelectTeam }: SidebarProps = {}) => {
   const [isOpen, setIsOpen] = useState(true);
   const currentParentId = useWorkItemStore((s) => s.currentParentId);
   const setCurrentParent = useWorkItemStore((s) => s.setCurrentParent);
@@ -89,7 +93,10 @@ export const Sidebar = () => {
       </div>
 
       {/* Teams section */}
-      <TeamsPanel onOpenItem={(itemId) => openDrawer(itemId)} />
+      <TeamsPanel 
+        onSelectTeam={onSelectTeam}
+        onOpenItem={(itemId) => openDrawer(itemId)} 
+      />
     </div>
   );
 };
