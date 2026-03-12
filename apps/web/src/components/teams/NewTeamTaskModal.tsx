@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { workItemsApi } from '../../api/workItems';
 import { getStoredToken } from '../../api/auth';
 import type { WorkItemStatus } from '@paddock/shared';
@@ -43,6 +43,7 @@ export const NewTeamTaskModal = ({ teamId, isOpen, onClose, onCreated }: NewTeam
         is_recurring_template: false,
         recurrence_rule: null,
         assignee_id: null,
+        user_id: null, // Server sets this from auth
       });
 
       // Share it to the team
