@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   simulateWeeklyRace,
   simulateMonthlyGrandPrix,
@@ -13,16 +13,20 @@ import {
   getMonthName,
   getGrandPrixTheme,
   getDaysRemainingInMonth,
+  getDaysRemainingInWeek,
   getWeekOfMonth,
+  getPreviousWeek,
+  getPreviousMonth,
+  isNewRaceWeek,
+  isNewMonth,
   type Racer,
   type RaceResult,
   type ChampionshipStanding,
 } from '@paddock/shared';
 import { useAllWorkItems } from '../../api/queries';
-import { RacerProfileCard } from './RacerProfileCard';
 import '../../styles/racing.css';
 
-// Square portrait avatars for race standings (provided by Nick)
+// Square portrait avatars for race standings
 const RACER_AVATARS: Record<string, string> = {
   'nitro-knight': '/avatars/nitro-knight.jpg',
   'apex-alice': '/avatars/apex-alice.jpg',
@@ -35,7 +39,6 @@ const RACER_AVATARS: Record<string, string> = {
   'player': '/avatars/player.jpg',
 };
 
-// Get avatar for a racer (falls back to emoji if no avatar)
 const getRacerAvatar = (racer: Racer | null, isPlayer: boolean): string | null => {
   if (isPlayer) return RACER_AVATARS['player'];
   if (!racer) return null;
@@ -43,12 +46,13 @@ const getRacerAvatar = (racer: Racer | null, isPlayer: boolean): string | null =
 };
 
 // Position badge component
-const PositionBadge = ({ position, size = 'md' }: { position: number; size?: 'sm' | 'md' | 'lg' }) => {
+const PositionBadge = ({ position, size = 'md' }: { position: number; size?: 'sm' | 'md' | 'lg' | 'xl' }) => {
   const medal = getPositionMedal(position);
   const sizeClasses = {
     sm: 'w-6 h-6 text-xs',
     md: 'w-8 h-8 text-sm',
     lg: 'w-12 h-12 text-lg',
+    xl: 'w-16 h-16 text-2xl',
   };
 
   if (medal) {
@@ -66,36 +70,143 @@ const PositionBadge = ({ position, size = 'md' }: { position: number; size?: 'sm
   );
 };
 
-// Modal for racer details
-interface RacerModalProps {
-  racer: Racer;
-  result?: RaceResult;
-  standing?: ChampionshipStanding;
+// Race Results Modal - shows when new race week starts
+interface RaceResultsModalProps {
+  type: 'weekly' | 'monthly';
+  results: RaceResult[];
+  weekNumber?: number;
+  monthNumber?: number;
+  year: number;
   onClose: () => void;
 }
 
-const RacerModal = ({ racer, result, standing, onClose }: RacerModalProps) => {
-  const points = result?.points ?? 0;
-  const position = result?.position ?? standing?.position ?? 0;
-  const championshipPoints = result ? getPositionPoints(position) : standing?.totalPoints ?? 0;
+const RaceResultsModal = ({ type, results, weekNumber, monthNumber, year, onClose }: RaceResultsModalProps) => {
+  const playerResult = results.find(r => r.isPlayer);
+  const top3 = results.slice(0, 3);
+  const gpTheme = monthNumber ? getGrandPrixTheme(monthNumber) : null;
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50" onClick={onClose} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="max-w-2xl w-full my-4">
-          <RacerProfileCard
-            racer={racer}
-            position={position || undefined}
-            points={result ? points : undefined}
-            seasonPoints={championshipPoints}
-            wins={standing?.wins}
-            podiums={standing?.podiums}
-            onClose={onClose}
-          />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={onClose} />
+      
+      <div className="relative bg-gradient-to-b from-gray-900 to-gray-950 rounded-2xl border-2 border-yellow-500/50 max-w-lg w-full overflow-hidden animate-pulse-once">
+        {/* Header */}
+        <div className={`p-6 text-center ${type === 'monthly' && gpTheme ? `bg-gradient-to-r ${gpTheme.color}` : 'bg-gradient-to-r from-purple-600 to-pink-600'}`}>
+          <div className="text-4xl mb-2">🏁</div>
+          <h2 className="text-2xl font-black text-white">
+            {type === 'weekly' ? `Week ${weekNumber} Complete!` : `${gpTheme?.cup || getMonthName(monthNumber || 1)} Complete!`}
+          </h2>
+          <p className="text-white/80 text-sm">{year}</p>
+        </div>
+
+        {/* Podium */}
+        <div className="p-6">
+          <div className="flex items-end justify-center gap-4 mb-6">
+            {/* 2nd Place */}
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-400 mx-auto mb-2">
+                {top3[1] && (
+                  getRacerAvatar(top3[1].racer, top3[1].isPlayer) ? (
+                    <img src={getRacerAvatar(top3[1].racer, top3[1].isPlayer)!} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-700 flex items-center justify-center text-2xl">
+                      {top3[1].racer?.emoji || '🏎️'}
+                    </div>
+                  )
+                )}
+              </div>
+              <div className="bg-gradient-to-t from-gray-500 to-gray-400 h-16 w-20 rounded-t-lg flex items-center justify-center">
+                <span className="text-3xl">🥈</span>
+              </div>
+              <div className="text-xs text-gray-400 mt-1 truncate w-20">
+                {top3[1]?.isPlayer ? 'YOU' : top3[1]?.racer?.name || 'P2'}
+              </div>
+            </div>
+
+            {/* 1st Place */}
+            <div className="text-center -mt-4">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-yellow-500 mx-auto mb-2 shadow-lg shadow-yellow-500/50">
+                {top3[0] && (
+                  getRacerAvatar(top3[0].racer, top3[0].isPlayer) ? (
+                    <img src={getRacerAvatar(top3[0].racer, top3[0].isPlayer)!} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-700 flex items-center justify-center text-3xl">
+                      {top3[0].racer?.emoji || '🏎️'}
+                    </div>
+                  )
+                )}
+              </div>
+              <div className="bg-gradient-to-t from-yellow-600 to-yellow-400 h-24 w-24 rounded-t-lg flex items-center justify-center">
+                <span className="text-4xl">🥇</span>
+              </div>
+              <div className="text-sm text-white font-bold mt-1 truncate w-24">
+                {top3[0]?.isPlayer ? 'YOU!' : top3[0]?.racer?.name || 'P1'}
+              </div>
+            </div>
+
+            {/* 3rd Place */}
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-600 mx-auto mb-2">
+                {top3[2] && (
+                  getRacerAvatar(top3[2].racer, top3[2].isPlayer) ? (
+                    <img src={getRacerAvatar(top3[2].racer, top3[2].isPlayer)!} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-700 flex items-center justify-center text-2xl">
+                      {top3[2].racer?.emoji || '🏎️'}
+                    </div>
+                  )
+                )}
+              </div>
+              <div className="bg-gradient-to-t from-amber-700 to-amber-500 h-12 w-20 rounded-t-lg flex items-center justify-center">
+                <span className="text-2xl">🥉</span>
+              </div>
+              <div className="text-xs text-gray-400 mt-1 truncate w-20">
+                {top3[2]?.isPlayer ? 'YOU' : top3[2]?.racer?.name || 'P3'}
+              </div>
+            </div>
+          </div>
+
+          {/* Your Result */}
+          {playerResult && (
+            <div className={`rounded-xl p-4 mb-4 ${
+              playerResult.position === 1 ? 'bg-gradient-to-r from-yellow-900/50 to-amber-900/50 border border-yellow-500/50' :
+              playerResult.position === 2 ? 'bg-gradient-to-r from-gray-700/50 to-gray-600/50 border border-gray-400/50' :
+              playerResult.position === 3 ? 'bg-gradient-to-r from-amber-900/50 to-orange-900/50 border border-amber-600/50' :
+              'bg-gray-800/50 border border-gray-700'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <PositionBadge position={playerResult.position || 8} size="lg" />
+                  <div>
+                    <div className="text-white font-bold">Your Finish</div>
+                    <div className="text-gray-400 text-sm">{playerResult.points} Grid Points</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-black text-amber-400">+{getPositionPoints(playerResult.position || 8)}</div>
+                  <div className="text-xs text-gray-500">Championship Points</div>
+                </div>
+              </div>
+              {playerResult.position && playerResult.position <= 3 && (
+                <div className="mt-3 text-center py-2 bg-white/10 rounded-lg">
+                  <span className="text-white">
+                    {playerResult.position === 1 ? '🎉 WINNER!' : '🏆 Podium finish!'}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Continue Button */}
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+          >
+            <span>🚩</span> Start New {type === 'weekly' ? 'Race' : 'Grand Prix'}
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -200,6 +311,116 @@ const StandingRow = ({ standing, onClick }: { standing: ChampionshipStanding; on
   );
 };
 
+// Modal for racer details (when clicking on a racer)
+interface RacerModalProps {
+  racer: Racer;
+  result?: RaceResult;
+  standing?: ChampionshipStanding;
+  onClose: () => void;
+}
+
+const RacerModal = ({ racer, result, standing, onClose }: RacerModalProps) => {
+  const points = result?.points ?? 0;
+  const position = result?.position ?? standing?.position ?? 0;
+  const avatarSrc = getRacerAvatar(racer, false);
+
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50" onClick={onClose} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="max-w-md w-full bg-gradient-to-b from-gray-900 to-gray-950 rounded-2xl border-2 border-gray-700 overflow-hidden">
+          {/* Header */}
+          <div className="relative h-32 overflow-hidden bg-gradient-to-r from-gray-800 to-gray-900">
+            <div className="absolute inset-0 flex items-center justify-center">
+              {avatarSrc ? (
+                <img src={avatarSrc} alt={racer.name} className="h-24 w-24 rounded-full border-4 border-gray-700 object-cover" />
+              ) : (
+                <div className="h-24 w-24 rounded-full bg-gray-700 flex items-center justify-center text-4xl border-4 border-gray-600">
+                  {racer.emoji}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Info */}
+          <div className="p-6 text-center">
+            <h2 className="text-2xl font-black text-white">{racer.name}</h2>
+            <p className="text-gray-400 text-sm">{racer.racingName}</p>
+            <p className="text-gray-500 text-xs mt-1">{racer.profession} • {racer.tier.toUpperCase()}</p>
+
+            <div className="flex justify-center gap-6 mt-4">
+              {position > 0 && (
+                <div className="text-center">
+                  <PositionBadge position={position} size="lg" />
+                  <div className="text-xs text-gray-500 mt-1">Position</div>
+                </div>
+              )}
+              {result && (
+                <div className="text-center">
+                  <div className="text-2xl font-black text-purple-400">{points}</div>
+                  <div className="text-xs text-gray-500">Grid Points</div>
+                </div>
+              )}
+              {standing && (
+                <>
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-green-400">{standing.wins}</div>
+                    <div className="text-xs text-gray-500">Wins</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-amber-400">{standing.totalPoints}</div>
+                    <div className="text-xs text-gray-500">Points</div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {racer.catchphrases && racer.catchphrases.length > 0 && (
+              <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-gray-300 italic text-sm">
+                  "{racer.catchphrases[Math.floor(Math.random() * racer.catchphrases.length)]}"
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// Storage key for tracking seen results
+const SEEN_RESULTS_KEY = 'paddock_seen_race_results';
+
+const getSeenResults = (): { weeks: string[]; months: string[] } => {
+  try {
+    const stored = localStorage.getItem(SEEN_RESULTS_KEY);
+    return stored ? JSON.parse(stored) : { weeks: [], months: [] };
+  } catch {
+    return { weeks: [], months: [] };
+  }
+};
+
+const markResultSeen = (type: 'week' | 'month', key: string) => {
+  try {
+    const seen = getSeenResults();
+    if (type === 'week') {
+      seen.weeks = [...new Set([...seen.weeks, key])].slice(-10); // Keep last 10
+    } else {
+      seen.months = [...new Set([...seen.months, key])].slice(-12); // Keep last 12
+    }
+    localStorage.setItem(SEEN_RESULTS_KEY, JSON.stringify(seen));
+  } catch {
+    // Ignore
+  }
+};
+
 // Tab type
 type RacingTab = 'weekly' | 'monthly' | 'seasonal' | 'championship';
 
@@ -215,10 +436,13 @@ export const RacingView = () => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedSeason, setSelectedSeason] = useState(currentSeason);
   const [selectedYear] = useState(currentYear);
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [selectedRacer, setSelectedRacer] = useState<{ racer: Racer; result?: RaceResult; standing?: ChampionshipStanding } | null>(null);
+  
+  // Results modal state
+  const [showWeekResults, setShowWeekResults] = useState(false);
+  const [showMonthResults, setShowMonthResults] = useState(false);
 
-  // Fetch all work items to calculate player's GP
+  // Fetch all work items
   const { data: allItems = [] } = useAllWorkItems();
 
   // Calculate player points per week
@@ -231,7 +455,6 @@ export const RacingView = () => {
       const week = getWeekNumber(completedDate);
       const year = completedDate.getFullYear();
       
-      // Only count points from selected year
       if (year === selectedYear) {
         pointsMap.set(week, (pointsMap.get(week) || 0) + (item.grid_points || 0));
       }
@@ -243,32 +466,74 @@ export const RacingView = () => {
   // Current week's points
   const currentWeekPoints = playerWeeklyPoints.get(selectedWeek) || 0;
 
-  // Weekly race results
+  // Weekly race results (fixed difficulty: medium)
   const weeklyResults = useMemo(
-    () => simulateWeeklyRace(selectedWeek, selectedYear, currentWeekPoints, difficulty, 8),
-    [selectedWeek, selectedYear, currentWeekPoints, difficulty]
+    () => simulateWeeklyRace(selectedWeek, selectedYear, currentWeekPoints, 'medium', 8),
+    [selectedWeek, selectedYear, currentWeekPoints]
+  );
+
+  // Previous week's results (for results modal)
+  const { week: prevWeek, year: prevWeekYear } = getPreviousWeek(currentWeek, currentYear);
+  const prevWeekPoints = playerWeeklyPoints.get(prevWeek) || 0;
+  const prevWeekResults = useMemo(
+    () => simulateWeeklyRace(prevWeek, prevWeekYear, prevWeekPoints, 'medium', 8),
+    [prevWeek, prevWeekYear, prevWeekPoints]
+  );
+
+  // Previous month's results
+  const { month: prevMonth, year: prevMonthYear } = getPreviousMonth(currentMonth, currentYear);
+  const prevMonthStandings = useMemo(
+    () => simulateMonthlyGrandPrix(prevMonth, prevMonthYear, playerWeeklyPoints, 'medium'),
+    [prevMonth, prevMonthYear, playerWeeklyPoints]
   );
 
   // Monthly GP standings
   const monthlyStandings = useMemo(
-    () => simulateMonthlyGrandPrix(selectedMonth, selectedYear, playerWeeklyPoints, difficulty),
-    [selectedMonth, selectedYear, playerWeeklyPoints, difficulty]
+    () => simulateMonthlyGrandPrix(selectedMonth, selectedYear, playerWeeklyPoints, 'medium'),
+    [selectedMonth, selectedYear, playerWeeklyPoints]
   );
 
   // Seasonal standings
   const seasonalStandings = useMemo(
-    () => simulateSeasonalChampionship(selectedSeason, selectedYear, playerWeeklyPoints, difficulty),
-    [selectedSeason, selectedYear, playerWeeklyPoints, difficulty]
+    () => simulateSeasonalChampionship(selectedSeason, selectedYear, playerWeeklyPoints, 'medium'),
+    [selectedSeason, selectedYear, playerWeeklyPoints]
   );
 
   // Annual championship standings
   const championshipStandings = useMemo(
-    () => simulateAnnualChampionship(selectedYear, playerWeeklyPoints, difficulty),
-    [selectedYear, playerWeeklyPoints, difficulty]
+    () => simulateAnnualChampionship(selectedYear, playerWeeklyPoints, 'medium'),
+    [selectedYear, playerWeeklyPoints]
   );
+
+  // Check if we should show results modal on mount
+  useEffect(() => {
+    const seen = getSeenResults();
+    const weekKey = `${currentYear}-${currentWeek}`;
+    const monthKey = `${currentYear}-${currentMonth}`;
+    
+    // Show previous week's results if it's a new week and we haven't seen them
+    if (isNewRaceWeek() && !seen.weeks.includes(weekKey) && prevWeekResults.length > 0) {
+      setShowWeekResults(true);
+    }
+    // Show previous month's results if it's a new month
+    else if (isNewMonth() && !seen.months.includes(monthKey) && prevMonthStandings.length > 0) {
+      setShowMonthResults(true);
+    }
+  }, [currentWeek, currentMonth, currentYear, prevWeekResults.length, prevMonthStandings.length]);
+
+  const handleCloseWeekResults = () => {
+    markResultSeen('week', `${currentYear}-${currentWeek}`);
+    setShowWeekResults(false);
+  };
+
+  const handleCloseMonthResults = () => {
+    markResultSeen('month', `${currentYear}-${currentMonth}`);
+    setShowMonthResults(false);
+  };
 
   const playerWeeklyResult = weeklyResults.find(r => r.isPlayer);
   const playerPosition = playerWeeklyResult?.position || 8;
+  const daysRemaining = getDaysRemainingInWeek();
 
   return (
     <div className="h-full overflow-auto bg-gradient-to-b from-gray-950 to-black">
@@ -297,30 +562,23 @@ export const RacingView = () => {
           ))}
         </div>
 
-        {/* Difficulty Selector */}
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-sm text-gray-500">Difficulty:</span>
-          {(['easy', 'medium', 'hard'] as const).map(d => (
-            <button
-              key={d}
-              onClick={() => setDifficulty(d)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors ${
-                difficulty === d
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-              }`}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
-
         {/* Weekly Race Tab */}
         {activeTab === 'weekly' && (
           <div className="space-y-6">
             <div className="text-center">
-              <h1 className="text-4xl font-black text-white mb-1 speed-text">🏁 WEEKLY RACE</h1>
+              <div className="flex items-center justify-center gap-3 mb-1">
+                <span className="text-4xl">🏁</span>
+                <h1 className="text-4xl font-black text-white speed-text">WEEKLY RACE</h1>
+                {isNewRaceWeek() && (
+                  <span className="px-2 py-1 text-xs font-bold bg-green-600 text-white rounded-full animate-pulse">
+                    🚩 NEW
+                  </span>
+                )}
+              </div>
               <p className="text-gray-400 text-lg">Week {selectedWeek} of {selectedYear}</p>
+              <p className="text-sm text-gray-500">
+                {daysRemaining === 0 ? 'Race ends today!' : `${daysRemaining} days remaining`}
+              </p>
             </div>
 
             {/* Week Navigation */}
@@ -378,7 +636,7 @@ export const RacingView = () => {
               {playerPosition <= 3 && (
                 <div className="mt-4 text-center py-2 bg-white/10 rounded-lg">
                   <span className="text-lg text-white">
-                    🎉 {playerPosition === 1 ? "WINNER! You're the champion!" : 'PODIUM FINISH! Great race!'}
+                    🎉 {playerPosition === 1 ? "WINNER! You're leading!" : 'PODIUM POSITION! Keep it up!'}
                   </span>
                 </div>
               )}
@@ -413,7 +671,7 @@ export const RacingView = () => {
         {activeTab === 'monthly' && (() => {
           const gpTheme = getGrandPrixTheme(selectedMonth);
           const isCurrentMonth = selectedMonth === currentMonth && selectedYear === currentYear;
-          const daysRemaining = isCurrentMonth ? getDaysRemainingInMonth() : 0;
+          const daysRemainingMonth = isCurrentMonth ? getDaysRemainingInMonth() : 0;
           const weekOfMonth = isCurrentMonth ? getWeekOfMonth() : 4;
           
           return (
@@ -428,6 +686,11 @@ export const RacingView = () => {
                       <h1 className="text-3xl font-black text-white speed-text">{gpTheme.cup}</h1>
                       <p className="text-white/80 text-sm font-medium">{gpTheme.name} • {selectedYear}</p>
                     </div>
+                    {isCurrentMonth && isNewMonth() && (
+                      <span className="px-2 py-1 text-xs font-bold bg-white/20 text-white rounded-full animate-pulse">
+                        🚩 NEW
+                      </span>
+                    )}
                   </div>
                   <p className="text-white/70 text-sm max-w-md">{gpTheme.description}</p>
                 </div>
@@ -436,7 +699,7 @@ export const RacingView = () => {
                     <div className="text-xs text-white/60 uppercase tracking-wider mb-1">Race Week</div>
                     <div className="text-4xl font-black text-white">{weekOfMonth}/4</div>
                     <div className="text-sm text-white/80 mt-1">
-                      {daysRemaining === 0 ? 'Final day!' : `${daysRemaining} days left`}
+                      {daysRemainingMonth === 0 ? 'Final day!' : `${daysRemainingMonth} days left`}
                     </div>
                   </div>
                 )}
@@ -591,26 +854,66 @@ export const RacingView = () => {
           </div>
         )}
 
-        {/* Points Legend */}
+        {/* Grid Points Guide */}
         <div className="mt-8 bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-bold text-white mb-2 flex items-center gap-2">
-            📊 Championship Points (F1 Style)
+          <h3 className="font-bold text-white mb-3 flex items-center gap-2">
+            ⚡ Grid Points Guide
           </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mb-4">
+            <div className="bg-gray-800 rounded-lg p-2 text-center">
+              <div className="text-purple-400 font-bold">1 GP</div>
+              <div className="text-gray-500 text-xs">15-30 min</div>
+            </div>
+            <div className="bg-gray-800 rounded-lg p-2 text-center">
+              <div className="text-purple-400 font-bold">2-3 GP</div>
+              <div className="text-gray-500 text-xs">30 min - 2 hrs</div>
+            </div>
+            <div className="bg-gray-800 rounded-lg p-2 text-center">
+              <div className="text-purple-400 font-bold">5-8 GP</div>
+              <div className="text-gray-500 text-xs">Half day</div>
+            </div>
+            <div className="bg-gray-800 rounded-lg p-2 text-center">
+              <div className="text-purple-400 font-bold">13-21 GP</div>
+              <div className="text-gray-500 text-xs">Full day+</div>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2 text-sm">
-            <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">🥇 25pts</span>
-            <span className="bg-gray-500/20 text-gray-300 px-2 py-1 rounded">🥈 18pts</span>
-            <span className="bg-amber-500/20 text-amber-400 px-2 py-1 rounded">🥉 15pts</span>
-            <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded">P4: 12</span>
-            <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded">P5: 10</span>
-            <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded">P6: 8</span>
-            <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded">P7: 6</span>
-            <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded">P8: 4</span>
+            <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">🥇 P1: 25pts</span>
+            <span className="bg-gray-500/20 text-gray-300 px-2 py-1 rounded">🥈 P2: 18pts</span>
+            <span className="bg-amber-500/20 text-amber-400 px-2 py-1 rounded">🥉 P3: 15pts</span>
+            <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded">P4-8: 12-4pts</span>
           </div>
         </div>
       </div>
 
       {/* Checkered footer */}
       <div className="checkered-pattern-dark h-3 mt-8" />
+
+      {/* Results Modals */}
+      {showWeekResults && prevWeekResults.length > 0 && (
+        <RaceResultsModal
+          type="weekly"
+          results={prevWeekResults}
+          weekNumber={prevWeek}
+          year={prevWeekYear}
+          onClose={handleCloseWeekResults}
+        />
+      )}
+
+      {showMonthResults && prevMonthStandings.length > 0 && (
+        <RaceResultsModal
+          type="monthly"
+          results={prevMonthStandings.map(s => ({
+            racer: s.racer,
+            points: s.totalPoints,
+            isPlayer: s.isPlayer,
+            position: s.position,
+          }))}
+          monthNumber={prevMonth}
+          year={prevMonthYear}
+          onClose={handleCloseMonthResults}
+        />
+      )}
 
       {/* Racer Modal */}
       {selectedRacer && (

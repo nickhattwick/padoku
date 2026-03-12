@@ -1238,6 +1238,100 @@ export const getWeekOfMonth = (date: Date = new Date()): number => {
 };
 
 /**
+ * Get the start of the current race week (Sunday 00:00 in given timezone)
+ * @param timezone - IANA timezone string (default: America/New_York for EST)
+ */
+export const getRaceWeekStart = (timezone: string = 'America/New_York'): Date => {
+  const now = new Date();
+  // Get current time in the target timezone
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  
+  const parts = formatter.formatToParts(now);
+  const weekday = parts.find(p => p.type === 'weekday')?.value;
+  const year = parseInt(parts.find(p => p.type === 'year')?.value || '2026');
+  const month = parseInt(parts.find(p => p.type === 'month')?.value || '1') - 1;
+  const day = parseInt(parts.find(p => p.type === 'day')?.value || '1');
+  
+  // Calculate days since Sunday (0 = Sunday)
+  const dayIndex = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(weekday || 'Sun');
+  
+  // Get this week's Sunday
+  const sunday = new Date(year, month, day - dayIndex);
+  sunday.setHours(0, 0, 0, 0);
+  
+  return sunday;
+};
+
+/**
+ * Get the end of the current race week (Saturday 23:59:59)
+ */
+export const getRaceWeekEnd = (timezone: string = 'America/New_York'): Date => {
+  const start = getRaceWeekStart(timezone);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+  return end;
+};
+
+/**
+ * Get days remaining in the current race week
+ */
+export const getDaysRemainingInWeek = (timezone: string = 'America/New_York'): number => {
+  const end = getRaceWeekEnd(timezone);
+  const now = new Date();
+  const diff = end.getTime() - now.getTime();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+};
+
+/**
+ * Check if this is a new race week (within first day)
+ */
+export const isNewRaceWeek = (timezone: string = 'America/New_York'): boolean => {
+  const start = getRaceWeekStart(timezone);
+  const now = new Date();
+  const diff = now.getTime() - start.getTime();
+  // Within first 24 hours of race week
+  return diff < 24 * 60 * 60 * 1000;
+};
+
+/**
+ * Check if this is a new month (within first day)
+ */
+export const isNewMonth = (): boolean => {
+  const now = new Date();
+  return now.getDate() === 1;
+};
+
+/**
+ * Get the previous week number and year
+ */
+export const getPreviousWeek = (currentWeek: number, currentYear: number): { week: number; year: number } => {
+  if (currentWeek > 1) {
+    return { week: currentWeek - 1, year: currentYear };
+  }
+  return { week: 52, year: currentYear - 1 };
+};
+
+/**
+ * Get the previous month and year
+ */
+export const getPreviousMonth = (currentMonth: number, currentYear: number): { month: number; year: number } => {
+  if (currentMonth > 1) {
+    return { month: currentMonth - 1, year: currentYear };
+  }
+  return { month: 12, year: currentYear - 1 };
+};
+
+/**
  * Seeded random number generator for reproducible results
  */
 const seededRandom = (seed: number): number => {
