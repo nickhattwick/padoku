@@ -68,7 +68,7 @@ export const Sidebar = () => {
 
         {/* Root work items (potential projects) */}
         <div className="space-y-1 mt-2">
-          {rootItems.map((item) => (
+          {rootItems.filter((item) => item.status !== 'checkered').map((item) => (
             <ProjectTreeItem
               key={item.id}
               item={item}
@@ -167,10 +167,10 @@ const ProjectTreeItem = ({ item, level, isActive, onNavigate, onEdit }: ProjectT
         </button>
       </div>
 
-      {/* Children */}
-      {isExpanded && children.length > 0 && (
+      {/* Children (hide completed) */}
+      {isExpanded && children.filter((c) => c.status !== 'checkered').length > 0 && (
         <div className="space-y-1">
-          {children.map((child) => (
+          {children.filter((c) => c.status !== 'checkered').map((child) => (
             <ProjectTreeItem
               key={child.id}
               item={child}
