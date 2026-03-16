@@ -10,11 +10,15 @@ interface NewWorkItemModalProps {
   defaultStatus?: WorkItemStatus;
 }
 
+const GRID_POINT_OPTIONS = [1, 2, 3, 5, 8, 13, 21] as const;
+
 export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: NewWorkItemModalProps) => {
   const currentParentId = useWorkItemStore((s) => s.currentParentId);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<WorkItemStatus>(defaultStatus);
+  const [gridPoints, setGridPoints] = useState<string>('');
+  const [dueDate, setDueDate] = useState('');
   const [isGoal, setIsGoal] = useState(false);
   const [isRecurringTemplate, setIsRecurringTemplate] = useState(false);
   const createMutation = useCreateWorkItem();
@@ -27,6 +31,16 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
     }
   }, [isOpen]);
 
+  const resetForm = () => {
+    setTitle('');
+    setDescription('');
+    setStatus('garage');
+    setGridPoints('');
+    setDueDate('');
+    setIsGoal(false);
+    setIsRecurringTemplate(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -38,8 +52,8 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
         description: description.trim() || null,
         status,
         parent_id: currentParentId, // Create as child of current context
-        due_at: null,
-        grid_points: null,
+        due_at: dueDate ? new Date(`${dueDate}T00:00:00`).getTime() : null,
+        grid_points: gridPoints ? Number(gridPoints) : null,
         is_goal: isGoal,
         goal_end_condition: null, // Will be set later in drawer
         goal_target: null,
@@ -50,11 +64,7 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
       });
 
       // Reset form and close
-      setTitle('');
-      setDescription('');
-      setStatus('garage');
-      setIsGoal(false);
-      setIsRecurringTemplate(false);
+      resetForm();
       onClose();
     } catch (error) {
       console.error('Failed to create work item:', error);
@@ -62,11 +72,7 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
   };
 
   const handleClose = () => {
-    setTitle('');
-    setDescription('');
-    setStatus('garage');
-    setIsGoal(false);
-    setIsRecurringTemplate(false);
+    resetForm();
     onClose();
   };
 
@@ -116,7 +122,7 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
           </div>
 
           {/* Status */}
-          <div className="mb-6">
+          <div className="mb-4">
             <label htmlFor="status" className="block text-sm font-medium text-gray-400 mb-1">
               Status
             </label>
@@ -131,6 +137,41 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
               <option value="pits">⏸️ {STATUS_NAMES.pits}</option>
               <option value="checkered">🏁 {STATUS_NAMES.checkered}</option>
             </select>
+          </div>
+
+          {/* Grid points and due date */}
+          <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="grid-points" className="block text-sm font-medium text-gray-400 mb-1">
+                Grid Points (GP)
+              </label>
+              <select
+                id="grid-points"
+                value={gridPoints}
+                onChange={(e) => setGridPoints(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="">Select GP</option>
+                {GRID_POINT_OPTIONS.map((points) => (
+                  <option key={points} value={points}>
+                    {points}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="due-date" className="block text-sm font-medium text-gray-400 mb-1">
+                📅 Race Day
+              </label>
+              <input
+                id="due-date"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
           </div>
 
           {/* Optional flags */}
