@@ -50,19 +50,20 @@ export class RecurringService {
         continue;
       }
 
-      // Create new instance
+      // Create new instance — normalize due_at to midnight UTC for the date
+      const normalizedDue = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).getTime();
       const instance = this.workItemService.create({
         title: `${template.title} – ${this.formatDate(date)}`,
         description: template.description ?? undefined,
         status: 'garage', // Always start in garage
         parent_id: template.parent_id ?? undefined,
-        due_at: date.getTime(),
+        due_at: normalizedDue,
         is_goal: false,
         goal_end_condition: undefined,
         is_recurring_template: false,
         recurrence_rule: undefined,
         position: 0, // Will be recalculated by service
-      });
+      }, template.user_id);
 
       instances.push(instance);
     }
@@ -80,18 +81,17 @@ export class RecurringService {
     const template = this.workItemService.findById(templateId);
     if (!template) return null;
 
-    // Find items with matching title pattern and due date
+    // Find items with matching title pattern (dedup by title, not exact timestamp)
     const dateStr = this.formatDate(date);
     const titlePattern = `${template.title} – ${dateStr}`;
 
     const query = `
       SELECT * FROM work_items
       WHERE title = ?
-      AND due_at = ?
       LIMIT 1
     `;
 
-    const result = this.db.exec(query, [titlePattern, date.getTime()]);
+    const result = this.db.exec(query, [titlePattern]);
     if (result.length === 0 || result[0].values.length === 0) {
       return null;
     }
