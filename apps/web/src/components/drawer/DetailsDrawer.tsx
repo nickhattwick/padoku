@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useWorkItemStore } from '../../stores/workItemStore';
 import { useWorkItem, useUpdateWorkItem, useDeleteWorkItem, useWorkItems, useGenerateInstances } from '../../api/queries';
 import { STATUS_NAMES, parseRecurrenceRule, stringifyRecurrenceRule, GRID_POINTS_SCALE } from '@paddock/shared';
@@ -33,6 +33,9 @@ export const DetailsDrawer = () => {
   const { assignWorkItem } = useTeams();
   const generateInstancesMutation = useGenerateInstances();
 
+  // Track whether initial load has completed (to avoid auto-saving on mount)
+  const [initialLoaded, setInitialLoaded] = useState(false);
+
   // Update local state when item loads
   useEffect(() => {
     if (item) {
@@ -47,8 +50,27 @@ export const DetailsDrawer = () => {
       setIsRecurringTemplate(item.is_recurring_template);
       setRecurrenceRule(parseRecurrenceRule(item.recurrence_rule));
       setAssigneeId(item.assignee_id || null);
+      // Mark initial load complete after a tick so the auto-save effect doesn't fire
+      setTimeout(() => setInitialLoaded(true), 0);
     }
   }, [item]);
+
+  // Reset initialLoaded when item changes
+  useEffect(() => {
+    setInitialLoaded(false);
+  }, [selectedItemId]);
+
+  const handleSaveRef = useRef<() => void>(() => {});
+
+  // Auto-save when these fields change (fixes stale-state bug with synchronous handleSave)
+  useEffect(() => {
+    if (!initialLoaded || !selectedItemId || !title.trim()) return;
+    const timeout = setTimeout(() => {
+      handleSaveRef.current();
+    }, 50);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recurrenceRule, isRecurringTemplate, isGoal, status, gridPoints, initialLoaded]);
 
   const handleSave = async () => {
     if (!selectedItemId || !title.trim()) return;
@@ -75,22 +97,30 @@ export const DetailsDrawer = () => {
       console.error('Failed to update work item:', error);
     }
   };
+  handleSaveRef.current = handleSave;
 
   const handleGenerateInstances = async () => {
     if (!selectedItemId || !recurrenceRule) return;
 
-    // Default: generate next 7 days of instances
     const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 7);
+    let endDateTs: number;
+    if (recurrenceRule.endDate) {
+      endDateTs = recurrenceRule.endDate;
+    } else {
+      // Default: 30 days ahead
+      const d = new Date();
+      d.setDate(d.getDate() + 30);
+      endDateTs = d.getTime();
+    }
 
     try {
       await generateInstancesMutation.mutateAsync({
         templateId: selectedItemId,
         startDate: startDate.getTime(),
-        endDate: endDate.getTime(),
+        endDate: endDateTs,
       });
-      alert('Successfully generated instances for the next 7 days!');
+      const endLabel = new Date(endDateTs).toLocaleDateString();
+      alert(`Successfully generated instances until ${endLabel}!`);
     } catch (error) {
       console.error('Failed to generate instances:', error);
       alert('Failed to generate instances. Check the console for details.');
@@ -197,7 +227,6 @@ export const DetailsDrawer = () => {
                   value={status}
                   onChange={(e) => {
                     setStatus(e.target.value as WorkItemStatus);
-                    handleSave();
                   }}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 >
@@ -245,7 +274,6 @@ export const DetailsDrawer = () => {
                   <button
                     onClick={() => {
                       setGridPoints(null);
-                      handleSave();
                     }}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                       gridPoints === null
@@ -260,7 +288,6 @@ export const DetailsDrawer = () => {
                       key={points}
                       onClick={() => {
                         setGridPoints(points);
-                        handleSave();
                       }}
                       className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
                         gridPoints === points
@@ -306,7 +333,6 @@ export const DetailsDrawer = () => {
                     checked={isGoal}
                     onChange={(e) => {
                       setIsGoal(e.target.checked);
-                      handleSave();
                     }}
                     className="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
                   />
@@ -372,7 +398,6 @@ export const DetailsDrawer = () => {
                     checked={isRecurringTemplate}
                     onChange={(e) => {
                       setIsRecurringTemplate(e.target.checked);
-                      handleSave();
                     }}
                     className="rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
                   />
@@ -387,7 +412,6 @@ export const DetailsDrawer = () => {
                       value={recurrenceRule}
                       onChange={(rule) => {
                         setRecurrenceRule(rule);
-                        handleSave();
                       }}
                     />
                     <button
@@ -395,7 +419,7 @@ export const DetailsDrawer = () => {
                       disabled={!recurrenceRule || generateInstancesMutation.isPending}
                       className="mt-3 w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-bold"
                     >
-                      {generateInstancesMutation.isPending ? 'Generating...' : '⚡ Generate Next 7 Days'}
+                      {generateInstancesMutation.isPending ? 'Generating...' : '⚡ Generate Instances'}
                     </button>
                   </>
                 )}
