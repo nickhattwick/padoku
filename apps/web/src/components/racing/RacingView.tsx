@@ -24,6 +24,7 @@ import {
   type ChampionshipStanding,
 } from '@paddock/shared';
 import { useAllWorkItems } from '../../api/queries';
+import { RacerProfileCard } from './RacerProfileCard';
 import '../../styles/racing.css';
 
 // Square portrait avatars for race standings
@@ -311,7 +312,7 @@ const StandingRow = ({ standing, onClick }: { standing: ChampionshipStanding; on
   );
 };
 
-// Modal for racer details (when clicking on a racer)
+// Modal for racer details - uses the full RacerProfileCard with portraits, cars, stats, and tickets
 interface RacerModalProps {
   racer: Racer;
   result?: RaceResult;
@@ -320,75 +321,23 @@ interface RacerModalProps {
 }
 
 const RacerModal = ({ racer, result, standing, onClose }: RacerModalProps) => {
-  const points = result?.points ?? 0;
-  const position = result?.position ?? standing?.position ?? 0;
-  const avatarSrc = getRacerAvatar(racer, false);
+  const position = result?.position ?? standing?.position ?? undefined;
+  const points = result?.points ?? undefined;
 
   return (
     <>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="max-w-md w-full bg-gradient-to-b from-gray-900 to-gray-950 rounded-2xl border-2 border-gray-700 overflow-hidden">
-          {/* Header */}
-          <div className="relative h-32 overflow-hidden bg-gradient-to-r from-gray-800 to-gray-900">
-            <div className="absolute inset-0 flex items-center justify-center">
-              {avatarSrc ? (
-                <img src={avatarSrc} alt={racer.name} className="h-24 w-24 rounded-full border-4 border-gray-700 object-cover" />
-              ) : (
-                <div className="h-24 w-24 rounded-full bg-gray-700 flex items-center justify-center text-4xl border-4 border-gray-600">
-                  {racer.emoji}
-                </div>
-              )}
-            </div>
-            <button
-              onClick={onClose}
-              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center"
-            >
-              ×
-            </button>
-          </div>
-
-          {/* Info */}
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-black text-white">{racer.name}</h2>
-            <p className="text-gray-400 text-sm">{racer.racingName}</p>
-            <p className="text-gray-500 text-xs mt-1">{racer.profession} • {racer.tier.toUpperCase()}</p>
-
-            <div className="flex justify-center gap-6 mt-4">
-              {position > 0 && (
-                <div className="text-center">
-                  <PositionBadge position={position} size="lg" />
-                  <div className="text-xs text-gray-500 mt-1">Position</div>
-                </div>
-              )}
-              {result && (
-                <div className="text-center">
-                  <div className="text-2xl font-black text-purple-400">{points}</div>
-                  <div className="text-xs text-gray-500">Grid Points</div>
-                </div>
-              )}
-              {standing && (
-                <>
-                  <div className="text-center">
-                    <div className="text-2xl font-black text-green-400">{standing.wins}</div>
-                    <div className="text-xs text-gray-500">Wins</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-black text-amber-400">{standing.totalPoints}</div>
-                    <div className="text-xs text-gray-500">Points</div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {racer.catchphrases && racer.catchphrases.length > 0 && (
-              <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
-                <p className="text-gray-300 italic text-sm">
-                  "{racer.catchphrases[Math.floor(Math.random() * racer.catchphrases.length)]}"
-                </p>
-              </div>
-            )}
-          </div>
+        <div className="max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <RacerProfileCard
+            racer={racer}
+            position={position}
+            points={points}
+            seasonPoints={standing?.totalPoints}
+            wins={standing?.wins}
+            podiums={standing?.podiums}
+            onClose={onClose}
+          />
         </div>
       </div>
     </>

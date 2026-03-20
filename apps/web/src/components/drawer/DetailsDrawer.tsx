@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useWorkItemStore } from '../../stores/workItemStore';
 import { useWorkItem, useUpdateWorkItem, useDeleteWorkItem, useWorkItems, useGenerateInstances } from '../../api/queries';
 import { STATUS_NAMES, parseRecurrenceRule, stringifyRecurrenceRule, GRID_POINTS_SCALE } from '@paddock/shared';
@@ -9,6 +10,8 @@ import { CommentsSection } from '../comments/CommentsSection';
 import { ShareDialog } from '../teams/ShareDialog';
 import { AssigneeDropdown } from '../teams/AssigneeDropdown';
 import { useTeams } from '../../hooks/useTeams';
+import { timeLogsApi } from '../../api/timeLogs';
+import { formatDuration } from '../../hooks/useTimer';
 
 export const DetailsDrawer = () => {
   const { isDrawerOpen, selectedItemId, closeDrawer, setCurrentParent } = useWorkItemStore();
@@ -32,6 +35,13 @@ export const DetailsDrawer = () => {
 
   const { assignWorkItem } = useTeams();
   const generateInstancesMutation = useGenerateInstances();
+
+  // Fetch time logs for this work item
+  const { data: timeLogs = [] } = useQuery({
+    queryKey: ['timeLogs', selectedItemId],
+    queryFn: () => timeLogsApi.getAll(selectedItemId || undefined),
+    enabled: !!selectedItemId,
+  });
 
   // Track whether initial load has completed (to avoid auto-saving on mount)
   const [initialLoaded, setInitialLoaded] = useState(false);
@@ -456,6 +466,79 @@ export const DetailsDrawer = () => {
                         +{children.length - 5} more
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Time Logged */}
+              {timeLogs.length > 0 && (
+                <div className="pt-4 border-t border-gray-700">
+                  <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    ⏱️ Time Logged
+                  </h3>
+                  {/* Total */}
+                  {(() => {
+                    const totalMs = timeLogs.reduce((sum, log) => {
+                      if (log.end_time) {
+                        return sum + (log.end_time - log.start_time);
+                      }
+                      // Active timer — count up to now
+                      return sum + (Date.now() - log.start_time);
+                    }, 0);
+                    const hours = Math.floor(totalMs / 3600000);
+                    const minutes = Math.floor((totalMs % 3600000) / 60000);
+                    return (
+                      <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-700/40 rounded-lg p-3 mb-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400 text-sm">Total Time</span>
+                          <span className="text-xl font-black text-purple-300 font-mono">
+                            {hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {timeLogs.length} session{timeLogs.length !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  {/* Individual sessions */}
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                    {timeLogs
+                      .slice()
+                      .sort((a, b) => b.start_time - a.start_time)
+                      .map((log) => {
+                        const duration = log.end_time
+                          ? log.end_time - log.start_time
+                          : Date.now() - log.start_time;
+                        const isActive = !log.end_time;
+                        return (
+                          <div
+                            key={log.id}
+                            className={`flex items-center justify-between text-xs px-3 py-2 rounded-lg ${
+                              isActive
+                                ? 'bg-green-900/30 border border-green-700/40'
+                                : 'bg-gray-800/60 border border-gray-700/40'
+                            }`}
+                          >
+                            <div className="text-gray-400">
+                              {new Date(log.start_time).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                              })}{' '}
+                              {new Date(log.start_time).toLocaleTimeString(undefined, {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                              {isActive && (
+                                <span className="ml-2 text-green-400 animate-pulse">● live</span>
+                              )}
+                            </div>
+                            <span className={`font-mono font-bold ${isActive ? 'text-green-300' : 'text-gray-300'}`}>
+                              {formatDuration(duration)}
+                            </span>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               )}
