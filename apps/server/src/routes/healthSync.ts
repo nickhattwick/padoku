@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { WorkItemService } from '../services/WorkItemService.js';
 import { TimeLogService } from '../services/TimeLogService.js';
+import { getDb, saveDatabase } from '../db/database.js';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ interface HealthSyncBody {
   entries: HealthEntry[];
   source: string;
   synced_at: number;
+  user_email?: string;  // Optional: associate synced items with a user
 }
 
 // Format duration from ms to human-readable
@@ -93,6 +95,34 @@ router.get('/status', (_req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/health-sync/backfill-user
+ * One-time: assign user_id to orphaned health-synced items
+ */
+router.post('/backfill-user', (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDb();
+    // Find default user
+    const userResult = db.exec('SELECT id FROM users ORDER BY created_at ASC LIMIT 1');
+    if (userResult.length === 0 || userResult[0].values.length === 0) {
+      res.json({ ok: false, error: 'No users found' });
+      return;
+    }
+    const userId = userResult[0].values[0][0] as string;
+
+    // Update orphaned health-synced items (description contains [hc:])
+    db.run(
+      "UPDATE work_items SET user_id = ? WHERE description LIKE '%[hc:%' AND (user_id IS NULL OR user_id = '')",
+      [userId]
+    );
+    saveDatabase();
+
+    res.json({ ok: true, userId, message: 'Backfilled orphaned health items' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * POST /api/health-sync
  * Receive health data from Paddock Sync Android app
  */
@@ -110,6 +140,23 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
     let created = 0;
     let skipped = 0;
 
+    // Resolve user_id from email, or fall back to first user in DB
+    let userId: string | null = null;
+    const db = getDb();
+    if (body.user_email) {
+      const userResult = db.exec('SELECT id FROM users WHERE email = ? LIMIT 1', [body.user_email]);
+      if (userResult.length > 0 && userResult[0].values.length > 0) {
+        userId = userResult[0].values[0][0] as string;
+      }
+    }
+    if (!userId) {
+      // Default to first user (single-user setup)
+      const defaultResult = db.exec('SELECT id FROM users ORDER BY created_at ASC LIMIT 1');
+      if (defaultResult.length > 0 && defaultResult[0].values.length > 0) {
+        userId = defaultResult[0].values[0][0] as string;
+      }
+    }
+
     for (const entry of body.entries) {
       // Skip steps entries (they're cumulative, not discrete events)
       // We could track them differently later
@@ -121,7 +168,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
       // Check for duplicate by looking for existing items with same start_time
       // Use the start_time as a dedup key in the title
       const dedupeKey = `[hc:${entry.start_time}]`;
-      const existing = workItemService.findAll(null).find(
+      const existing = workItemService.findAll(null, userId).find(
         (item: any) => item.description?.includes(dedupeKey)
       );
       
@@ -133,7 +180,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
       const title = generateTitle(entry);
       const description = generateDescription(entry) + `\n\n${dedupeKey}`;
 
-      // Create work item as completed (checkered)
+      // Create work item as completed (checkered), tagged with user
       const workItem = workItemService.create({
         title,
         description,
@@ -146,7 +193,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
         is_recurring_template: false,
         goal_end_condition: null,
         goal_target: null,
-      });
+      }, userId);
 
       // Create a time log entry for the activity
       if (entry.start_time && entry.end_time) {
