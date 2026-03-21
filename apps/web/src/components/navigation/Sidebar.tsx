@@ -36,7 +36,7 @@ export const Sidebar = () => {
   }
 
   return (
-    <div className="w-64 bg-gray-900/80 border-r border-gray-800 flex flex-col">
+    <div className="w-64 h-full bg-gray-900/80 border-r border-gray-800 flex flex-col overflow-hidden">
       {/* Sidebar header */}
       <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
         <h2 className="font-bold text-white flex items-center gap-2">
@@ -53,7 +53,7 @@ export const Sidebar = () => {
       </div>
 
       {/* Project tree */}
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex-1 min-h-0 overflow-y-auto p-2">
         {/* Root level */}
         <button
           onClick={() => handleNavigate(null)}
@@ -89,10 +89,12 @@ export const Sidebar = () => {
       </div>
 
       {/* Teams section */}
-      <TeamsPanel 
-        onOpenItem={(itemId) => openDrawer(itemId)} 
-        onNavigate={(itemId) => handleNavigate(itemId)}
-      />
+      <div className="flex-shrink-0 max-h-[40%] overflow-y-auto border-t border-gray-800">
+        <TeamsPanel 
+          onOpenItem={(itemId) => openDrawer(itemId)} 
+          onNavigate={(itemId) => handleNavigate(itemId)}
+        />
+      </div>
     </div>
   );
 };

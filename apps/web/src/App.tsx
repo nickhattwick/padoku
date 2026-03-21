@@ -309,12 +309,14 @@ function AppContent() {
       {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setIsMobileSidebarOpen(false)}>
-          <div className="w-64 h-full bg-gray-900 border-r border-gray-800" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+          <div className="w-64 h-full bg-gray-900 border-r border-gray-800 flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b border-gray-800 flex justify-between items-center flex-shrink-0">
               <span className="text-white font-bold">Projects</span>
               <button onClick={() => setIsMobileSidebarOpen(false)} className="text-gray-400">✕</button>
             </div>
-            <Sidebar />
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <Sidebar />
+            </div>
           </div>
         </div>
       )}
@@ -324,7 +326,7 @@ function AppContent() {
         {view === 'board' ? (
           <>
             {/* Desktop sidebar */}
-            <div className="hidden md:block">
+            <div className="hidden md:flex md:flex-shrink-0 h-full overflow-hidden">
               <Sidebar />
             </div>
             <div className="flex-1 overflow-hidden">
