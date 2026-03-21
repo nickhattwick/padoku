@@ -7,6 +7,7 @@ import analyticsRouter from './routes/analytics.js';
 import authRouter from './routes/auth.js';
 import commentsRouter from './routes/comments.js';
 import teamsRouter from './routes/teams.js';
+import healthSyncRouter from './routes/healthSync.js';
 import { requireAuth } from './middleware/auth.js';
 
 export const createApp = () => {
@@ -47,6 +48,7 @@ export const createApp = () => {
   app.use('/api/block-records', requireAuth, blockRecordsRouter);
   app.use('/api/analytics', requireAuth, analyticsRouter);
   app.use('/api/teams', teamsRouter); // Teams routes handle their own auth
+  app.use('/api/health-sync', healthSyncRouter); // Health sync from Android app (no auth for now)
 
   // 404 handler
   app.use((_req: Request, res: Response) => {

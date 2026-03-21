@@ -58,7 +58,7 @@ export class RecurringService {
         status: 'garage', // Always start in garage
         parent_id: template.parent_id ?? undefined,
         due_at: normalizedDue,
-        grid_points: template.grid_points,
+        grid_points: template.grid_points as 1 | 2 | 3 | 5 | 8 | 13 | 21 | null | undefined,
         is_goal: false,
         goal_end_condition: undefined,
         is_recurring_template: false,
