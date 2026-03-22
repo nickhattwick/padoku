@@ -32,6 +32,10 @@ export const DetailsDrawer = () => {
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [assigneeId, setAssigneeId] = useState<string | null>(null);
+  const [itemType, setItemType] = useState<'task' | 'event'>('task');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledStartTime, setScheduledStartTime] = useState('');
+  const [scheduledEndTime, setScheduledEndTime] = useState('');
 
   const { assignWorkItem } = useTeams();
   const generateInstancesMutation = useGenerateInstances();
@@ -60,6 +64,23 @@ export const DetailsDrawer = () => {
       setIsRecurringTemplate(item.is_recurring_template);
       setRecurrenceRule(parseRecurrenceRule(item.recurrence_rule));
       setAssigneeId(item.assignee_id || null);
+      setItemType(((item as any).item_type as 'task' | 'event') || 'task');
+      // Parse scheduled times
+      const sStart = (item as any).scheduled_start;
+      const sEnd = (item as any).scheduled_end;
+      if (sStart) {
+        const startDate = new Date(sStart);
+        setScheduledDate(startDate.toISOString().split('T')[0]);
+        setScheduledStartTime(startDate.toTimeString().slice(0, 5));
+      } else {
+        setScheduledDate('');
+        setScheduledStartTime('');
+      }
+      if (sEnd) {
+        setScheduledEndTime(new Date(sEnd).toTimeString().slice(0, 5));
+      } else {
+        setScheduledEndTime('');
+      }
       // Mark initial load complete after a tick so the auto-save effect doesn't fire
       setTimeout(() => setInitialLoaded(true), 0);
     }
@@ -80,12 +101,28 @@ export const DetailsDrawer = () => {
     }, 50);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recurrenceRule, isRecurringTemplate, isGoal, status, gridPoints, initialLoaded]);
+  }, [recurrenceRule, isRecurringTemplate, isGoal, status, gridPoints, itemType, initialLoaded]);
 
   const handleSave = async () => {
     if (!selectedItemId || !title.trim()) return;
 
     try {
+      // Build scheduled timestamps from date + time inputs
+      let scheduled_start: number | null = null;
+      let scheduled_end: number | null = null;
+      if (itemType === 'event' && scheduledDate && scheduledStartTime) {
+        scheduled_start = new Date(`${scheduledDate}T${scheduledStartTime}`).getTime();
+        if (scheduledEndTime) {
+          scheduled_end = new Date(`${scheduledDate}T${scheduledEndTime}`).getTime();
+          // Handle end time crossing midnight (next day)
+          if (scheduled_end <= scheduled_start) {
+            const nextDay = new Date(scheduledDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            scheduled_end = new Date(`${nextDay.toISOString().split('T')[0]}T${scheduledEndTime}`).getTime();
+          }
+        }
+      }
+
       await updateMutation.mutateAsync({
         id: selectedItemId,
         data: {
@@ -101,7 +138,10 @@ export const DetailsDrawer = () => {
           recurrence_rule: isRecurringTemplate && recurrenceRule
             ? stringifyRecurrenceRule(recurrenceRule)
             : null,
-        },
+          item_type: itemType,
+          scheduled_start,
+          scheduled_end,
+        } as any,
       });
     } catch (error) {
       console.error('Failed to update work item:', error);
@@ -246,6 +286,84 @@ export const DetailsDrawer = () => {
                   <option value="checkered">🏁 {STATUS_NAMES.checkered}</option>
                 </select>
               </div>
+
+              {/* Item Type Toggle */}
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">
+                  Type
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setItemType('task')}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      itemType === 'task'
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                        : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                    }`}
+                  >
+                    📋 Task
+                  </button>
+                  <button
+                    onClick={() => setItemType('event')}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      itemType === 'event'
+                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                        : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                    }`}
+                  >
+                    📅 Event
+                  </button>
+                </div>
+              </div>
+
+              {/* Scheduled Time (Events only) */}
+              {itemType === 'event' && (
+                <div className="bg-emerald-900/20 border border-emerald-700/30 rounded-lg p-4 space-y-3">
+                  <label className="block text-sm font-medium text-emerald-400">
+                    📅 Scheduled Time
+                  </label>
+                  <div>
+                    <label htmlFor="drawer-sched-date" className="block text-xs text-gray-500 mb-1">Date</label>
+                    <input
+                      id="drawer-sched-date"
+                      type="date"
+                      value={scheduledDate}
+                      onChange={(e) => setScheduledDate(e.target.value)}
+                      onBlur={handleSave}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent [color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label htmlFor="drawer-sched-start" className="block text-xs text-gray-500 mb-1">Start Time</label>
+                      <input
+                        id="drawer-sched-start"
+                        type="time"
+                        value={scheduledStartTime}
+                        onChange={(e) => setScheduledStartTime(e.target.value)}
+                        onBlur={handleSave}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent [color-scheme:dark]"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="drawer-sched-end" className="block text-xs text-gray-500 mb-1">End Time</label>
+                      <input
+                        id="drawer-sched-end"
+                        type="time"
+                        value={scheduledEndTime}
+                        onChange={(e) => setScheduledEndTime(e.target.value)}
+                        onBlur={handleSave}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent [color-scheme:dark]"
+                      />
+                    </div>
+                  </div>
+                  {scheduledDate && scheduledStartTime && scheduledEndTime && (
+                    <p className="text-xs text-emerald-400/70">
+                      Grid points will auto-calculate from duration
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Due Date */}
               <div>

@@ -21,6 +21,10 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
   const [dueDate, setDueDate] = useState('');
   const [isGoal, setIsGoal] = useState(false);
   const [isRecurringTemplate, setIsRecurringTemplate] = useState(false);
+  const [itemType, setItemType] = useState<'task' | 'event'>('task');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledStartTime, setScheduledStartTime] = useState('');
+  const [scheduledEndTime, setScheduledEndTime] = useState('');
   const createMutation = useCreateWorkItem();
 
   // Auto-focus title input when modal opens
@@ -39,6 +43,10 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
     setDueDate('');
     setIsGoal(false);
     setIsRecurringTemplate(false);
+    setItemType('task');
+    setScheduledDate('');
+    setScheduledStartTime('');
+    setScheduledEndTime('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,21 +55,39 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
     if (!title.trim()) return;
 
     try {
+      // Build scheduled timestamps
+      let scheduled_start: number | null = null;
+      let scheduled_end: number | null = null;
+      if (itemType === 'event' && scheduledDate && scheduledStartTime) {
+        scheduled_start = new Date(`${scheduledDate}T${scheduledStartTime}`).getTime();
+        if (scheduledEndTime) {
+          scheduled_end = new Date(`${scheduledDate}T${scheduledEndTime}`).getTime();
+          if (scheduled_end <= scheduled_start) {
+            const nextDay = new Date(scheduledDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            scheduled_end = new Date(`${nextDay.toISOString().split('T')[0]}T${scheduledEndTime}`).getTime();
+          }
+        }
+      }
+
       await createMutation.mutateAsync({
         title: title.trim(),
         description: description.trim() || null,
         status,
-        parent_id: currentParentId, // Create as child of current context
+        parent_id: currentParentId,
         due_at: dueDate ? new Date(`${dueDate}T00:00:00`).getTime() : null,
         grid_points: gridPoints ? Number(gridPoints) : null,
         is_goal: isGoal,
-        goal_end_condition: null, // Will be set later in drawer
+        goal_end_condition: null,
         goal_target: null,
         is_recurring_template: isRecurringTemplate,
-        recurrence_rule: null, // Will be set later in drawer
-        user_id: null, // Will be set by server based on auth
-        assignee_id: null, // Will be set later in drawer
-      });
+        recurrence_rule: null,
+        user_id: null,
+        assignee_id: null,
+        item_type: itemType,
+        scheduled_start,
+        scheduled_end,
+      } as any);
 
       // Reset form and close
       resetForm();
@@ -138,6 +164,77 @@ export const NewWorkItemModal = ({ isOpen, onClose, defaultStatus = 'garage' }: 
               <option value="checkered">🏁 {STATUS_NAMES.checkered}</option>
             </select>
           </div>
+
+          {/* Item Type Toggle */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
+              Type
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setItemType('task')}
+                className={`flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  itemType === 'task'
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                    : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                }`}
+              >
+                📋 Task
+              </button>
+              <button
+                type="button"
+                onClick={() => setItemType('event')}
+                className={`flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  itemType === 'event'
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                    : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                }`}
+              >
+                📅 Event
+              </button>
+            </div>
+          </div>
+
+          {/* Scheduled Time (Events only) */}
+          {itemType === 'event' && (
+            <div className="mb-4 bg-emerald-900/20 border border-emerald-700/30 rounded-lg p-4 space-y-3">
+              <label className="block text-sm font-medium text-emerald-400">
+                📅 Scheduled Time
+              </label>
+              <div>
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent [color-scheme:dark]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Start</label>
+                  <input
+                    type="time"
+                    value={scheduledStartTime}
+                    onChange={(e) => setScheduledStartTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent [color-scheme:dark]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">End</label>
+                  <input
+                    type="time"
+                    value={scheduledEndTime}
+                    onChange={(e) => setScheduledEndTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent [color-scheme:dark]"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-emerald-400/70">
+                Grid points auto-calculate from duration
+              </p>
+            </div>
+          )}
 
           {/* Grid points and due date */}
           <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
