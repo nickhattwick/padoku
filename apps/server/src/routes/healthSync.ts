@@ -174,7 +174,30 @@ router.post('/backfill-user', (_req: Request, res: Response, next: NextFunction)
     );
     saveDatabase();
 
-    res.json({ ok: true, userId, message: 'Backfilled orphaned health items' });
+    // Also auto-fix grid points on events based on duration
+    const eventResult = db.exec(
+      "SELECT id, scheduled_start, scheduled_end FROM work_items WHERE item_type = 'event' AND scheduled_start IS NOT NULL AND scheduled_end IS NOT NULL"
+    );
+    let eventsFixed = 0;
+    if (eventResult.length > 0) {
+      for (const row of eventResult[0].values) {
+        const [eid, start, end] = row as [string, number, number];
+        const minutes = (end - start) / 60000;
+        let gp: number;
+        if (minutes < 15) gp = 1;
+        else if (minutes < 30) gp = 2;
+        else if (minutes < 60) gp = 3;
+        else if (minutes < 120) gp = 5;
+        else if (minutes < 240) gp = 8;
+        else if (minutes < 480) gp = 13;
+        else gp = 21;
+        db.run("UPDATE work_items SET grid_points = ? WHERE id = ?", [gp, eid]);
+        eventsFixed++;
+      }
+      saveDatabase();
+    }
+
+    res.json({ ok: true, userId, message: 'Backfilled orphaned health items', eventsFixed });
   } catch (error) {
     next(error);
   }

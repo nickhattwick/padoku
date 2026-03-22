@@ -134,6 +134,12 @@ export class WorkItemService {
     const id = randomUUID();
     const now = Date.now();
 
+    // Auto-calculate grid points for events based on duration
+    let gridPoints = input.grid_points;
+    if (input.item_type === 'event' && input.scheduled_start && input.scheduled_end && !gridPoints) {
+      gridPoints = WorkItemService.gridPointsFromDuration(input.scheduled_end - input.scheduled_start);
+    }
+
     const query = `
       INSERT INTO work_items (
         id, user_id, title, description, status, parent_id, due_at, grid_points,
@@ -151,7 +157,7 @@ export class WorkItemService {
       input.status,
       input.parent_id || null,
       input.due_at || null,
-      input.grid_points || null,
+      gridPoints || null,
       input.is_goal ? 1 : 0,
       input.goal_end_condition || null,
       input.goal_target || null,
@@ -253,6 +259,17 @@ export class WorkItemService {
     if ((input as any).scheduled_end !== undefined) {
       fields.push('scheduled_end = ?');
       values.push((input as any).scheduled_end);
+    }
+
+    // Auto-recalculate grid points when scheduled times change on events
+    const itemType = (input as any).item_type ?? existing.item_type ?? 'task';
+    if (itemType === 'event') {
+      const start = (input as any).scheduled_start ?? existing.scheduled_start;
+      const end = (input as any).scheduled_end ?? existing.scheduled_end;
+      if (start && end && input.grid_points === undefined) {
+        fields.push('grid_points = ?');
+        values.push(WorkItemService.gridPointsFromDuration(end - start));
+      }
     }
 
     if (fields.length === 0) {
@@ -358,6 +375,20 @@ export class WorkItemService {
 
     // Save to disk after write
     saveDatabase();
+  }
+
+  /**
+   * Auto-calculate grid points from duration (Fibonacci scale)
+   */
+  static gridPointsFromDuration(durationMs: number): 1 | 2 | 3 | 5 | 8 | 13 | 21 {
+    const minutes = durationMs / 60000;
+    if (minutes < 15) return 1;
+    if (minutes < 30) return 2;
+    if (minutes < 60) return 3;
+    if (minutes < 120) return 5;
+    if (minutes < 240) return 8;
+    if (minutes < 480) return 13;
+    return 21;
   }
 
   /**
