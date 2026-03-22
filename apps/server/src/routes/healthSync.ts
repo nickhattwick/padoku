@@ -37,22 +37,49 @@ function formatDuration(ms: number): string {
 // Map exercise sub_type to emoji
 function exerciseEmoji(subType: string | null): string {
   const map: Record<string, string> = {
-    cycling: '🚴', running: '🏃', walking: '🚶', swimming: '🏊',
-    hiking: '🥾', yoga: '🧘', weightlifting: '🏋️', rowing: '🚣',
-    elliptical: '🏃', stair_climbing: '🪜', pilates: '🧘', dancing: '💃',
-    stretching: '🤸', hiit: '🔥', strength: '💪', calisthenics: '💪',
+    cycling: '🚴', cycling_stationary: '🚴', running: '🏃', running_treadmill: '🏃',
+    walking: '🚶', swimming: '🏊', hiking: '🥾', yoga: '🧘',
+    weightlifting: '🏋️', rowing: '🚣', rowing_machine: '🚣',
+    elliptical: '🏃', stair_climbing: '🪜', stair_machine: '🪜',
+    pilates: '🧘', dancing: '💃', stretching: '🤸', hiit: '🔥',
+    strength: '💪', calisthenics: '💪', martial_arts: '🥋', boxing: '🥊',
+    football: '🏈', basketball: '🏀', soccer: '⚽', tennis: '🎾',
+    golf: '⛳', rock_climbing: '🧗', skiing: '⛷️', snowboarding: '🏂',
+    skating: '⛸️', surfing: '🏄', jump_rope: '🪢',
   };
   return map[subType || ''] || '🏋️';
+}
+
+// Human-readable name for exercise sub_type
+function exerciseName(subType: string | null): string {
+  const map: Record<string, string> = {
+    cycling: 'Cycling', cycling_stationary: 'Cycling (Stationary)',
+    running: 'Running', running_treadmill: 'Running (Treadmill)',
+    walking: 'Walking', swimming: 'Swimming', hiking: 'Hiking', yoga: 'Yoga',
+    weightlifting: 'Weightlifting', rowing: 'Rowing', rowing_machine: 'Rowing Machine',
+    elliptical: 'Elliptical', stair_climbing: 'Stair Climbing', stair_machine: 'Stair Machine',
+    pilates: 'Pilates', dancing: 'Dancing', stretching: 'Stretching', hiit: 'HIIT',
+    strength: 'Strength Training', calisthenics: 'Calisthenics',
+    martial_arts: 'Martial Arts', boxing: 'Boxing',
+    football: 'Football', basketball: 'Basketball', soccer: 'Soccer',
+    tennis: 'Tennis', golf: 'Golf', rock_climbing: 'Rock Climbing',
+    skiing: 'Skiing', snowboarding: 'Snowboarding', skating: 'Skating',
+    surfing: 'Surfing', jump_rope: 'Jump Rope',
+  };
+  return map[subType || ''] || (subType || 'Workout').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
 // Generate a title for the health entry
 function generateTitle(entry: HealthEntry): string {
   if (entry.type === 'exercise') {
-    const name = (entry.sub_type || 'workout').replace(/_/g, ' ');
-    const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
     const emoji = exerciseEmoji(entry.sub_type);
     const duration = formatDuration(entry.duration_ms);
-    return `${emoji} ${capitalizedName} — ${duration}`;
+    // Use session title/notes if available (e.g., Peloton class name)
+    if (entry.notes && entry.notes.trim()) {
+      return `${emoji} ${entry.notes.trim()} — ${duration}`;
+    }
+    const name = exerciseName(entry.sub_type);
+    return `${emoji} ${name} — ${duration}`;
   }
   if (entry.type === 'sleep') {
     const hours = (entry.duration_ms / 3600000).toFixed(1);
