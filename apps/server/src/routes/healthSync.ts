@@ -153,6 +153,40 @@ router.post('/create-events', (req: Request, res: Response, next: NextFunction) 
 });
 
 /**
+ * POST /api/health-sync/update-events
+ * Batch update event tickets (internal use)
+ */
+router.post('/update-events', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { updates } = req.body as {
+      updates: { id: string; title?: string; scheduled_start?: number; scheduled_end?: number }[];
+    };
+    if (!updates || !Array.isArray(updates)) {
+      res.status(400).json({ error: 'Missing updates array' });
+      return;
+    }
+
+    const db = getDb();
+    let updated = 0;
+    for (const u of updates) {
+      const sets: string[] = [];
+      const vals: any[] = [];
+      if (u.title) { sets.push('title = ?'); vals.push(u.title); }
+      if (u.scheduled_start) { sets.push('scheduled_start = ?'); vals.push(u.scheduled_start); }
+      if (u.scheduled_end) { sets.push('scheduled_end = ?'); vals.push(u.scheduled_end); }
+      if (sets.length > 0) {
+        db.run(`UPDATE work_items SET ${sets.join(', ')} WHERE id = ?`, [...vals, u.id]);
+        updated++;
+      }
+    }
+    saveDatabase();
+    res.json({ ok: true, updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * POST /api/health-sync/backfill-user
  * One-time: assign user_id to orphaned health-synced items
  */
