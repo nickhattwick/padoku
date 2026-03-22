@@ -138,8 +138,9 @@ export class WorkItemService {
       INSERT INTO work_items (
         id, user_id, title, description, status, parent_id, due_at, grid_points,
         is_goal, goal_end_condition, goal_target, is_recurring_template, recurrence_rule,
-        position, assignee_id, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        position, assignee_id, item_type, scheduled_start, scheduled_end,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.run(query, [
@@ -158,6 +159,9 @@ export class WorkItemService {
       input.recurrence_rule || null,
       input.position ?? 0,
       input.assignee_id || null,
+      input.item_type || 'task',
+      input.scheduled_start || null,
+      input.scheduled_end || null,
       now,
       now,
     ]);
@@ -237,6 +241,18 @@ export class WorkItemService {
     if (input.assignee_id !== undefined) {
       fields.push('assignee_id = ?');
       values.push(input.assignee_id);
+    }
+    if ((input as any).item_type !== undefined) {
+      fields.push('item_type = ?');
+      values.push((input as any).item_type);
+    }
+    if ((input as any).scheduled_start !== undefined) {
+      fields.push('scheduled_start = ?');
+      values.push((input as any).scheduled_start);
+    }
+    if ((input as any).scheduled_end !== undefined) {
+      fields.push('scheduled_end = ?');
+      values.push((input as any).scheduled_end);
     }
 
     if (fields.length === 0) {
@@ -371,6 +387,9 @@ export class WorkItemService {
         is_recurring_template: Boolean(item.is_recurring_template),
         recurrence_rule: item.recurrence_rule,
         position: item.position,
+        item_type: item.item_type || 'task',
+        scheduled_start: item.scheduled_start,
+        scheduled_end: item.scheduled_end,
         assignee_id: item.assignee_id,
         created_at: item.created_at,
         updated_at: item.updated_at,

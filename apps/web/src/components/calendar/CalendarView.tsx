@@ -20,7 +20,7 @@ const localizer = dateFnsLocalizer({
 });
 
 interface CalendarEvent extends Event {
-  type: 'due_date' | 'time_log';
+  type: 'due_date' | 'time_log' | 'scheduled';
   itemId: string;
   itemTitle: string;
 }
@@ -53,6 +53,23 @@ export const CalendarView = () => {
         });
       });
 
+    // Add scheduled events (event tickets with scheduled_start/end)
+    workItems
+      .filter((item) => (item as any).item_type === 'event' && (item as any).scheduled_start)
+      .forEach((item) => {
+        const scheduledStart = (item as any).scheduled_start;
+        const scheduledEnd = (item as any).scheduled_end || scheduledStart + 3600000;
+        calendarEvents.push({
+          title: `📅 ${item.title}`,
+          start: new Date(scheduledStart),
+          end: new Date(scheduledEnd),
+          allDay: false,
+          type: 'scheduled',
+          itemId: item.id,
+          itemTitle: item.title,
+        });
+      });
+
     // Add completed time logs as timed events
     timeLogs
       .filter((log) => log.end_time !== null)
@@ -79,8 +96,13 @@ export const CalendarView = () => {
   };
 
   const eventStyleGetter = (event: CalendarEvent) => {
+    const colorMap: Record<string, string> = {
+      due_date: '#f59e0b',   // amber
+      time_log: '#3b82f6',   // blue
+      scheduled: '#10b981',  // green
+    };
     const style: React.CSSProperties = {
-      backgroundColor: event.type === 'due_date' ? '#f59e0b' : '#3b82f6',
+      backgroundColor: colorMap[event.type] || '#3b82f6',
       borderRadius: '6px',
       opacity: 1,
       color: 'white',
@@ -108,6 +130,10 @@ export const CalendarView = () => {
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 bg-amber-500 rounded"></span>
             Due dates
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 bg-emerald-500 rounded"></span>
+            Scheduled
           </span>
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 bg-blue-500 rounded"></span>

@@ -95,6 +95,64 @@ router.get('/status', (_req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/health-sync/create-events
+ * Batch create event tickets (internal use)
+ */
+router.post('/create-events', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { events, user_email } = req.body as {
+      events: { title: string; parent_id: string; scheduled_start: number; scheduled_end: number; grid_points?: number }[];
+      user_email?: string;
+    };
+
+    if (!events || !Array.isArray(events)) {
+      res.status(400).json({ error: 'Missing events array' });
+      return;
+    }
+
+    const db = getDb();
+    let userId: string | null = null;
+    if (user_email) {
+      const r = db.exec('SELECT id FROM users WHERE email = ? LIMIT 1', [user_email]);
+      if (r.length > 0 && r[0].values.length > 0) userId = r[0].values[0][0] as string;
+    }
+    if (!userId) {
+      const r = db.exec('SELECT id FROM users ORDER BY created_at ASC LIMIT 1');
+      if (r.length > 0 && r[0].values.length > 0) userId = r[0].values[0][0] as string;
+    }
+
+    const workItemService = new WorkItemService();
+    const created: string[] = [];
+
+    for (const evt of events) {
+      const item = workItemService.create({
+        title: evt.title,
+        status: 'garage',
+        parent_id: evt.parent_id,
+        item_type: 'event',
+        scheduled_start: evt.scheduled_start,
+        scheduled_end: evt.scheduled_end,
+        grid_points: (evt.grid_points || 5) as 1 | 2 | 3 | 5 | 8 | 13 | 21,
+        is_goal: false,
+        is_recurring_template: false,
+        due_at: undefined,
+        goal_end_condition: undefined,
+        goal_target: undefined,
+        description: undefined,
+        position: 0,
+        assignee_id: undefined,
+        recurrence_rule: undefined,
+      }, userId);
+      created.push(item.id);
+    }
+
+    res.json({ ok: true, created: created.length, ids: created });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * POST /api/health-sync/backfill-user
  * One-time: assign user_id to orphaned health-synced items
  */

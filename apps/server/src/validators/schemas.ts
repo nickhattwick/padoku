@@ -14,6 +14,9 @@ const gridPointsEnum = z.union([
   z.literal(21),
 ]);
 
+// Item type enum
+const itemTypeEnum = z.enum(['task', 'event']);
+
 // Schema for creating a new work item
 export const createWorkItemSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500, 'Title too long'),
@@ -29,6 +32,9 @@ export const createWorkItemSchema = z.object({
   recurrence_rule: z.string().nullable().optional(),
   position: z.number().optional().default(0),
   assignee_id: z.string().uuid().nullable().optional(),
+  item_type: itemTypeEnum.optional(),
+  scheduled_start: z.number().int().positive().nullable().optional(),
+  scheduled_end: z.number().int().positive().nullable().optional(),
 });
 
 // Schema for updating an existing work item

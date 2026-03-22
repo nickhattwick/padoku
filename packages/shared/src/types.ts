@@ -1,6 +1,9 @@
 // Core status types
 export type WorkItemStatus = 'garage' | 'on_track' | 'pits' | 'checkered';
 
+// Item type: task (default) or event (scheduled calendar block)
+export type WorkItemType = 'task' | 'event';
+
 // Recurrence rule structure
 export interface RecurrenceRule {
   frequency: 'daily' | 'weekly' | 'monthly';
@@ -33,6 +36,9 @@ export interface WorkItem {
   is_recurring_template: boolean;
   recurrence_rule: string | null; // JSON string for rrule
   position: number; // For ordering within status column
+  item_type?: WorkItemType; // 'task' (default) or 'event' (scheduled calendar block)
+  scheduled_start?: number | null; // Unix timestamp ms — when event begins
+  scheduled_end?: number | null; // Unix timestamp ms — when event ends
   assignee_id: string | null; // User assigned to this work item (teams feature)
   created_at: number; // Unix timestamp in milliseconds
   updated_at: number; // Unix timestamp in milliseconds

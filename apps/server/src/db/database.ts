@@ -216,6 +216,17 @@ const runMigrations = (): void => {
     console.log('✅ Migration complete: user profile fields added');
   }
 
+  // Migration 9: Add event ticket fields (item_type, scheduled_start, scheduled_end)
+  try {
+    db.exec("SELECT item_type FROM work_items LIMIT 1");
+  } catch {
+    console.log('📦 Running migration: Adding event ticket fields...');
+    try { db.exec("ALTER TABLE work_items ADD COLUMN item_type TEXT NOT NULL DEFAULT 'task'"); } catch {}
+    try { db.exec("ALTER TABLE work_items ADD COLUMN scheduled_start INTEGER"); } catch {}
+    try { db.exec("ALTER TABLE work_items ADD COLUMN scheduled_end INTEGER"); } catch {}
+    console.log('✅ Migration complete: event ticket fields added');
+  }
+
   // Create indexes if they don't exist
   const indexes = [
     "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)",
@@ -231,6 +242,8 @@ const runMigrations = (): void => {
     "CREATE INDEX IF NOT EXISTS idx_team_work_items_team ON team_work_items(team_id)",
     "CREATE INDEX IF NOT EXISTS idx_work_items_assignee ON work_items(assignee_id)",
     "CREATE INDEX IF NOT EXISTS idx_users_profile_code ON users(profile_code)",
+    "CREATE INDEX IF NOT EXISTS idx_work_items_scheduled ON work_items(scheduled_start) WHERE scheduled_start IS NOT NULL",
+    "CREATE INDEX IF NOT EXISTS idx_work_items_item_type ON work_items(item_type)",
   ];
 
   for (const idx of indexes) {
