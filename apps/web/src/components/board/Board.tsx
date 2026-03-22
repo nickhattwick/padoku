@@ -18,30 +18,47 @@ import { Column } from './Column';
 import { calculatePosition } from '../../utils/positioning';
 import { EmptyState } from '../EmptyState';
 
-// Helper to filter items by due date
-const filterByDueDate = (items: WorkItem[], filter: DueDateFilter): WorkItem[] => {
-  if (filter === 'all') return items;
-
+// Helper to filter items by due date and events visibility
+const filterItems = (
+  items: WorkItem[],
+  dueDateFilter: DueDateFilter,
+  showEvents: boolean
+): WorkItem[] => {
   const now = Date.now();
-  // Start of today (midnight)
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const todayMs = startOfToday.getTime();
-  
-  const filterDays = {
+
+  const filterDays: Record<string, number> = {
     '7days': 7,
     '2weeks': 14,
     '1month': 30,
-  }[filter];
+  };
 
-  const cutoffDate = now + filterDays * 24 * 60 * 60 * 1000;
+  const cutoffDate = dueDateFilter !== 'all'
+    ? now + filterDays[dueDateFilter] * 24 * 60 * 60 * 1000
+    : Infinity;
 
   return items.filter((item) => {
-    // Hide items with no due date when filtering
+    const isEvent = (item as any).item_type === 'event';
+
+    // Handle events
+    if (isEvent) {
+      if (!showEvents) return false;
+      // When date filter is active, apply it to scheduled_start
+      if (dueDateFilter !== 'all') {
+        const scheduledStart = (item as any).scheduled_start;
+        if (!scheduledStart) return false;
+        if (scheduledStart < todayMs) return false;
+        return scheduledStart <= cutoffDate;
+      }
+      return true; // show all events when filter is 'all'
+    }
+
+    // Handle regular tasks
+    if (dueDateFilter === 'all') return true;
     if (!item.due_at) return false;
-    // Hide items with due dates in the past (before today)
     if (item.due_at < todayMs) return false;
-    // Show items due within the filter window
     return item.due_at <= cutoffDate;
   });
 };
@@ -53,9 +70,10 @@ interface BoardProps {
 export const Board = ({ onCreateItem }: BoardProps) => {
   const currentParentId = useWorkItemStore((s) => s.currentParentId);
   const dueDateFilter = useWorkItemStore((s) => s.dueDateFilter);
+  const showEvents = useWorkItemStore((s) => s.showEvents);
   
-  // Determine if we should fetch all items (filter active at root level)
-  const shouldFetchAll = currentParentId === null && dueDateFilter !== 'all';
+  // Determine if we should fetch all items (filter active at root level, or showing events)
+  const shouldFetchAll = currentParentId === null && (dueDateFilter !== 'all' || showEvents);
   
   // Fetch items based on context
   const { data: parentItems = [], isLoading: parentLoading, error: parentError } = useWorkItems(currentParentId);
@@ -70,10 +88,10 @@ export const Board = ({ onCreateItem }: BoardProps) => {
 
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Apply due date filter
+  // Apply filters (due date + events visibility)
   const filteredItems = useMemo(
-    () => filterByDueDate(workItems, dueDateFilter),
-    [workItems, dueDateFilter]
+    () => filterItems(workItems, dueDateFilter, showEvents),
+    [workItems, dueDateFilter, showEvents]
   );
 
   // Configure drag sensors

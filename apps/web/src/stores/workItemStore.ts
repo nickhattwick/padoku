@@ -11,6 +11,10 @@ interface WorkItemStore {
   dueDateFilter: DueDateFilter;
   setDueDateFilter: (filter: DueDateFilter) => void;
 
+  // Events visibility on board
+  showEvents: boolean;
+  setShowEvents: (show: boolean) => void;
+
   // Selected item (for details drawer)
   selectedItemId: string | null;
   selectItem: (id: string | null) => void;
@@ -29,6 +33,10 @@ export const useWorkItemStore = create<WorkItemStore>((set) => ({
   // Default to showing all items
   dueDateFilter: 'all',
   setDueDateFilter: (filter) => set({ dueDateFilter: filter }),
+
+  // Default to hiding events on board (they live on calendar)
+  showEvents: false,
+  setShowEvents: (show) => set({ showEvents: show }),
 
   selectedItemId: null,
   selectItem: (id) => set({ selectedItemId: id }),

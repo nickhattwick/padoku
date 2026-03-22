@@ -13,6 +13,8 @@ export const Breadcrumbs = () => {
   const setCurrentParent = useWorkItemStore((s) => s.setCurrentParent);
   const dueDateFilter = useWorkItemStore((s) => s.dueDateFilter);
   const setDueDateFilter = useWorkItemStore((s) => s.setDueDateFilter);
+  const showEvents = useWorkItemStore((s) => s.showEvents);
+  const setShowEvents = useWorkItemStore((s) => s.setShowEvents);
   const { data: ancestors = [] } = useWorkItemAncestors(currentParentId || undefined);
 
   const handleNavigate = (itemId: string | null) => {
@@ -72,6 +74,20 @@ export const Breadcrumbs = () => {
             {option.label}
           </button>
         ))}
+      </div>
+
+      {/* Events Toggle */}
+      <div className="flex items-center gap-1 ml-2 pl-4 border-l border-gray-700">
+        <button
+          onClick={() => setShowEvents(!showEvents)}
+          className={`px-2.5 py-1 rounded-lg transition-all text-xs font-medium ${
+            showEvents
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+              : 'text-gray-500 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700'
+          }`}
+        >
+          📅 Events
+        </button>
       </div>
     </div>
   );
