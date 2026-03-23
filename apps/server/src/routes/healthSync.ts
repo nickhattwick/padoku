@@ -95,8 +95,13 @@ function generateTitle(entry: HealthEntry): string {
 function generateDescription(entry: HealthEntry): string {
   const parts: string[] = [];
   
+  if (entry.type === 'trip' && entry.distance_meters) {
+    const km = (entry.distance_meters / 1000).toFixed(1);
+    const miles = (entry.distance_meters / 1609.34).toFixed(1);
+    parts.push(`📏 ${km} km (${miles} mi)`);
+  }
   if (entry.calories) parts.push(`🔥 ${Math.round(entry.calories)} cal`);
-  if (entry.distance_meters) {
+  if (entry.type !== 'trip' && entry.distance_meters) {
     const km = (entry.distance_meters / 1000).toFixed(2);
     const miles = (entry.distance_meters / 1609.34).toFixed(2);
     parts.push(`📏 ${km} km (${miles} mi)`);
@@ -301,7 +306,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
 
     for (const entry of body.entries) {
       // Skip steps entries (they're cumulative, not discrete events)
-      // We could track them differently later
+      // Trips are NOT steps — let them through
       if (entry.type === 'steps') {
         skipped++;
         continue;
