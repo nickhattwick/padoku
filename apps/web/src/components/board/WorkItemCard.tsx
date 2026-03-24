@@ -1,5 +1,6 @@
 import type { WorkItem } from '@paddock/shared';
 import { useWorkItemStore } from '../../stores/workItemStore';
+import { useContextMenuStore } from '../../stores/contextMenuStore';
 import { formatDistanceToNow } from 'date-fns';
 import { TimerButton } from '../timer/TimerButton';
 import { GoalProgressBadge } from '../goals/GoalProgressBadge';
@@ -12,12 +13,18 @@ interface WorkItemCardProps {
 
 export const WorkItemCard = ({ item, isDragging = false }: WorkItemCardProps) => {
   const openDrawer = useWorkItemStore((s) => s.openDrawer);
+  const openContextMenu = useContextMenuStore((s) => s.open);
   const { data: children = [] } = useWorkItems(item.is_goal ? item.id : undefined);
 
   const handleClick = () => {
     // Don't open drawer when dragging
     if (isDragging) return;
     openDrawer(item.id);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    openContextMenu(item, { x: e.clientX, y: e.clientY });
   };
 
   const dueDateLabel = item.due_at
@@ -31,6 +38,7 @@ export const WorkItemCard = ({ item, isDragging = false }: WorkItemCardProps) =>
   return (
     <div
       onClick={handleClick}
+      onContextMenu={handleContextMenu}
       className={`bg-gray-800 border rounded-xl p-4 transition-all group ${
         item.is_recurring_template 
           ? 'border-amber-500/50 bg-amber-900/20' 

@@ -12,8 +12,10 @@ import { RacingView } from './components/racing/RacingView';
 import { ProfileView } from './components/profile/ProfileView';
 import { BadgeUnlockModal } from './components/badges/BadgeUnlockModal';
 import { LandingPage } from './components/LandingPage';
+import { ContextMenu } from './components/context-menu/ContextMenu';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
 import { useBadgeUnlock } from './hooks/useBadgeUnlock';
+import { useContextMenuStore } from './stores/contextMenuStore';
 import { getStoredUser, getStoredToken, clearAuth, authApi, User } from './api/auth';
 import './styles/racing.css';
 
@@ -40,6 +42,9 @@ function AppContent() {
 
   // Badge unlock tracking
   const { unlockedBadge, closeBadgeModal } = useBadgeUnlock();
+
+  // Context menu
+  const contextMenu = useContextMenuStore();
 
   // Check auth on mount
   useEffect(() => {
@@ -367,6 +372,15 @@ function AppContent() {
 
       {/* Badge Unlock Modal */}
       <BadgeUnlockModal badge={unlockedBadge} onClose={closeBadgeModal} />
+
+      {/* Context Menu */}
+      {contextMenu.isOpen && contextMenu.item && (
+        <ContextMenu
+          item={contextMenu.item}
+          position={contextMenu.position}
+          onClose={contextMenu.close}
+        />
+      )}
     </div>
   );
 }

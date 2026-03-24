@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useWorkItems } from '../../api/queries';
 import { workItemsApi } from '../../api/workItems';
 import { useWorkItemStore } from '../../stores/workItemStore';
+import { useContextMenuStore } from '../../stores/contextMenuStore';
 import { TeamsPanel } from '../teams/TeamsPanel';
 import type { WorkItem } from '@paddock/shared';
 
@@ -109,6 +110,13 @@ interface ProjectTreeItemProps {
 
 const ProjectTreeItem = ({ item, level, isActive, onNavigate, onEdit }: ProjectTreeItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const openContextMenu = useContextMenuStore((s) => s.open);
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openContextMenu(item, { x: e.clientX, y: e.clientY });
+  };
   const { data: children = [] } = useQuery({
     queryKey: ['workItemChildren', item.id],
     queryFn: () => workItemsApi.getChildren(item.id),
@@ -120,6 +128,7 @@ const ProjectTreeItem = ({ item, level, isActive, onNavigate, onEdit }: ProjectT
   return (
     <div className="group">
       <div
+        onContextMenu={handleContextMenu}
         className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
           isActive 
             ? 'bg-gray-800 text-white font-medium border border-gray-700' 
