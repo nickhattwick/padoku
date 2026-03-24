@@ -6,7 +6,7 @@ import { getDb, saveDatabase } from '../db/database.js';
 const router = Router();
 
 interface HealthEntry {
-  type: string;           // "exercise", "sleep", "steps"
+  type: string;           // "exercise", "sleep", "steps", "trip"
   sub_type: string | null;
   start_time: number;     // epoch ms
   end_time: number;       // epoch ms
@@ -16,6 +16,10 @@ interface HealthEntry {
   heart_rate_avg: number | null;
   steps: number | null;
   notes: string | null;
+  start_location: string | null;  // e.g. "Home", "Work", address
+  end_location: string | null;    // e.g. "Gym", "BU Campus", address
+  origin_name: string | null;     // From Android app reverse geocode
+  dest_name: string | null;       // From Android app reverse geocode
 }
 
 interface HealthSyncBody {
@@ -87,6 +91,13 @@ function generateTitle(entry: HealthEntry): string {
   }
   if (entry.type === 'steps') {
     return `👟 Steps — ${(entry.steps || 0).toLocaleString()}`;
+  }
+  if (entry.type === 'trip') {
+    const from = entry.start_location || entry.origin_name || 'Unknown';
+    const to = entry.end_location || entry.dest_name || 'Unknown';
+    const duration = formatDuration(entry.duration_ms);
+    const emoji = entry.sub_type === 'cycling' ? '🚴' : '🚗';
+    return `${emoji} Drive: ${from} to ${to} — ${duration}`;
   }
   return `📊 Health Data`;
 }
