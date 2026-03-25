@@ -82,6 +82,17 @@ export const updateBlockRecordSchema = z.object({
   end_time: z.number().int().positive().nullable().optional(),
 });
 
+// Schema for creating a manual (backfilled) time log
+export const createManualTimeLogSchema = z.object({
+  work_item_id: z.string().uuid(),
+  start_time: z.number().int().positive(),
+  end_time: z.number().int().positive(),
+  notes: z.string().nullable().optional(),
+}).refine((data) => data.end_time > data.start_time, {
+  message: 'end_time must be after start_time',
+  path: ['end_time'],
+});
+
 // Type exports for use in services
 export type CreateWorkItemInput = z.infer<typeof createWorkItemSchema>;
 export type UpdateWorkItemInput = z.infer<typeof updateWorkItemSchema>;
@@ -89,5 +100,6 @@ export type MoveWorkItemInput = z.infer<typeof moveWorkItemSchema>;
 export type CreateTimeLogInput = z.infer<typeof createTimeLogSchema>;
 export type StopTimeLogInput = z.infer<typeof stopTimeLogSchema>;
 export type UpdateTimeLogInput = z.infer<typeof updateTimeLogSchema>;
+export type CreateManualTimeLogInput = z.infer<typeof createManualTimeLogSchema>;
 export type CreateBlockRecordInput = z.infer<typeof createBlockRecordSchema>;
 export type UpdateBlockRecordInput = z.infer<typeof updateBlockRecordSchema>;

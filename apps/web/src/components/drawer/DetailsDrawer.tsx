@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWorkItemStore } from '../../stores/workItemStore';
 import { useWorkItem, useUpdateWorkItem, useDeleteWorkItem, useWorkItems, useGenerateInstances } from '../../api/queries';
 import { STATUS_NAMES, parseRecurrenceRule, stringifyRecurrenceRule, GRID_POINTS_SCALE } from '@paddock/shared';
@@ -12,6 +12,196 @@ import { AssigneeDropdown } from '../teams/AssigneeDropdown';
 import { useTeams } from '../../hooks/useTeams';
 import { timeLogsApi } from '../../api/timeLogs';
 import { formatDuration } from '../../hooks/useTimer';
+import type { TimeLog } from '@paddock/shared';
+
+/**
+ * Inline "Add Time" form + time log list for the drawer
+ */
+const TimeLoggedSection = ({ timeLogs, workItemId }: { timeLogs: TimeLog[]; workItemId: string }) => {
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+
+  const today = new Date().toISOString().split('T')[0];
+  const [logDate, setLogDate] = useState(today);
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('10:00');
+  const [notes, setNotes] = useState('');
+
+  const createManualMutation = useMutation({
+    mutationFn: timeLogsApi.createManual,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timeLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['timeLogs', workItemId] });
+      setShowForm(false);
+      setLogDate(new Date().toISOString().split('T')[0]);
+      setStartTime('09:00');
+      setEndTime('10:00');
+      setNotes('');
+    },
+  });
+
+  const handleSaveManual = () => {
+    if (!logDate || !startTime || !endTime || !workItemId) return;
+    const start = new Date(`${logDate}T${startTime}`).getTime();
+    let end = new Date(`${logDate}T${endTime}`).getTime();
+    if (end <= start) {
+      const nextDay = new Date(logDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      end = new Date(`${nextDay.toISOString().split('T')[0]}T${endTime}`).getTime();
+    }
+    createManualMutation.mutate({
+      work_item_id: workItemId,
+      start_time: start,
+      end_time: end,
+      notes: notes.trim() || null,
+    });
+  };
+
+  return (
+    <div className="pt-4 border-t border-gray-700">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+          ⏱️ Time Logged
+        </h3>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="text-xs px-2.5 py-1 rounded-lg font-medium transition-all bg-purple-600/30 text-purple-300 border border-purple-700/50 hover:bg-purple-600/50"
+        >
+          {showForm ? 'Cancel' : '+ Add Time'}
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="bg-gray-800/80 border border-gray-700 rounded-lg p-3 mb-3 space-y-3">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Date</label>
+            <input
+              type="date"
+              value={logDate}
+              onChange={(e) => setLogDate(e.target.value)}
+              className="w-full px-3 py-1.5 bg-gray-900 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent [color-scheme:dark]"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Start Time</label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full px-3 py-1.5 bg-gray-900 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent [color-scheme:dark]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">End Time</label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="w-full px-3 py-1.5 bg-gray-900 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent [color-scheme:dark]"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Notes (optional)</label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="What were you working on?"
+              className="w-full px-3 py-1.5 bg-gray-900 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-600"
+            />
+          </div>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setShowForm(false)}
+              className="px-3 py-1.5 text-xs text-gray-400 hover:text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveManual}
+              disabled={createManualMutation.isPending || !logDate || !startTime || !endTime}
+              className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {createManualMutation.isPending ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+          {createManualMutation.isError && (
+            <p className="text-xs text-red-400">Failed to save time entry. Please try again.</p>
+          )}
+        </div>
+      )}
+
+      {timeLogs.length > 0 && (() => {
+        const totalMs = timeLogs.reduce((sum, log) => {
+          if (log.end_time) return sum + (log.end_time - log.start_time);
+          return sum + (Date.now() - log.start_time);
+        }, 0);
+        const hours = Math.floor(totalMs / 3600000);
+        const minutes = Math.floor((totalMs % 3600000) / 60000);
+        return (
+          <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-700/40 rounded-lg p-3 mb-3">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400 text-sm">Total Time</span>
+              <span className="text-xl font-black text-purple-300 font-mono">
+                {hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`}
+              </span>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {timeLogs.length} session{timeLogs.length !== 1 ? 's' : ''}
+            </div>
+          </div>
+        );
+      })()}
+
+      {timeLogs.length > 0 && (
+        <div className="space-y-1.5 max-h-40 overflow-y-auto">
+          {timeLogs
+            .slice()
+            .sort((a, b) => b.start_time - a.start_time)
+            .map((log) => {
+              const duration = log.end_time
+                ? log.end_time - log.start_time
+                : Date.now() - log.start_time;
+              const isActive = !log.end_time;
+              return (
+                <div
+                  key={log.id}
+                  className={`flex items-center justify-between text-xs px-3 py-2 rounded-lg ${
+                    isActive
+                      ? 'bg-green-900/30 border border-green-700/40'
+                      : 'bg-gray-800/60 border border-gray-700/40'
+                  }`}
+                >
+                  <div className="text-gray-400">
+                    {new Date(log.start_time).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                    })}{' '}
+                    {new Date(log.start_time).toLocaleTimeString(undefined, {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                    {isActive && (
+                      <span className="ml-2 text-green-400 animate-pulse">● live</span>
+                    )}
+                  </div>
+                  <span className={`font-mono font-bold ${isActive ? 'text-green-300' : 'text-gray-300'}`}>
+                    {formatDuration(duration)}
+                  </span>
+                </div>
+              );
+            })}
+        </div>
+      )}
+
+      {timeLogs.length === 0 && !showForm && (
+        <p className="text-xs text-gray-500">No time logged yet. Click "+ Add Time" to backfill.</p>
+      )}
+    </div>
+  );
+};
 
 export const DetailsDrawer = () => {
   const { isDrawerOpen, selectedItemId, closeDrawer, setCurrentParent } = useWorkItemStore();
@@ -589,77 +779,10 @@ export const DetailsDrawer = () => {
               )}
 
               {/* Time Logged */}
-              {timeLogs.length > 0 && (
-                <div className="pt-4 border-t border-gray-700">
-                  <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-                    ⏱️ Time Logged
-                  </h3>
-                  {/* Total */}
-                  {(() => {
-                    const totalMs = timeLogs.reduce((sum, log) => {
-                      if (log.end_time) {
-                        return sum + (log.end_time - log.start_time);
-                      }
-                      // Active timer — count up to now
-                      return sum + (Date.now() - log.start_time);
-                    }, 0);
-                    const hours = Math.floor(totalMs / 3600000);
-                    const minutes = Math.floor((totalMs % 3600000) / 60000);
-                    return (
-                      <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-700/40 rounded-lg p-3 mb-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400 text-sm">Total Time</span>
-                          <span className="text-xl font-black text-purple-300 font-mono">
-                            {hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`}
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {timeLogs.length} session{timeLogs.length !== 1 ? 's' : ''}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  {/* Individual sessions */}
-                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                    {timeLogs
-                      .slice()
-                      .sort((a, b) => b.start_time - a.start_time)
-                      .map((log) => {
-                        const duration = log.end_time
-                          ? log.end_time - log.start_time
-                          : Date.now() - log.start_time;
-                        const isActive = !log.end_time;
-                        return (
-                          <div
-                            key={log.id}
-                            className={`flex items-center justify-between text-xs px-3 py-2 rounded-lg ${
-                              isActive
-                                ? 'bg-green-900/30 border border-green-700/40'
-                                : 'bg-gray-800/60 border border-gray-700/40'
-                            }`}
-                          >
-                            <div className="text-gray-400">
-                              {new Date(log.start_time).toLocaleDateString(undefined, {
-                                month: 'short',
-                                day: 'numeric',
-                              })}{' '}
-                              {new Date(log.start_time).toLocaleTimeString(undefined, {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                              {isActive && (
-                                <span className="ml-2 text-green-400 animate-pulse">● live</span>
-                              )}
-                            </div>
-                            <span className={`font-mono font-bold ${isActive ? 'text-green-300' : 'text-gray-300'}`}>
-                              {formatDuration(duration)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
+              <TimeLoggedSection
+                timeLogs={timeLogs}
+                workItemId={selectedItemId || ''}
+              />
 
               {/* Comments */}
               <CommentsSection workItemId={item.id} />
