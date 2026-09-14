@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { getCurrentUser, User } from '../services/AuthService.js';
+import { getAdminEmails, hasConfiguredEmail } from '../config/auth.js';
 
 // Extend Express Request to include user
 declare global {
@@ -62,7 +63,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 };
 
 /**
- * Admin auth middleware - requires specific email
+ * Admin auth middleware - requires a configured admin email.
  */
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -78,8 +79,8 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
   
-  // Only allow specific admin email
-  if (user.email !== 'admin@example.com') {
+  const adminEmails = getAdminEmails();
+  if (!hasConfiguredEmail(adminEmails, user.email)) {
     return res.status(403).json({ error: 'Admin access required' });
   }
   

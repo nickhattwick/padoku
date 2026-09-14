@@ -11,15 +11,15 @@ import {
   createSession,
   generateToken,
 } from '../services/AuthService.js';
+import {
+  getAllowedEmails,
+  getAdminEmails,
+  getDevUserEmail,
+  getMigrationEmails,
+  hasConfiguredEmail,
+} from '../config/auth.js';
 
 const router = Router();
-
-// Allowlist of emails permitted to use Padoku
-// Add emails here to grant access
-const ALLOWED_EMAILS = new Set([
-  'admin@example.com',
-  'user@example.com',
-]);
 
 // Schema for Google login
 const googleLoginSchema = z.object({
@@ -51,17 +51,17 @@ router.post('/google', async (req: Request, res: Response) => {
 
     const { user, token, isNewUser } = result;
 
-    // Check if email is in allowlist
-    if (!ALLOWED_EMAILS.has(user.email)) {
-      console.log(`🚫 Access denied for ${user.email} - not in allowlist`);
+    const allowedEmails = getAllowedEmails();
+    if (allowedEmails.size > 0 && !hasConfiguredEmail(allowedEmails, user.email)) {
+      console.log(`Access denied for ${user.email} - not in allowlist`);
       return res.status(403).json({ error: 'Access denied. Contact admin for access.' });
     }
 
-    // If this is admin@example.com, migrate existing items
-    if (user.email === 'admin@example.com') {
+    const migrationEmails = getMigrationEmails();
+    if (hasConfiguredEmail(migrationEmails, user.email)) {
       const migratedCount = migrateWorkItemsToUser(user.id);
       if (migratedCount > 0) {
-        console.log(`📦 Migrated ${migratedCount} work items to ${user.email}`);
+        console.log(`Migrated ${migratedCount} work items to ${user.email}`);
       }
     }
 
@@ -148,8 +148,8 @@ router.post('/migrate', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 
-  // Only allow admin@example.com to migrate
-  if (user.email !== 'admin@example.com') {
+  const adminEmails = getAdminEmails();
+  if (!hasConfiguredEmail(adminEmails, user.email)) {
     return res.status(403).json({ error: 'Not authorized' });
   }
 
@@ -172,7 +172,12 @@ router.get('/dev-token', (_req: Request, res: Response) => {
     return res.status(404).json({ error: 'Not found' });
   }
 
-  const user = findUserByEmail('admin@example.com');
+  const devUserEmail = getDevUserEmail();
+  if (!devUserEmail) {
+    return res.status(400).json({ error: 'DEV_USER_EMAIL is not configured' });
+  }
+
+  const user = findUserByEmail(devUserEmail);
   if (!user) {
     return res.status(500).json({ error: 'Test user not found' });
   }
