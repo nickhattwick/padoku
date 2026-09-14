@@ -38,6 +38,16 @@ export const timeLogsApi = {
     }),
 
   /**
+   * Create a manual (backfilled) time log entry
+   */
+  createManual: (data: {
+    work_item_id: string;
+    start_time: number;
+    end_time: number;
+    notes?: string | null;
+  }) => apiClient.post<TimeLog>('/time-logs/manual', data),
+
+  /**
    * Delete a time log
    */
   delete: (id: string) => apiClient.delete(`/time-logs/${id}`),

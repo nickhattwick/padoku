@@ -4,6 +4,11 @@ import workItemsRouter from './routes/workItems.js';
 import timeLogsRouter from './routes/timeLogs.js';
 import blockRecordsRouter from './routes/blockRecords.js';
 import analyticsRouter from './routes/analytics.js';
+import authRouter from './routes/auth.js';
+import commentsRouter from './routes/comments.js';
+import teamsRouter from './routes/teams.js';
+import healthSyncRouter from './routes/healthSync.js';
+import { requireAuth } from './middleware/auth.js';
 
 export const createApp = () => {
   const app = express();
@@ -23,11 +28,27 @@ export const createApp = () => {
     res.json({ status: 'ok', timestamp: Date.now() });
   });
 
+  // OpenAPI spec for ChatGPT Custom GPT Actions
+  app.get('/api/openapi.json', (_req: Request, res: Response) => {
+    res.sendFile('openapi.json', { root: './public' });
+  });
+
+  // MCP server for Claude Desktop
+  app.get('/api/mcp-server.js', (_req: Request, res: Response) => {
+    res.sendFile('index.js', { root: '../mcp-server/dist' });
+  });
+
   // API Routes
-  app.use('/api/work-items', workItemsRouter);
-  app.use('/api/time-logs', timeLogsRouter);
-  app.use('/api/block-records', blockRecordsRouter);
-  app.use('/api/analytics', analyticsRouter);
+  app.use('/api/auth', authRouter);
+  
+  // Protected routes - require authentication
+  app.use('/api/work-items', requireAuth, workItemsRouter);
+  app.use('/api/work-items', requireAuth, commentsRouter); // Comments are nested under work-items
+  app.use('/api/time-logs', requireAuth, timeLogsRouter);
+  app.use('/api/block-records', requireAuth, blockRecordsRouter);
+  app.use('/api/analytics', requireAuth, analyticsRouter);
+  app.use('/api/teams', teamsRouter); // Teams routes handle their own auth
+  app.use('/api/health-sync', healthSyncRouter); // Health sync from Android app (no auth for now)
 
   // 404 handler
   app.use((_req: Request, res: Response) => {

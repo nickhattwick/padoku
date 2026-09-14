@@ -12,10 +12,12 @@ build/
 
 # Environment
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
 
 # Logs
 npm-debug.log*
@@ -38,7 +40,16 @@ lerna-debug.log*
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3
 data/
+
+# Secrets and local credentials
+*.pem
+*.key
+credentials.json
+google-services.json
+GoogleService-Info.plist
 
 # Turbo
 .turbo

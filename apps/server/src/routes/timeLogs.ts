@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { TimeLogService } from '../services/TimeLogService.js';
 import {
   createTimeLogSchema,
+  createManualTimeLogSchema,
   stopTimeLogSchema,
   updateTimeLogSchema,
 } from '../validators/schemas.js';
@@ -54,6 +55,35 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     }
 
     res.json(log);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/time-logs/manual
+ * Create a completed time log entry (backfill)
+ */
+router.post('/manual', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = createManualTimeLogSchema.safeParse(req.body);
+
+    if (!result.success) {
+      res.status(400).json({
+        error: 'Validation failed',
+        details: result.error.errors,
+      });
+      return;
+    }
+
+    const log = getService().createManual(
+      result.data.work_item_id,
+      result.data.start_time,
+      result.data.end_time,
+      result.data.notes
+    );
+
+    res.status(201).json(log);
   } catch (error) {
     next(error);
   }

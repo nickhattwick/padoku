@@ -1,6 +1,6 @@
 import { Database as SqlJsDatabase } from 'sql.js';
 import { getDb } from '../db/database.js';
-import type { WorkItem, RecurrenceRule } from '@paddock/shared';
+import type { WorkItem } from '@paddock/shared';
 import { parseRecurrenceRule, generateInstancesInRange } from '@paddock/shared';
 import { WorkItemService } from './WorkItemService.js';
 
@@ -50,18 +50,21 @@ export class RecurringService {
         continue;
       }
 
-      // Create new instance
+      // Create new instance — normalize due_at to midnight UTC for the date
+      const normalizedDue = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).getTime();
       const instance = this.workItemService.create({
         title: `${template.title} – ${this.formatDate(date)}`,
-        description: template.description,
+        description: template.description ?? undefined,
         status: 'garage', // Always start in garage
-        parent_id: template.parent_id, // Same parent as template
-        due_at: date.getTime(),
+        parent_id: template.parent_id ?? undefined,
+        due_at: normalizedDue,
+        grid_points: template.grid_points as 1 | 2 | 3 | 5 | 8 | 13 | 21 | null | undefined,
         is_goal: false,
-        goal_end_condition: null,
+        goal_end_condition: undefined,
         is_recurring_template: false,
-        recurrence_rule: null,
-      });
+        recurrence_rule: undefined,
+        position: 0, // Will be recalculated by service
+      }, template.user_id);
 
       instances.push(instance);
     }
@@ -79,18 +82,17 @@ export class RecurringService {
     const template = this.workItemService.findById(templateId);
     if (!template) return null;
 
-    // Find items with matching title pattern and due date
+    // Find items with matching title pattern (dedup by title, not exact timestamp)
     const dateStr = this.formatDate(date);
     const titlePattern = `${template.title} – ${dateStr}`;
 
     const query = `
       SELECT * FROM work_items
       WHERE title = ?
-      AND due_at = ?
       LIMIT 1
     `;
 
-    const result = this.db.exec(query, [titlePattern, date.getTime()]);
+    const result = this.db.exec(query, [titlePattern]);
     if (result.length === 0 || result[0].values.length === 0) {
       return null;
     }
@@ -141,15 +143,22 @@ export class RecurringService {
 
     return {
       id: item.id,
+      user_id: item.user_id,
       title: item.title,
       description: item.description,
       status: item.status,
       parent_id: item.parent_id,
       due_at: item.due_at,
+      grid_points: item.grid_points,
       is_goal: Boolean(item.is_goal),
       goal_end_condition: item.goal_end_condition,
+      goal_target: item.goal_target,
       is_recurring_template: Boolean(item.is_recurring_template),
       recurrence_rule: item.recurrence_rule,
+      item_type: item.item_type || 'task',
+      scheduled_start: item.scheduled_start,
+      scheduled_end: item.scheduled_end,
+      assignee_id: item.assignee_id,
       position: item.position,
       created_at: item.created_at,
       updated_at: item.updated_at,

@@ -3,6 +3,20 @@ import { z } from 'zod';
 // Work Item Status enum
 const workItemStatusEnum = z.enum(['garage', 'on_track', 'pits', 'checkered']);
 
+// Grid Points (Fibonacci scale)
+const gridPointsEnum = z.union([
+  z.literal(1),
+  z.literal(2),
+  z.literal(3),
+  z.literal(5),
+  z.literal(8),
+  z.literal(13),
+  z.literal(21),
+]);
+
+// Item type enum
+const itemTypeEnum = z.enum(['task', 'event']);
+
 // Schema for creating a new work item
 export const createWorkItemSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500, 'Title too long'),
@@ -10,12 +24,17 @@ export const createWorkItemSchema = z.object({
   status: workItemStatusEnum.default('garage'),
   parent_id: z.string().uuid().nullable().optional(),
   due_at: z.number().int().positive().nullable().optional(),
+  grid_points: gridPointsEnum.nullable().optional(),
   is_goal: z.boolean().optional().default(false),
   goal_end_condition: z.string().nullable().optional(),
   goal_target: z.number().int().positive().nullable().optional(),
   is_recurring_template: z.boolean().optional().default(false),
   recurrence_rule: z.string().nullable().optional(),
   position: z.number().optional().default(0),
+  assignee_id: z.string().uuid().nullable().optional(),
+  item_type: itemTypeEnum.optional(),
+  scheduled_start: z.number().int().positive().nullable().optional(),
+  scheduled_end: z.number().int().positive().nullable().optional(),
 });
 
 // Schema for updating an existing work item
@@ -63,6 +82,17 @@ export const updateBlockRecordSchema = z.object({
   end_time: z.number().int().positive().nullable().optional(),
 });
 
+// Schema for creating a manual (backfilled) time log
+export const createManualTimeLogSchema = z.object({
+  work_item_id: z.string().uuid(),
+  start_time: z.number().int().positive(),
+  end_time: z.number().int().positive(),
+  notes: z.string().nullable().optional(),
+}).refine((data) => data.end_time > data.start_time, {
+  message: 'end_time must be after start_time',
+  path: ['end_time'],
+});
+
 // Type exports for use in services
 export type CreateWorkItemInput = z.infer<typeof createWorkItemSchema>;
 export type UpdateWorkItemInput = z.infer<typeof updateWorkItemSchema>;
@@ -70,5 +100,6 @@ export type MoveWorkItemInput = z.infer<typeof moveWorkItemSchema>;
 export type CreateTimeLogInput = z.infer<typeof createTimeLogSchema>;
 export type StopTimeLogInput = z.infer<typeof stopTimeLogSchema>;
 export type UpdateTimeLogInput = z.infer<typeof updateTimeLogSchema>;
+export type CreateManualTimeLogInput = z.infer<typeof createManualTimeLogSchema>;
 export type CreateBlockRecordInput = z.infer<typeof createBlockRecordSchema>;
 export type UpdateBlockRecordInput = z.infer<typeof updateBlockRecordSchema>;

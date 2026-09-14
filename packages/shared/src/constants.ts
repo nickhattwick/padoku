@@ -6,6 +6,9 @@ export const WORK_ITEM_STATUSES = [
   'checkered',
 ] as const;
 
+// Grid Points scale (Fibonacci)
+export const GRID_POINTS_SCALE = [1, 2, 3, 5, 8, 13, 21] as const;
+
 // Status display names (racing-themed)
 export const STATUS_NAMES: Record<string, string> = {
   garage: 'In the Garage',

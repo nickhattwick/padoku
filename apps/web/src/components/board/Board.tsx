@@ -9,8 +9,8 @@ import {
   useSensors,
   closestCorners,
 } from '@dnd-kit/core';
-import { useWorkItems, useMoveWorkItem } from '../../api/queries';
-import { useWorkItemStore } from '../../stores/workItemStore';
+import { useWorkItems, useAllWorkItems, useMoveWorkItem } from '../../api/queries';
+import { useWorkItemStore, DueDateFilter } from '../../stores/workItemStore';
 import { WORK_ITEM_STATUSES, STATUS_NAMES } from '@paddock/shared';
 import type { WorkItem, WorkItemStatus } from '@paddock/shared';
 import { WorkItemCard } from './WorkItemCard';
@@ -18,16 +18,81 @@ import { Column } from './Column';
 import { calculatePosition } from '../../utils/positioning';
 import { EmptyState } from '../EmptyState';
 
+// Helper to filter items by due date and events visibility
+const filterItems = (
+  items: WorkItem[],
+  dueDateFilter: DueDateFilter,
+  showEvents: boolean
+): WorkItem[] => {
+  const now = Date.now();
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const todayMs = startOfToday.getTime();
+
+  const filterDays: Record<string, number> = {
+    '7days': 7,
+    '2weeks': 14,
+    '1month': 30,
+  };
+
+  const cutoffDate = dueDateFilter !== 'all'
+    ? now + filterDays[dueDateFilter] * 24 * 60 * 60 * 1000
+    : Infinity;
+
+  return items.filter((item) => {
+    const isEvent = (item as any).item_type === 'event';
+
+    // Handle events
+    if (isEvent) {
+      if (!showEvents) return false;
+      // When date filter is active, apply it to scheduled_start
+      if (dueDateFilter !== 'all') {
+        const scheduledStart = (item as any).scheduled_start;
+        if (!scheduledStart) return false;
+        if (scheduledStart < todayMs) return false;
+        return scheduledStart <= cutoffDate;
+      }
+      return true; // show all events when filter is 'all'
+    }
+
+    // Handle regular tasks
+    if (dueDateFilter === 'all') return true;
+    if (!item.due_at) return false;
+    if (item.due_at < todayMs) return false;
+    return item.due_at <= cutoffDate;
+  });
+};
+
 interface BoardProps {
   onCreateItem: () => void;
 }
 
 export const Board = ({ onCreateItem }: BoardProps) => {
   const currentParentId = useWorkItemStore((s) => s.currentParentId);
-  const { data: workItems = [], isLoading, error } = useWorkItems(currentParentId);
+  const dueDateFilter = useWorkItemStore((s) => s.dueDateFilter);
+  const showEvents = useWorkItemStore((s) => s.showEvents);
+  
+  // Determine if we should fetch all items (filter active at root level, or showing events)
+  const shouldFetchAll = currentParentId === null && (dueDateFilter !== 'all' || showEvents);
+  
+  // Fetch items based on context
+  const { data: parentItems = [], isLoading: parentLoading, error: parentError } = useWorkItems(currentParentId);
+  const { data: allItems = [], isLoading: allLoading, error: allError } = useAllWorkItems();
+  
+  // Use all items when filter is active at root, otherwise use parent-filtered items
+  const workItems = shouldFetchAll ? allItems : parentItems;
+  const isLoading = shouldFetchAll ? allLoading : parentLoading;
+  const error = shouldFetchAll ? allError : parentError;
+  
   const moveMutation = useMoveWorkItem();
 
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Apply filters (due date + events visibility)
+  const filteredItems = useMemo(
+    () => filterItems(workItems, dueDateFilter, showEvents),
+    [workItems, dueDateFilter, showEvents]
+  );
 
   // Configure drag sensors
   const sensors = useSensors(
@@ -38,7 +103,7 @@ export const Board = ({ onCreateItem }: BoardProps) => {
     })
   );
 
-  // Group work items by status
+  // Group work items by status (using filtered items for display)
   const columns = useMemo(() => {
     const grouped: Record<WorkItemStatus, WorkItem[]> = {
       garage: [],
@@ -47,7 +112,7 @@ export const Board = ({ onCreateItem }: BoardProps) => {
       checkered: [],
     };
 
-    workItems.forEach((item) => {
+    filteredItems.forEach((item) => {
       if (grouped[item.status]) {
         grouped[item.status].push(item);
       }
@@ -59,10 +124,10 @@ export const Board = ({ onCreateItem }: BoardProps) => {
     });
 
     return grouped;
-  }, [workItems]);
+  }, [filteredItems]);
 
-  // Get the active item being dragged
-  const activeItem = activeId ? workItems.find((item) => item.id === activeId) : null;
+  // Get the active item being dragged (from filtered items)
+  const activeItem = activeId ? filteredItems.find((item) => item.id === activeId) : null;
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -115,7 +180,10 @@ export const Board = ({ onCreateItem }: BoardProps) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-gray-400">
+          <div className="text-3xl mb-2 animate-pulse">🏎️</div>
+          Loading...
+        </div>
       </div>
     );
   }
@@ -123,14 +191,30 @@ export const Board = ({ onCreateItem }: BoardProps) => {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-red-500">Error loading work items: {error.message}</div>
+        <div className="text-red-400 bg-red-900/20 border border-red-800 rounded-lg px-4 py-3">
+          ⚠️ Error loading work items: {error.message}
+        </div>
       </div>
     );
   }
 
-  // Show empty state if no items at root level
-  if (workItems.length === 0 && currentParentId === null) {
+  // Show empty state if no items at root level AND not filtering (check parentItems for true empty state)
+  if (parentItems.length === 0 && currentParentId === null && dueDateFilter === 'all') {
     return <EmptyState onCreateItem={onCreateItem} />;
+  }
+
+  // Show message if filter returns no results but there are items
+  if (filteredItems.length === 0 && dueDateFilter !== 'all') {
+    const filterLabel = dueDateFilter === '7days' ? '7 days' : dueDateFilter === '2weeks' ? '2 weeks' : '1 month';
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center text-gray-400 bg-gray-800/50 border border-gray-700 rounded-xl px-8 py-6">
+          <div className="text-3xl mb-3">🏁</div>
+          <p className="text-lg mb-2 text-white">No items due within {filterLabel}</p>
+          <p className="text-sm">Try a different filter or add due dates to your items</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -140,8 +224,8 @@ export const Board = ({ onCreateItem }: BoardProps) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-full p-6 overflow-auto">
-        <div className="flex gap-4 h-full">
+      <div className="h-full p-3 md:p-6 overflow-auto">
+        <div className="flex gap-3 md:gap-4 h-full min-w-max md:min-w-0">
           {WORK_ITEM_STATUSES.map((status) => (
             <Column
               key={status}

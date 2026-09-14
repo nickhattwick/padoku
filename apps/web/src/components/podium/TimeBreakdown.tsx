@@ -23,7 +23,7 @@ export const TimeBreakdown = ({ startDate, endDate, granularity }: TimeBreakdown
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[300px]">
-        <div className="text-gray-500">Loading time data...</div>
+        <div className="text-gray-400 animate-pulse">Loading time data...</div>
       </div>
     );
   }
@@ -31,7 +31,7 @@ export const TimeBreakdown = ({ startDate, endDate, granularity }: TimeBreakdown
   if (error) {
     return (
       <div className="flex items-center justify-center h-[300px]">
-        <div className="text-red-500">Error loading time data</div>
+        <div className="text-red-400">Error loading time data</div>
       </div>
     );
   }
@@ -56,30 +56,33 @@ export const TimeBreakdown = ({ startDate, endDate, granularity }: TimeBreakdown
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
         <XAxis
           dataKey="period"
           stroke="#6b7280"
           style={{ fontSize: '12px' }}
+          tick={{ fill: '#9ca3af' }}
         />
         <YAxis
           stroke="#6b7280"
           style={{ fontSize: '12px' }}
-          label={{ value: 'Hours', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
+          tick={{ fill: '#9ca3af' }}
+          label={{ value: 'Hours', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fill: '#9ca3af' } }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#fff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
+            backgroundColor: '#1f2937',
+            border: '1px solid #374151',
+            borderRadius: '8px',
+            color: '#e5e7eb',
           }}
-          formatter={(value: number) => `${value.toFixed(2)}h`}
+          formatter={(value) => `${(value as number).toFixed(2)}h`}
         />
-        <Legend />
-        <Bar dataKey="garage" stackId="a" fill="#9ca3af" name="Garage" />
-        <Bar dataKey="on_track" stackId="a" fill="#1e88e5" name="On Track" />
-        <Bar dataKey="pits" stackId="a" fill="#fb8c00" name="Pits" />
-        <Bar dataKey="checkered" stackId="a" fill="#43a047" name="Checkered" />
+        <Legend wrapperStyle={{ color: '#9ca3af' }} />
+        <Bar dataKey="garage" stackId="a" fill="#6b7280" name="🔧 Garage" radius={[0, 0, 0, 0]} />
+        <Bar dataKey="on_track" stackId="a" fill="#3b82f6" name="🏎️ On Track" radius={[0, 0, 0, 0]} />
+        <Bar dataKey="pits" stackId="a" fill="#f59e0b" name="⏸️ Pits" radius={[0, 0, 0, 0]} />
+        <Bar dataKey="checkered" stackId="a" fill="#22c55e" name="🏁 Checkered" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -6,7 +6,6 @@ import type {
   TimeDataPoint,
   BurndownDataPoint,
   AnalyticsGranularity,
-  WorkItem,
 } from '@paddock/shared';
 
 export class AnalyticsService {
@@ -22,7 +21,7 @@ export class AnalyticsService {
   getVelocityByPeriod(
     startDate: number,
     endDate: number,
-    granularity: AnalyticsGranularity
+    _granularity: AnalyticsGranularity
   ): VelocityDataPoint[] {
     // Query to get items that moved to 'checkered' status within the date range
     // Note: Using updated_at as proxy for completion time (limitation: inaccurate if edited after completion)
@@ -130,7 +129,7 @@ export class AnalyticsService {
   getTimeSpentByPeriod(
     startDate: number,
     endDate: number,
-    granularity: AnalyticsGranularity
+    _granularity: AnalyticsGranularity
   ): TimeDataPoint[] {
     // Get time logs with work item info
     const query = `

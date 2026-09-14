@@ -100,6 +100,30 @@ export class TimeLogService {
   }
 
   /**
+   * Create a completed time log entry (for imports/syncs)
+   */
+  createManual(workItemId: string, startTime: number, endTime: number, notes?: string | null): TimeLog {
+    const db = getDb();
+    const id = randomUUID();
+    const duration = endTime - startTime;
+
+    const query = `
+      INSERT INTO time_logs (
+        id, work_item_id, start_time, end_time, duration, notes, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.run(query, [id, workItemId, startTime, endTime, duration, notes || null, Date.now()]);
+    saveDatabase();
+
+    const created = this.findById(id);
+    if (!created) {
+      throw new Error('Failed to create time log');
+    }
+    return created;
+  }
+
+  /**
    * Stop an active timer
    */
   stop(id: string, endTime: number, notes?: string): TimeLog {

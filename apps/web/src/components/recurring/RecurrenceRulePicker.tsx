@@ -97,6 +97,31 @@ export const RecurrenceRulePicker = ({ value, onChange }: RecurrenceRulePickerPr
           </div>
         </div>
       )}
+
+      {/* End date */}
+      <div>
+        <label className="block text-sm text-gray-600 mb-1">Until</label>
+        <input
+          type="date"
+          value={rule.endDate ? new Date(rule.endDate).toISOString().split('T')[0] : ''}
+          onChange={(e) => {
+            const dateStr = e.target.value;
+            if (dateStr) {
+              const endTimestamp = new Date(dateStr + 'T23:59:59').getTime();
+              onChange({ ...rule, endDate: endTimestamp });
+            } else {
+              const { endDate: _, ...rest } = rule;
+              onChange(rest as RecurrenceRule);
+            }
+          }}
+          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-track-500 [color-scheme:dark]"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          {rule.endDate
+            ? `Instances will be generated until ${new Date(rule.endDate).toLocaleDateString()}`
+            : 'No end date — defaults to 30 days ahead'}
+        </p>
+      </div>
     </div>
   );
 };

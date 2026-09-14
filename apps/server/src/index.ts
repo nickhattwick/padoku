@@ -1,9 +1,10 @@
+import 'dotenv/config';
 import { createApp } from './app.js';
 import { initDatabase, closeDb } from './db/database.js';
 import { mkdir } from 'fs/promises';
 import { dirname } from 'path';
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const DB_PATH = process.env.DB_PATH || './data/paddock.db';
 
 async function start() {
@@ -18,7 +19,7 @@ async function start() {
     // Create and start Express app
     const app = createApp();
 
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃  🏁 Paddock Server Running           ┃
